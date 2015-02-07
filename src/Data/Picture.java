@@ -1,47 +1,38 @@
 package Data;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
-/**
- * Created by ivaylo on 06/02/15.
- */
 public class Picture {
-    private ArrayList<String> taggedChildren = new ArrayList<String>();
+
+    public static Tag METADATA;
+
     private ImageIcon pictureIcon;
-    private boolean tagged = false;
-    private String roomTag;
-    private Date date;
+    private ImageIcon thumbnail;
 
-    public Picture(String filePath){
+    public Picture(String filePath) {
+        METADATA = new Tag();
+
         pictureIcon = new ImageIcon(filePath);
-
+        createThumbnail();
     }
 
-    public Boolean isTagged(){
-        return tagged;
+    private void createThumbnail() {
+        int newHeight = pictureIcon.getIconHeight() / 20;
+        int newWidth = pictureIcon.getIconWidth() / 20;
+        Image resizedImage = pictureIcon.getImage().getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
+        thumbnail = new ImageIcon(resizedImage);
     }
 
-    public void setDate(Date date){
-        this.date = date;
-    }
-
-    public ImageIcon getPictureIcon(){
+    public ImageIcon getPictureIcon() {
         return pictureIcon;
     }
 
-    public Date getDate(){
-        return date;
-    }
-
-    public String getRoomTag(){
-        return roomTag;
-    }
-
-    public ArrayList<String> getTaggedChildren(){
-        return taggedChildren;
+    public ImageIcon getThumbnail() {
+        return thumbnail;
     }
 
 

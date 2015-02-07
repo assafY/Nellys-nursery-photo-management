@@ -1,5 +1,6 @@
 package Core;
 
+import Data.Child;
 import Data.Picture;
 
 import java.io.Serializable;
@@ -7,11 +8,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
-/**
- * Created by ivaylo on 06/02/15.
- */
 public class Library implements Serializable {
-    private static ArrayList<String> childNameList = new ArrayList<String>();
+
+    private static ArrayList<Child> childNameList = new ArrayList<Child>();
     private static Iterator childnameListIterator = childNameList.iterator();
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
     private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
@@ -20,7 +19,7 @@ public class Library implements Serializable {
     private static ArrayList<Date> possibleDate = new ArrayList<Date>();
     private static Iterator possibleDateIterator = possibleDate.iterator();
 
-    public static ArrayList<String> getChildrenList(){
+    public static ArrayList<Child> getChildrenList(){
         return childNameList;
     }
 
@@ -79,12 +78,12 @@ public class Library implements Serializable {
         //TO DO
     }
 
-    public static void addChild(String childName){
-        childNameList.add(childName);
+    public static void addChild(Child child){
+        childNameList.add(child);
     }
 
-    public static void rmChild(String childName){
-        childNameList.remove(childName);
+    public static void rmChild(Child child){
+        childNameList.remove(child);
     }
 
 }

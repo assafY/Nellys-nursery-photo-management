@@ -1,6 +1,7 @@
 package GUI;
 
 import Core.Library;
+import Data.Picture;
 import apple.laf.JRSUIUtils;
 
 import javax.imageio.ImageIO;
@@ -277,8 +278,7 @@ public class MainFrame extends JFrame {
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //mainPanel.remove(mainPanelLayout.getLayoutComponent(BorderLayout.CENTER));
-                //centerPanel.removeAll();
+
                 FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
                 importDialog.setFile("*.jpg");
                 importDialog.setMultipleMode(true);
@@ -288,19 +288,13 @@ public class MainFrame extends JFrame {
 
                 for(int i = 0; i < importedPictures.length; ++i) {
 
-                    ImageIcon currentPic;
-                    currentPic = new ImageIcon(importedPictures[i].getPath());
-                    int newHeight = currentPic.getIconHeight() / 20;
-                    int newWidth = currentPic.getIconWidth() / 20;
-                    Image image = currentPic.getImage();
-                    Image newimg = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
-                    currentPic = new ImageIcon(newimg);  // transform it back
+                    Picture currentPic = new Picture(importedPictures[i].getPath());
+
                     JLabel currentThumb = new JLabel();
                     currentThumb.setMaximumSize(new Dimension(120,120));
                     currentThumb.setMinimumSize(new Dimension(120,120));
                     currentThumb.setPreferredSize(new Dimension(120,120));
-                    currentThumb.setIcon(currentPic);
-                    //currentThumb.setIcon(currentPic);
+                    currentThumb.setIcon(currentPic.getThumbnail());
                     picturePanel.add(currentThumb);
                     System.out.println(importedPictures[i].getPath());
                 }
