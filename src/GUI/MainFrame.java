@@ -1,6 +1,7 @@
 package GUI;
 
 import Core.Library;
+import apple.laf.JRSUIUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -60,13 +61,18 @@ public class MainFrame extends JFrame {
     private JButton exportButton = new JButton("Export");
     private JButton backupButton = new JButton("Backup");
     //create center components
-    private JPanel centerPanel = new JPanel(new BorderLayout());
     private JPanel functionPanel = new JPanel(new GridBagLayout());
     private JButton rotateButton = new JButton("Rotate");
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
-    private GridLayout picturePanelLayout = new GridLayout(1, 3);
-    private JPanel picturePanel = new JPanel(picturePanelLayout);
+    //create center components
+    //private GridLayout picturePanelLayout = new GridLayout(1, 3);
+    //private BorderLayout picturePanelBorderLayout = new BorderLayout();
+
+    private JPanel centerPanel = new JPanel(new BorderLayout());
+    private JPanel picturePanel = new JPanel(new GridLayout(0,3, 5, 5));
+    private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
+    //private JPanel picturePanel = new JPanel(picturePanelLayout);
     private JPanel scrollPanel = new JPanel();
     private JSlider zoomSlider = new JSlider();
     //create east components
@@ -203,7 +209,7 @@ public class MainFrame extends JFrame {
 
         picturePanel.add(scrollPanel, BorderLayout.SOUTH);
         zoomSlider.setOrientation(Adjustable.HORIZONTAL);
-        zoomSlider.setMajorTickSpacing(50);
+/*        zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPreferredSize(new Dimension(400,45));
         Hashtable labelTable = new Hashtable();
@@ -214,14 +220,19 @@ public class MainFrame extends JFrame {
         labelTable.put( 200, new JLabel("200%") );
         zoomSlider.setLabelTable(labelTable);
         zoomSlider.setPaintLabels(true);
-
-
+*/
+        zoomSlider.setOrientation(Adjustable.HORIZONTAL);
+        scrollPanel.add(zoomSlider);
+        centerPanel.add(picturePanelPane, BorderLayout.CENTER);
+        centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
+        //scrollPanel.add(Box.createHorizontalStrut(5), BorderLayout.SOUTH);
 
 
         TitledBorder titledBorder = new TitledBorder("Pictures: ");
         EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
         CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titledBorder);
-        picturePanel.setBorder(compoundBorder);
+        centerPanel.setBorder(compoundBorder);
 
 
     }
@@ -266,29 +277,36 @@ public class MainFrame extends JFrame {
         importButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                //mainPanel.remove(mainPanelLayout.getLayoutComponent(BorderLayout.CENTER));
+                //centerPanel.removeAll();
                 FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
                 importDialog.setFile("*.jpg");
                 importDialog.setMultipleMode(true);
                 importDialog.setVisible(true);
 
                 File[] importedPictures = importDialog.getFiles();
-                //Double numofCols = Math.sqrt(importedPictures.length);
-                //int newNum = numofCols.intValue();
-                //picturePanelLayout.setColumns(newNum);
-                //picturePanelLayout = new GridLayout(1, 3);
 
                 for(int i = 0; i < importedPictures.length; ++i) {
 
-                    BufferedImage currentPic = new BufferedImage(10, 10, 1);
-
-                    try {
-                        currentPic = ImageIO.read(importedPictures[i]);
-                    } catch (IOException ex) {
-
-                    }
-                    JLabel currentThumb = new JLabel(new ImageIcon(currentPic));
+                    ImageIcon currentPic;
+                    currentPic = new ImageIcon(importedPictures[i].getPath());
+                    int newHeight = currentPic.getIconHeight() / 20;
+                    int newWidth = currentPic.getIconWidth() / 20;
+                    Image image = currentPic.getImage();
+                    Image newimg = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+                    currentPic = new ImageIcon(newimg);  // transform it back
+                    JLabel currentThumb = new JLabel();
+                    currentThumb.setMaximumSize(new Dimension(120,120));
+                    currentThumb.setMinimumSize(new Dimension(120,120));
+                    currentThumb.setPreferredSize(new Dimension(120,120));
+                    currentThumb.setIcon(currentPic);
+                    //currentThumb.setIcon(currentPic);
                     picturePanel.add(currentThumb);
+                    System.out.println(importedPictures[i].getPath());
                 }
+
+                centerPanel.add(picturePanelPane, BorderLayout.CENTER);
+                pack();
             }
         });
     }
