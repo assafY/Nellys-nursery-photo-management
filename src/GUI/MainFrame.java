@@ -1,5 +1,8 @@
 package GUI;
 
+import Core.Library;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -9,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by val on 05/02/2015.
@@ -55,12 +61,14 @@ public class MainFrame extends JFrame {
     private JButton backupButton = new JButton("Backup");
     //create center components
     private JPanel centerPanel = new JPanel(new BorderLayout());
-    private JPanel picturePanel = new JPanel();
     private JPanel functionPanel = new JPanel(new GridBagLayout());
     private JButton rotateButton = new JButton("Rotate");
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
-    private JSlider zoomSlider = new JSlider(0,200,0);
+    private GridLayout picturePanelLayout = new GridLayout(1, 3);
+    private JPanel picturePanel = new JPanel(picturePanelLayout);
+    private JPanel scrollPanel = new JPanel();
+    private JSlider zoomSlider = new JSlider();
     //create east components
     private JPanel eastPanel = new JPanel(new BorderLayout());
     private JPanel tagPanel = new JPanel(new BorderLayout());
@@ -191,6 +199,9 @@ public class MainFrame extends JFrame {
         c.weightx = 0;
         c.gridx = 4;
         functionPanel.add(zoomSlider, c);
+        mainPanel.add(picturePanel, BorderLayout.CENTER);
+
+        picturePanel.add(scrollPanel, BorderLayout.SOUTH);
         zoomSlider.setOrientation(Adjustable.HORIZONTAL);
         zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintTicks(true);
@@ -210,7 +221,7 @@ public class MainFrame extends JFrame {
         TitledBorder titledBorder = new TitledBorder("Pictures: ");
         EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
         CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titledBorder);
-        centerPanel.setBorder(compoundBorder);
+        picturePanel.setBorder(compoundBorder);
 
 
     }
@@ -251,6 +262,39 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
+                importDialog.setFile("*.jpg");
+                importDialog.setMultipleMode(true);
+                importDialog.setVisible(true);
+
+                File[] importedPictures = importDialog.getFiles();
+                //Double numofCols = Math.sqrt(importedPictures.length);
+                //int newNum = numofCols.intValue();
+                //picturePanelLayout.setColumns(newNum);
+                //picturePanelLayout = new GridLayout(1, 3);
+
+                for(int i = 0; i < importedPictures.length; ++i) {
+
+                    BufferedImage currentPic = new BufferedImage(10, 10, 1);
+
+                    try {
+                        currentPic = ImageIO.read(importedPictures[i]);
+                    } catch (IOException ex) {
+
+                    }
+                    JLabel currentThumb = new JLabel(new ImageIcon(currentPic));
+                    picturePanel.add(currentThumb);
+                }
+            }
+        });
+    }
+
+    private void loadPictures() {
+
     }
     public static void main(String[] args){
         try {
