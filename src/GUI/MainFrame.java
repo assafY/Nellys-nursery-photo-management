@@ -1,7 +1,5 @@
 package GUI;
 
-import Core.Library;
-
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -10,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Hashtable;
 
 /**
  * Created by val on 05/02/2015.
@@ -25,7 +24,7 @@ public class MainFrame extends JFrame {
     Menu help = new Menu("Help");
     MenuItem imp = new MenuItem("Import");
     MenuItem exp = new MenuItem("Export");
-    MenuItem bckup = new MenuItem("Backup");
+    MenuItem backup = new MenuItem("Backup");
     MenuItem exit = new MenuItem("Exit");
     MenuItem rotate = new MenuItem("Rotate");
     MenuItem resize = new MenuItem("Resize");
@@ -54,18 +53,14 @@ public class MainFrame extends JFrame {
     private JButton importButton = new JButton("Import");
     private JButton exportButton = new JButton("Export");
     private JButton backupButton = new JButton("Backup");
-    private JButton selectButton = new JButton("Select");
-    private JButton tagButton = new JButton("Tag");
-    private JButton rotateButton = new JButton("Rotate");
-    private JButton resizeButton = new JButton("Resize");
-    private JButton cropButton = new JButton("Crop");
-    private JButton deleteButton = new JButton("Delete");
-    private JButton printButton = new JButton("Print");
     //create center components
     private JPanel centerPanel = new JPanel(new BorderLayout());
     private JPanel picturePanel = new JPanel();
-    private JPanel scrollPanel = new JPanel();
-    private JSlider zoomSlider = new JSlider();
+    private JPanel functionPanel = new JPanel(new GridBagLayout());
+    private JButton rotateButton = new JButton("Rotate");
+    private JButton deleteButton = new JButton("Delete");
+    private JButton printButton = new JButton("Print");
+    private JSlider zoomSlider = new JSlider(0,200,0);
     //create east components
     private JPanel eastPanel = new JPanel(new BorderLayout());
     private JPanel tagPanel = new JPanel(new BorderLayout());
@@ -94,7 +89,7 @@ public class MainFrame extends JFrame {
 
         menuBar.add(file);
         file.add(imp);
-        file.add(bckup);
+        file.add(backup);
         file.add(exp);
         file.addSeparator();
         file.add(exit);
@@ -149,7 +144,7 @@ public class MainFrame extends JFrame {
         buttonPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(4,0,4,0);
+        c.insets = new Insets(4,4,4,4);
         c.gridx = 0;
         c.gridy = 0;
         buttonPanel.add(importButton, c);
@@ -161,35 +156,55 @@ public class MainFrame extends JFrame {
         c.gridy = 3;
         buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
         //buttonPanel.add(Box.createVerticalStrut(5));
-        c.gridy = 4;
-        buttonPanel.add(selectButton, c);
-        c.gridy = 5;
-        buttonPanel.add(tagButton, c);
         c.gridy = 6;
         buttonPanel.add(rotateButton, c);
-        c.gridy = 7;
-        buttonPanel.add(resizeButton, c);
-        c.gridy = 8;
-        buttonPanel.add(cropButton, c);
         c.gridy = 9;
         buttonPanel.add(deleteButton, c);
         c.gridy = 10;
         buttonPanel.add(printButton, c);
 
         TitledBorder titledBorder = new TitledBorder("Tools: ");
-        EmptyBorder emptyBorder = new EmptyBorder(7, 10, 7, 10);
-        CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
-        westPanel.setBorder(compoundBorder);
+        westPanel.setBorder(titledBorder);
 
 
     }
     private void createCenterPanel(){
         mainPanel.add(centerPanel, BorderLayout.CENTER);
-
-        centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+        centerPanel.add(picturePanel, BorderLayout.CENTER);
+        centerPanel.add(functionPanel, BorderLayout.SOUTH);
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(4,4,4,4);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.SOUTH;
+        c.gridy = 0;
+        c.gridx = 0;
+        c.weightx = 0.25;
+        functionPanel.add(rotateButton, c);
+        c.gridx = 1;
+        functionPanel.add(printButton, c);
+        c.gridx = 2;
+        functionPanel.add(deleteButton, c);
+        c.gridx = 3;
+        c.weightx = 1.0;
+        functionPanel.add(Box.createHorizontalGlue(), c);
+        c.anchor = GridBagConstraints.CENTER;
+        c.weightx = 0;
+        c.gridx = 4;
+        functionPanel.add(zoomSlider, c);
         zoomSlider.setOrientation(Adjustable.HORIZONTAL);
-        scrollPanel.add(zoomSlider);
-        //scrollPanel.add(Box.createHorizontalStrut(5), BorderLayout.SOUTH);
+        zoomSlider.setMajorTickSpacing(50);
+        zoomSlider.setPaintTicks(true);
+        zoomSlider.setPreferredSize(new Dimension(400,45));
+        Hashtable labelTable = new Hashtable();
+        labelTable.put( 0, new JLabel("0%") );
+        labelTable.put( 50, new JLabel("50%") );
+        labelTable.put( 100, new JLabel("100%") );
+        labelTable.put( 150, new JLabel("150%") );
+        labelTable.put( 200, new JLabel("200%") );
+        zoomSlider.setLabelTable(labelTable);
+        zoomSlider.setPaintLabels(true);
+
+
 
 
         TitledBorder titledBorder = new TitledBorder("Pictures: ");
@@ -240,8 +255,13 @@ public class MainFrame extends JFrame {
     public static void main(String[] args){
         try {
             // Set System L&F
+
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
+            System.out.println(UIManager.getSystemLookAndFeelClassName());
+            if(UIManager.getSystemLookAndFeelClassName() == "com.sun.java.swing.plaf.gtk.GTKLookAndFeel"){
+                UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+            }
         }
         catch (Exception e){}
         new MainFrame();
