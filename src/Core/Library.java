@@ -12,8 +12,8 @@ import java.util.Iterator;
 
 public class Library implements Serializable {
 
-    private static ArrayList<Child> childNameList = new ArrayList<Child>();
-    private static Iterator childnameListIterator = childNameList.iterator();
+    private static ArrayList<Child> childrenList = new ArrayList<Child>();
+    private static Iterator childrenListIterator = childrenList.iterator();
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
     private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
     private static ArrayList<PictureLabel> pictureLabels = new ArrayList<PictureLabel>();
@@ -23,7 +23,7 @@ public class Library implements Serializable {
     private static Iterator possibleDateIterator = possibleDate.iterator();
 
     public static ArrayList<Child> getChildrenList() {
-        return childNameList;
+        return childrenList;
     }
 
     public static void addPictureToLibrary(Picture picture) {
@@ -94,11 +94,11 @@ public class Library implements Serializable {
     }
 
     public static void addChild(Child child) {
-        childNameList.add(child);
+        childrenList.add(child);
     }
 
-    public static void rmChild(Child child) {
-        childNameList.remove(child);
+    public static void removeChild(Child child) {
+        childrenList.remove(child);
     }
 
 }

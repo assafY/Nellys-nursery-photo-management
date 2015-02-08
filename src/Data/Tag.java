@@ -22,12 +22,14 @@ public class Tag {
         this.room = ROOMS[roomCode];
     }
 
-    public void addChild(Child child) {
+    public void addChild(Child child, Picture picture) {
         children.add(child);
+        child.addTaggedPicture(picture);
     }
 
-    public void removeChild(Child child) {
+    public void removeChild(Child child, Picture picture) {
         children.remove(child);
+        child.removeTaggedPicture(picture);
     }
 
     public void setDate(String date){

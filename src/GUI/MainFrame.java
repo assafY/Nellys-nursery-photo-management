@@ -239,7 +239,6 @@ public class MainFrame extends JFrame {
         centerPanel.add(picturePanelPane, BorderLayout.CENTER);
         centerPanel.add(scrollPanel, BorderLayout.SOUTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
-        //scrollPanel.add(Box.createHorizontalStrut(5), BorderLayout.SOUTH);
 
 
         TitledBorder titledBorder = new TitledBorder("Pictures: ");
@@ -327,63 +326,32 @@ public class MainFrame extends JFrame {
             }
         });
 
+        // adjust number of columns when window size changes
         this.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
 
                 int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
-
                 int framePanelGap = currentWindowSize - currentPanelSize;
+
                 if (framePanelGap < 450) {
-                    int colCount = picturePanelLayout.getColumns();
-                    if (!(colCount < 2)) {
-                        picturePanelBiggerThanFrame = true;
-                        adjustColumnCount();
-                    }
+                    picturePanelBiggerThanFrame = true;
+                    adjustColumnCount();
 
                 }
+                else {
+                    picturePanelBiggerThanFrame = false;
+                    adjustColumnCount();
+                }
             }
-
             @Override
-            public void componentMoved(ComponentEvent e) {
-
-            }
-
+            public void componentMoved(ComponentEvent e) {}
             @Override
-            public void componentShown(ComponentEvent e) {
-
-            }
-
+            public void componentShown(ComponentEvent e) {}
             @Override
-            public void componentHidden(ComponentEvent e) {
-
-            }
+            public void componentHidden(ComponentEvent e) {}
         });
-
-        picturePanel.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                adjustColumnCount();
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent e) {
-
-            }
-
-            @Override
-            public void componentShown(ComponentEvent e) {
-
-            }
-
-            @Override
-            public void componentHidden(ComponentEvent e) {
-
-            }
-        });
-
-
     }
 
     private void adjustColumnCount() {
@@ -423,10 +391,8 @@ public class MainFrame extends JFrame {
         }
 
         if (picturePanelLayout.getColumns() != newColumnCount && newColumnCount != 0) {
-            System.out.println(picturePanelLayout.getColumns());
             picturePanelLayout.setColumns(newColumnCount);
             picturePanel.revalidate();
-
         }
     }
 

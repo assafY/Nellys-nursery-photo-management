@@ -1,5 +1,7 @@
 package Data;
 
+import Core.Library;
+
 import java.util.ArrayList;
 
 public class Child {
@@ -10,10 +12,15 @@ public class Child {
     public Child(String name) {
         this.name = name;
         taggedPictures = new ArrayList<Picture>();
+        Library.addChild(this);
     }
 
     public void addTaggedPicture(Picture picture) {
         taggedPictures.add(picture);
+    }
+
+    public void removeTaggedPicture(Picture picture) {
+        taggedPictures.remove(picture);
     }
 
     public ArrayList<Picture> getTaggedPictures() {

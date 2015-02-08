@@ -11,16 +11,17 @@ import java.util.Date;
 public class Picture {
 
     public static Tag METADATA;
+    private static final int DEFAULT_SIZE = 25;
 
     private ImageIcon pictureIcon;
     private ImageIcon thumbnail;
 
     public Picture(String filePath) {
-        METADATA = new Tag();
 
         pictureIcon = new ImageIcon(filePath);
-        createThumbnail(25);
+        createThumbnail(DEFAULT_SIZE);
 
+        METADATA = new Tag();
         Library.addPictureToLibrary(this);
     }
 
