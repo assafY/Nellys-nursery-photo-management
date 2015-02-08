@@ -1,5 +1,7 @@
 package Data;
 
+import Core.Library;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -17,12 +19,14 @@ public class Picture {
         METADATA = new Tag();
 
         pictureIcon = new ImageIcon(filePath);
-        createThumbnail();
+        createThumbnail(25);
+
+        Library.addPictureToLibrary(this);
     }
 
-    private void createThumbnail() {
-        int newHeight = pictureIcon.getIconHeight() / 20;
-        int newWidth = pictureIcon.getIconWidth() / 20;
+    public void createThumbnail(int resizeNum) {
+        int newHeight = pictureIcon.getIconHeight() / resizeNum;
+        int newWidth = pictureIcon.getIconWidth() / resizeNum;
         Image resizedImage = pictureIcon.getImage().getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
         thumbnail = new ImageIcon(resizedImage);
     }

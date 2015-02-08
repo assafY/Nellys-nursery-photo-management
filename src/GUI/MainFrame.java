@@ -2,6 +2,7 @@ package GUI;
 
 import Core.Library;
 import Data.Picture;
+import Data.PictureLabel;
 import apple.laf.JRSUIUtils;
 
 import javax.imageio.ImageIO;
@@ -9,6 +10,8 @@ import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,6 +20,7 @@ import java.util.Hashtable;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by val on 05/02/2015.
@@ -67,15 +71,15 @@ public class MainFrame extends JFrame {
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
     //create center components
-    //private GridLayout picturePanelLayout = new GridLayout(1, 3);
+    GridLayout picturePanelLayout = new GridLayout(0, 3, 5, 5);
     //private BorderLayout picturePanelBorderLayout = new BorderLayout();
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
-    private JPanel picturePanel = new JPanel(new GridLayout(0,3, 5, 5));
+    private JPanel picturePanel = new JPanel(picturePanelLayout);
     private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
     //private JPanel picturePanel = new JPanel(picturePanelLayout);
     private JPanel scrollPanel = new JPanel();
-    private JSlider zoomSlider = new JSlider();
+    private JSlider zoomSlider;
     //create east components
     private JPanel eastPanel = new JPanel(new BorderLayout());
     private JPanel tagPanel = new JPanel(new BorderLayout());
@@ -222,7 +226,7 @@ public class MainFrame extends JFrame {
         zoomSlider.setLabelTable(labelTable);
         zoomSlider.setPaintLabels(true);
 */
-        zoomSlider.setOrientation(Adjustable.HORIZONTAL);
+        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 20, 30, 25);
         scrollPanel.add(zoomSlider);
         centerPanel.add(picturePanelPane, BorderLayout.CENTER);
         centerPanel.add(scrollPanel, BorderLayout.SOUTH);
@@ -290,11 +294,8 @@ public class MainFrame extends JFrame {
 
                     Picture currentPic = new Picture(importedPictures[i].getPath());
 
-                    JLabel currentThumb = new JLabel();
-                    currentThumb.setMaximumSize(new Dimension(120,120));
-                    currentThumb.setMinimumSize(new Dimension(120,120));
-                    currentThumb.setPreferredSize(new Dimension(120,120));
-                    currentThumb.setIcon(currentPic.getThumbnail());
+                    PictureLabel currentThumb = new PictureLabel(currentPic);
+                    Library.addPictureLabel(currentThumb);
                     picturePanel.add(currentThumb);
                     System.out.println(importedPictures[i].getPath());
                 }
@@ -303,6 +304,43 @@ public class MainFrame extends JFrame {
                 pack();
             }
         });
+
+        zoomSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
+
+                switch (zoomSlider.getValue()) {
+                    case 28: if (picturePanelLayout.getColumns() != 4) {
+                        picturePanelLayout.setColumns(4);
+                        break;
+                    }
+                    case 30: if (picturePanelLayout.getColumns() != 5) {
+                        picturePanelLayout.setColumns(5);
+                        break;
+                    }
+                    case 23: if (picturePanelLayout.getColumns() != 2) {
+                        picturePanelLayout.setColumns(2);
+                        break;
+                    }
+                    case 21: if (picturePanelLayout.getColumns() != 1) {
+                        picturePanelLayout.setColumns(1);
+                        break;
+                    }
+                    case 25: if (picturePanelLayout.getColumns() != 3) {
+                        picturePanelLayout.setColumns(3);
+                        break;
+                    }
+                }
+
+                for (PictureLabel picLabel : thumbs) {
+                    picLabel.createThumbnail(zoomSlider.getValue());
+
+                }
+            }
+        });
+
+
     }
 
     private void loadPictures() {
