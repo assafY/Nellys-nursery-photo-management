@@ -6,12 +6,10 @@ import java.awt.*;
 public class PictureLabel extends JLabel {
 
     private static final int DEFAULT_SIZE = 25;
-
     private Picture picture;
 
     public PictureLabel(Picture picture) {
         this.picture = picture;
-        createThumbnail(DEFAULT_SIZE);
     }
 
     public void createThumbnail(int size) {

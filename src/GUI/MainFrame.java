@@ -298,20 +298,21 @@ public class MainFrame extends JFrame {
                 File[] importedPictures = importDialog.getFiles();
 
                 for(int i = 0; i < importedPictures.length; ++i) {
-
+                    
                     Picture currentPic = new Picture(importedPictures[i].getPath());
-
                     PictureLabel currentThumb = new PictureLabel(currentPic);
+                    currentThumb.createThumbnail(zoomSlider.getValue());
+
                     Library.addPictureLabel(currentThumb);
                     picturePanel.add(currentThumb);
                     System.out.println(importedPictures[i].getPath());
                 }
 
-                centerPanel.add(picturePanelPane, BorderLayout.CENTER);
                 pack();
             }
         });
 
+        // change picture thumbnail size when slider is used
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
