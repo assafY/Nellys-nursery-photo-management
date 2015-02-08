@@ -1,11 +1,13 @@
 package GUI;
 
 import Core.Library;
+import Core.Settings;
 import Data.Picture;
 import Data.PictureLabel;
 import apple.laf.JRSUIUtils;
 
 import javax.imageio.ImageIO;
+import static javax.swing.ScrollPaneConstants.*;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -17,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -71,7 +74,7 @@ public class MainFrame extends JFrame {
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
     //create center components
-    GridLayout picturePanelLayout = new GridLayout(0, 3, 5, 5);
+    GridLayout picturePanelLayout = new GridLayout(0, 1, 5, 5);
     //private BorderLayout picturePanelBorderLayout = new BorderLayout();
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
@@ -87,6 +90,9 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
+
+    private int currentColumnCount = 0;
+    private boolean picturePanelBiggerThanFrame = false;
 
     public MainFrame(){
         setTitle("Photo Management Software");
@@ -227,6 +233,8 @@ public class MainFrame extends JFrame {
         zoomSlider.setPaintLabels(true);
 */
         zoomSlider = new JSlider(Adjustable.HORIZONTAL, 20, 30, 25);
+        picturePanelPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
+
         scrollPanel.add(zoomSlider);
         centerPanel.add(picturePanelPane, BorderLayout.CENTER);
         centerPanel.add(scrollPanel, BorderLayout.SOUTH);
@@ -309,8 +317,8 @@ public class MainFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
                 ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
-
-                switch (zoomSlider.getValue()) {
+                adjustColumnCount();
+                /*switch (zoomSlider.getValue()) {
                     case 28: if (picturePanelLayout.getColumns() != 4) {
                         picturePanelLayout.setColumns(4);
                         break;
@@ -331,7 +339,7 @@ public class MainFrame extends JFrame {
                         picturePanelLayout.setColumns(3);
                         break;
                     }
-                }
+                }*/
 
                 for (PictureLabel picLabel : thumbs) {
                     picLabel.createThumbnail(zoomSlider.getValue());
@@ -340,12 +348,116 @@ public class MainFrame extends JFrame {
             }
         });
 
+        this.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+
+                int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
+                int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
+
+                int framePanelGap = currentWindowSize - currentPanelSize;
+                if (framePanelGap < 450) {
+                    System.out.println(picturePanelLayout.getColumns());
+                    int colCount = picturePanelLayout.getColumns();
+                    if (!(colCount < 2)) {
+                        picturePanelBiggerThanFrame = true;
+                        adjustColumnCount();
+                    }
+
+                }
+
+                //System.out.println("Window: " + e.getComponent().getSize());
+                System.out.println("Window: " + currentWindowSize + " Panel: " + currentPanelSize);
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+
+            }
+        });
+        picturePanel.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                adjustColumnCount();
+                System.out.println("Panel: " + e.getComponent().getSize());
+                //e.getComponent().repaint();
+                //e.getComponent().setSize(0, 0);
+
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent e) {
+
+            }
+
+            @Override
+            public void componentShown(ComponentEvent e) {
+
+            }
+
+            @Override
+            public void componentHidden(ComponentEvent e) {
+
+            }
+        });
+
 
     }
 
-    private void loadPictures() {
+    private void adjustColumnCount() {
+        int newColumnCount = 0;
+        int currentPanelSize;
 
+        if(picturePanelBiggerThanFrame) {
+            currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 450;
+            picturePanelBiggerThanFrame = false;
+        }
+        else {
+            currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
+        }
+        switch (zoomSlider.getValue()) {
+            case 20: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[0];
+                     break;
+            case 21: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[1];
+                break;
+            case 22: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[2];
+                break;
+            case 23: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[3];
+                break;
+            case 24: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[4];
+                break;
+            case 25: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[5];
+                break;
+            case 26: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[6];
+                break;
+            case 27: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[7];
+                break;
+            case 28: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[8];
+                break;
+            case 29: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[9];
+                break;
+            case 30: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[10];
+                break;
+        }
+
+        if (picturePanelLayout.getColumns() != newColumnCount && newColumnCount != 0) {
+            System.out.println(picturePanelLayout.getColumns());
+            picturePanelLayout.setColumns(newColumnCount);
+            picturePanel.revalidate();
+
+        }
     }
+
     public static void main(String[] args){
         try {
             // Set System L&F
