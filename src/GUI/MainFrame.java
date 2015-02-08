@@ -316,30 +316,9 @@ public class MainFrame extends JFrame {
         zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
+
                 ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
                 adjustColumnCount();
-                /*switch (zoomSlider.getValue()) {
-                    case 28: if (picturePanelLayout.getColumns() != 4) {
-                        picturePanelLayout.setColumns(4);
-                        break;
-                    }
-                    case 30: if (picturePanelLayout.getColumns() != 5) {
-                        picturePanelLayout.setColumns(5);
-                        break;
-                    }
-                    case 23: if (picturePanelLayout.getColumns() != 2) {
-                        picturePanelLayout.setColumns(2);
-                        break;
-                    }
-                    case 21: if (picturePanelLayout.getColumns() != 1) {
-                        picturePanelLayout.setColumns(1);
-                        break;
-                    }
-                    case 25: if (picturePanelLayout.getColumns() != 3) {
-                        picturePanelLayout.setColumns(3);
-                        break;
-                    }
-                }*/
 
                 for (PictureLabel picLabel : thumbs) {
                     picLabel.createThumbnail(zoomSlider.getValue());
@@ -357,7 +336,6 @@ public class MainFrame extends JFrame {
 
                 int framePanelGap = currentWindowSize - currentPanelSize;
                 if (framePanelGap < 450) {
-                    System.out.println(picturePanelLayout.getColumns());
                     int colCount = picturePanelLayout.getColumns();
                     if (!(colCount < 2)) {
                         picturePanelBiggerThanFrame = true;
@@ -365,9 +343,6 @@ public class MainFrame extends JFrame {
                     }
 
                 }
-
-                //System.out.println("Window: " + e.getComponent().getSize());
-                System.out.println("Window: " + currentWindowSize + " Panel: " + currentPanelSize);
             }
 
             @Override
@@ -385,14 +360,11 @@ public class MainFrame extends JFrame {
 
             }
         });
+
         picturePanel.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent e) {
                 adjustColumnCount();
-                System.out.println("Panel: " + e.getComponent().getSize());
-                //e.getComponent().repaint();
-                //e.getComponent().setSize(0, 0);
-
             }
 
             @Override
