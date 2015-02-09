@@ -71,7 +71,6 @@ public class MainFrame extends JFrame {
     private JPanel centerPanel = new JPanel(new BorderLayout());
     private JPanel picturePanel = new JPanel(picturePanelLayout);
     private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
-    //private JPanel picturePanel = new JPanel(picturePanelLayout);
     private JPanel scrollPanel = new JPanel();
     private JSlider zoomSlider;
     //create east components
@@ -185,9 +184,10 @@ public class MainFrame extends JFrame {
 
     }
     private void createCenterPanel(){
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        centerPanel.add(picturePanel, BorderLayout.CENTER);
-        centerPanel.add(functionPanel, BorderLayout.SOUTH);
+        //centerPanel.add(picturePanel, BorderLayout.CENTER);
+
+
+        /*centerPanel.add(functionPanel, BorderLayout.SOUTH);
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(4,4,4,4);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -206,8 +206,8 @@ public class MainFrame extends JFrame {
         c.anchor = GridBagConstraints.CENTER;
         c.weightx = 0;
         c.gridx = 4;
-        functionPanel.add(zoomSlider, c);
-        mainPanel.add(picturePanel, BorderLayout.CENTER);
+        functionPanel.add(zoomSlider, c);*/
+//        mainPanel.add(picturePanel, BorderLayout.CENTER);
 
         picturePanel.add(scrollPanel, BorderLayout.SOUTH);
 /*        zoomSlider.setMajorTickSpacing(50);
@@ -276,58 +276,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        importButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
-                importDialog.setFile("*.jpg");
-                importDialog.setMultipleMode(true);
-                importDialog.setVisible(true);
-
-                final File[] importedPictures = importDialog.getFiles();
-
-                for (int i = 0; i < importedPictures.length; ++i)
-
-                {
-                    final int currentIndex = i;
-                    Thread newPictureImport = new Thread() {
-
-                        Picture currentPicture;
-                        PictureLabel currentThumb;
-
-                        public void run() {
-
-                            currentPicture = new Picture(importedPictures[currentIndex].getPath());
-                            currentThumb = new PictureLabel(currentPicture);
-                            currentPicture = null;
-                            currentThumb.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-
-                            Library.addPictureLabel(currentThumb);
-                            picturePanel.add(currentThumb);
-                            currentThumb = null;
-
-                        }
-                    };
-
-                    newPictureImport.start();
-
-                    // if this is the last picture in batch
-                    if (i == importedPictures.length - 1) {
-
-                        try {
-                            // stall until all pictures processed
-                            newPictureImport.sleep(1000);
-                            newPictureImport.join();
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                }
-                System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
-
-                pack();
-            }
-        });
+        importButton.addActionListener(new ImportButtonListener());
 
         // change picture thumbnail size when slider is used
         zoomSlider.addChangeListener(new ChangeListener() {
@@ -431,12 +380,67 @@ public class MainFrame extends JFrame {
         }
     }
 
+    public class ImportButtonListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
+            importDialog.setFile("*.jpg");
+            importDialog.setMultipleMode(true);
+            importDialog.setVisible(true);
+
+            final File[] importedPictures = importDialog.getFiles();
+
+            for (int i = 0; i < importedPictures.length; ++i)
+
+            {
+                final int currentIndex = i;
+                Thread newPictureImport = new Thread() {
+
+                    Picture currentPicture;
+                    PictureLabel currentThumb;
+
+                    public void run() {
+
+                        currentPicture = new Picture(importedPictures[currentIndex].getPath());
+                        currentThumb = new PictureLabel(currentPicture);
+                        currentPicture = null;
+                        currentThumb.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+
+                        Library.addPictureLabel(currentThumb);
+                        picturePanel.add(currentThumb);
+                        currentThumb = null;
+
+                    }
+                };
+
+                newPictureImport.start();
+
+                // if this is the last picture in batch
+                if (i == importedPictures.length - 1) {
+
+                    try {
+                        // stall until all pictures processed
+                        newPictureImport.sleep(1000);
+                        newPictureImport.join();
+                    } catch (InterruptedException ex) {
+                    }
+                }
+            }
+            System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
+
+            pack();
+        }
+
+
+    }
+
     public static void main(String[] args){
         try {
-            // Set System L&F
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
-        }
+                // Set System L&F
+                UIManager.setLookAndFeel(
+                UIManager.getSystemLookAndFeelClassName());
+            }
         catch (Exception e){}
         new MainFrame();
     }
