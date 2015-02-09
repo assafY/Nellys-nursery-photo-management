@@ -295,18 +295,45 @@ public class MainFrame extends JFrame {
                 importDialog.setMultipleMode(true);
                 importDialog.setVisible(true);
 
-                File[] importedPictures = importDialog.getFiles();
+                final File[] importedPictures = importDialog.getFiles();
 
-                for(int i = 0; i < importedPictures.length; ++i) {
-                    
-                    Picture currentPic = new Picture(importedPictures[i].getPath());
-                    PictureLabel currentThumb = new PictureLabel(currentPic);
-                    currentThumb.createThumbnail(zoomSlider.getValue());
+                for (int i = 0; i < importedPictures.length; ++i)
 
-                    Library.addPictureLabel(currentThumb);
-                    picturePanel.add(currentThumb);
-                    System.out.println(importedPictures[i].getPath());
+                {
+                    final int currentIndex = i;
+                    Thread newPictureImport = new Thread() {
+
+                        Picture currentPicture;
+                        PictureLabel currentThumb;
+
+                        public void run() {
+
+                            currentPicture = new Picture(importedPictures[currentIndex].getPath());
+                            currentThumb = new PictureLabel(currentPicture);
+                            currentPicture = null;
+                            currentThumb.createThumbnail(zoomSlider.getValue());
+
+                            Library.addPictureLabel(currentThumb);
+                            picturePanel.add(currentThumb);
+                            currentThumb = null;
+
+                        }
+                    };
+
+                    newPictureImport.start();
+
+                    // if this is the last picture in batch
+                    if (i == importedPictures.length - 1) {
+
+                        try {
+                            // stall until all pictures processed
+                            newPictureImport.sleep(1000);
+                            newPictureImport.join();
+                        } catch (InterruptedException ex) {
+                        }
+                    }
                 }
+                System.out.println("USED: " + Runtime.getRuntime().totalMemory() + "FREE: " + Runtime.getRuntime().freeMemory());
 
                 pack();
             }
@@ -318,12 +345,14 @@ public class MainFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
 
                 ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
-                adjustColumnCount();
 
                 for (PictureLabel picLabel : thumbs) {
+
                     picLabel.createThumbnail(zoomSlider.getValue());
 
+
                 }
+                adjustColumnCount();
             }
         });
 

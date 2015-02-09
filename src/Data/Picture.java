@@ -12,12 +12,13 @@ public class Picture {
 
     public static Tag METADATA;
 
-    private ImageIcon pictureIcon;
-    private ImageIcon thumbnail;
+    private String imagePath;
+    //private ImageIcon pictureIcon;
+    //private ImageIcon thumbnail;
 
     public Picture(String filePath) {
 
-        pictureIcon = new ImageIcon(filePath);
+        imagePath = filePath;
 
         METADATA = new Tag();
         Library.addPictureToLibrary(this);
@@ -30,13 +31,17 @@ public class Picture {
         thumbnail = new ImageIcon(resizedImage);
     }*/
 
-    public ImageIcon getPictureIcon() {
+    /*public ImageIcon getPictureIcon() {
         return pictureIcon;
     }
 
-    /*public ImageIcon getThumbnail() {
+    public ImageIcon getThumbnail() {
         return thumbnail;
     }*/
+
+    public String getImagePath() {
+        return imagePath;
+    }
 
 
 }
