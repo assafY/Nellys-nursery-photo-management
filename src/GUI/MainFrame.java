@@ -219,7 +219,6 @@ public class MainFrame extends JFrame {
         mainPanel.add(picturePanel, BorderLayout.CENTER);
 
         picturePanel.add(scrollPanel, BorderLayout.SOUTH);
-        zoomSlider.setOrientation(Adjustable.HORIZONTAL);
 /*        zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPreferredSize(new Dimension(400,45));
@@ -232,7 +231,7 @@ public class MainFrame extends JFrame {
         zoomSlider.setLabelTable(labelTable);
         zoomSlider.setPaintLabels(true);
 */
-        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 20, 30, 25);
+        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 10, 5);
         picturePanelPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
 
         scrollPanel.add(zoomSlider);
@@ -311,7 +310,7 @@ public class MainFrame extends JFrame {
                             currentPicture = new Picture(importedPictures[currentIndex].getPath());
                             currentThumb = new PictureLabel(currentPicture);
                             currentPicture = null;
-                            currentThumb.createThumbnail(zoomSlider.getValue());
+                            currentThumb.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
 
                             Library.addPictureLabel(currentThumb);
                             picturePanel.add(currentThumb);
@@ -344,14 +343,18 @@ public class MainFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
 
-                ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
+                final ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
 
-                for (PictureLabel picLabel : thumbs) {
+                Thread sliderChangeThread = new Thread() {
+                    public void run() {
+                        for (PictureLabel picLabel : thumbs) {
+                            picLabel.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+                        }
+                    }
+                };
 
-                    picLabel.createThumbnail(zoomSlider.getValue());
+                sliderChangeThread.start();
 
-
-                }
                 adjustColumnCount();
             }
         });
@@ -396,27 +399,27 @@ public class MainFrame extends JFrame {
             currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
         }
         switch (zoomSlider.getValue()) {
-            case 20: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[0];
+            case 0: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[0];
                      break;
-            case 21: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[1];
+            case 1: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[1];
                 break;
-            case 22: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[2];
+            case 2: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[2];
                 break;
-            case 23: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[3];
+            case 3: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[3];
                 break;
-            case 24: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[4];
+            case 4: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[4];
                 break;
-            case 25: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[5];
+            case 5: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[5];
                 break;
-            case 26: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[6];
+            case 6: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[6];
                 break;
-            case 27: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[7];
+            case 7: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[7];
                 break;
-            case 28: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[8];
+            case 8: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[8];
                 break;
-            case 29: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[9];
+            case 9: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[9];
                 break;
-            case 30: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[10];
+            case 10: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[10];
                 break;
         }
 

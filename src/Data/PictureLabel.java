@@ -1,5 +1,6 @@
 package Data;
 
+import Core.Settings;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -11,37 +12,26 @@ import java.io.IOException;
 
 public class PictureLabel extends JLabel {
 
-    private static final int DEFAULT_SIZE = 25;
     private Picture picture;
+    BufferedImage thumbnail;
 
     public PictureLabel(Picture picture) {
         this.picture = picture;
-    }
+        thumbnail = null;
 
-    public void createThumbnail(int size) {
-
-        ImageIcon origin = new ImageIcon(picture.getImagePath());
-
-        int adjustment = 3 * (size - DEFAULT_SIZE);
-        int newHeight = origin.getIconHeight() / (size + adjustment);
-        int newWidth = origin.getIconWidth() / (size + adjustment);
-        Image resizedImage = origin.getImage().getScaledInstance(newWidth, newHeight, Image.SCALE_FAST);
-        setIcon(new ImageIcon(resizedImage));
-        origin.getImage().flush();
-        origin = null;
-    }
-
-    /*public void createThumbnail() {
-        BufferedImage img = null;
         try {
-            img = ImageIO.read(new File(picture.getImagePath()));
+            thumbnail = ImageIO.read(new File(picture.getImagePath()));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        BufferedImage thumbnail = Scalr.resize(img, 150);
-        setIcon(new ImageIcon(thumbnail));
-        img.flush();
-        img = null;
-    }*/
+        if (thumbnail != null) {
+            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[0]);
+        }
+    }
+
+    public void createThumbnail(int size) {
+        this.removeAll();
+        setIcon(new ImageIcon(Scalr.resize(thumbnail, size)));
+    }
 }
