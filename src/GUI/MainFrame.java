@@ -4,9 +4,6 @@ import Core.Library;
 import Core.Settings;
 import Data.Picture;
 import Data.PictureLabel;
-import apple.laf.JRSUIUtils;
-
-import javax.imageio.ImageIO;
 import static javax.swing.ScrollPaneConstants.*;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -20,21 +17,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.Hashtable;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- * Created by val on 05/02/2015.
- */
 public class MainFrame extends JFrame {
 
-    //create menu bar
+    // menu bar components
     private MenuBar menuBar = new MenuBar();
     Menu file = new Menu("File");
     Menu edit = new Menu("Edit");
-    //Menu view = new Menu("View");
     Menu tools = new Menu("Tools");
     Menu help = new Menu("Help");
     MenuItem imp = new MenuItem("Import");
@@ -332,7 +323,7 @@ public class MainFrame extends JFrame {
                         }
                     }
                 }
-                System.out.println("USED: " + Runtime.getRuntime().totalMemory() + "FREE: " + Runtime.getRuntime().freeMemory());
+                System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
 
                 pack();
             }
@@ -353,9 +344,20 @@ public class MainFrame extends JFrame {
                     }
                 };
 
-                sliderChangeThread.start();
+                Thread runAfterResize = new Thread() {
+                    public void run() {
+                        try {
+                            sleep(500);
+                        } catch (InterruptedException e1) {
 
-                adjustColumnCount();
+                        }
+                        adjustColumnCount();
+                    }
+                };
+
+                sliderChangeThread.start();
+                runAfterResize.start();
+
             }
         });
 
@@ -391,13 +393,13 @@ public class MainFrame extends JFrame {
         int newColumnCount = 0;
         int currentPanelSize;
 
-        if(picturePanelBiggerThanFrame) {
+        //if(picturePanelBiggerThanFrame) {
             currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 450;
-            picturePanelBiggerThanFrame = false;
-        }
+            //picturePanelBiggerThanFrame = false;
+        /*}
         else {
             currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
-        }
+        }*/
         switch (zoomSlider.getValue()) {
             case 0: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[0];
                      break;
