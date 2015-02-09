@@ -255,13 +255,8 @@ public class MainFrame extends JFrame {
     public static void main(String[] args){
         try {
             // Set System L&F
-
             UIManager.setLookAndFeel(
                     UIManager.getSystemLookAndFeelClassName());
-            System.out.println(UIManager.getSystemLookAndFeelClassName());
-            if(UIManager.getSystemLookAndFeelClassName() == "com.sun.java.swing.plaf.gtk.GTKLookAndFeel"){
-                UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
-            }
         }
         catch (Exception e){}
         new MainFrame();
