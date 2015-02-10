@@ -401,23 +401,11 @@ public class MainFrame extends JFrame {
                 final int currentIndex = i;
                 Thread newPictureImport = new Thread() {
 
-                    //Path path = new Path(importedPictures[currentIndex]);
-
                     Picture currentPicture;
                     PictureLabel currentThumb;
 
                     public void run() {
 
-                        BasicFileAttributes attr = null;
-                        try {
-                            attr = Files.readAttributes(importedPictures[currentIndex].toPath(), BasicFileAttributes.class);
-
-                        } catch (IOException e1) {
-
-                        }
-
-                        System.out.println(attr.creationTime());
-                        System.out.println(attr.fileKey());
                         currentPicture = new Picture(importedPictures[currentIndex]);
                         importedPictures[currentIndex] = null;
                         currentThumb = new PictureLabel(currentPicture);
