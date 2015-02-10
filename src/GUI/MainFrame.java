@@ -425,7 +425,7 @@ public class MainFrame extends JFrame {
                 if (i == importedPictures.length - 1) {
 
                     try {
-                        // stall until all pictures processed
+                        // stall until all pictures processed, works for up to 20/25 pictures
                         newPictureImport.sleep(1000);
                         newPictureImport.join();
                     } catch (InterruptedException ex) {
