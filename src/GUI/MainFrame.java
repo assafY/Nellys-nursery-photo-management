@@ -418,7 +418,8 @@ public class MainFrame extends JFrame {
 
                         System.out.println(attr.creationTime());
                         System.out.println(attr.fileKey());
-                        currentPicture = new Picture(importedPictures[currentIndex].getPath());
+                        currentPicture = new Picture(importedPictures[currentIndex]);
+                        importedPictures[currentIndex] = null;
                         currentThumb = new PictureLabel(currentPicture);
                         currentPicture = null;
                         currentThumb.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);

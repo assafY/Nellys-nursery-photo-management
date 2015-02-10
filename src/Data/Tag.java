@@ -1,8 +1,7 @@
 package Data;
 
-import Core.Settings;
-
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Tag {
 
@@ -10,7 +9,7 @@ public class Tag {
 
     private String room;
     private ArrayList<Child> children;
-    private String date;
+    private Date date;
 
     public Tag() {
         room = null;
@@ -32,7 +31,7 @@ public class Tag {
         child.removeTaggedPicture(picture);
     }
 
-    public void setDate(String date){
+    public void setDate(Date date){
         this.date = date;
     }
 
@@ -44,7 +43,7 @@ public class Tag {
         return children;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 

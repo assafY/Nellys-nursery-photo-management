@@ -1,11 +1,13 @@
 package Data;
 
 import Core.Library;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 
-import javax.swing.*;
-import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Date;
 
 public class Picture {
@@ -13,31 +15,29 @@ public class Picture {
     public static Tag METADATA;
 
     private String imagePath;
-    //private ImageIcon pictureIcon;
-    //private ImageIcon thumbnail;
 
-    public Picture(String filePath) {
+    public Picture(File pictureFile) {
 
-        imagePath = filePath;
-
+        imagePath = pictureFile.getPath();
         METADATA = new Tag();
+
+        Metadata originalPictureMetadata = null;
+
+        try {
+            originalPictureMetadata = ImageMetadataReader.readMetadata(pictureFile);
+        } catch (IOException e) {
+            //TODO: Handle exception
+        } catch (ImageProcessingException e1) {
+            //TODO: Handle exception
+        }
+
+        // get original date and time picture was taken and add to metadata
+        ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
+        Date PictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+        METADATA.setDate(PictureTakenDate);
+
         Library.addPictureToLibrary(this);
     }
-
-    /*public void createThumbnail(int resizeNum) {
-        int newHeight = pictureIcon.getIconHeight() / resizeNum;
-        int newWidth = pictureIcon.getIconWidth() / resizeNum;
-        Image resizedImage = pictureIcon.getImage().getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
-        thumbnail = new ImageIcon(resizedImage);
-    }*/
-
-    /*public ImageIcon getPictureIcon() {
-        return pictureIcon;
-    }
-
-    public ImageIcon getThumbnail() {
-        return thumbnail;
-    }*/
 
     public String getImagePath() {
         return imagePath;
