@@ -40,8 +40,10 @@ public class Picture {
         imageKey = attr.fileKey();
         // get original date and time picture was taken and add to metadata
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
-        Date PictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-        METADATA.setDate(PictureTakenDate);
+        if (directory != null) {
+            Date pictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+            METADATA.setDate(pictureTakenDate);
+        }
 
         Library.addPictureToLibrary(this);
     }
