@@ -281,7 +281,7 @@ public class MainFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
 
-                final ArrayList<PictureLabel> thumbs = Library.getPictureLabels();
+                final ArrayList<PictureLabel> thumbs = thumbsOnDisplay;
 
                 Thread sliderChangeThread = new Thread() {
                     public void run() {
