@@ -39,9 +39,12 @@ public class PictureLabel extends JLabel {
     }
 
     public void createThumbnail(int size) {
-        this.removeAll();
         currentSize = size;
         setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
+    }
+
+    public void removeThumbnail() {
+        setIcon(null);
     }
 
     public void toggleSelection() {
@@ -53,6 +56,10 @@ public class PictureLabel extends JLabel {
             isSelected = false;
             repaint();
         }
+    }
+
+    public String getPath() {
+        return picture.getImagePath();
     }
 
     @Override
@@ -71,7 +78,11 @@ public class PictureLabel extends JLabel {
 
     public class ThumbnailClickListener extends MouseAdapter {
 
-
+        /**
+         * Incomlete picture selection method. Ideally a 2D array should store all labels and enable moving between
+         * thumbnails using arrow keys and viewing a single image using spacebar. Additionally only one picture should be
+         * selected at one time unless mouse is dragged across pictures or ctrl key is held. Good luck with that.
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             int clickCount = e.getClickCount();
@@ -79,7 +90,7 @@ public class PictureLabel extends JLabel {
                 toggleSelection();
             }
             else if (clickCount == 2) {
-
+                //TODO: Open single image view
             }
         }
 

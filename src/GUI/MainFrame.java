@@ -15,10 +15,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Hashtable;
 import java.awt.event.*;
 import java.io.File;
@@ -323,15 +319,15 @@ public class MainFrame extends JFrame {
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
                 int framePanelGap = currentWindowSize - currentPanelSize;
 
-                if (framePanelGap < 450) {
-                    picturePanelBiggerThanFrame = true;
+                //if (framePanelGap < 450) {
+                //    picturePanelBiggerThanFrame = true;
                     adjustColumnCount();
 
-                }
-                else {
-                    picturePanelBiggerThanFrame = false;
-                    adjustColumnCount();
-                }
+                //}
+                //else {
+                //    picturePanelBiggerThanFrame = false;
+                //    adjustColumnCount();
+                //}
             }
             @Override
             public void componentMoved(ComponentEvent e) {}
@@ -340,14 +336,39 @@ public class MainFrame extends JFrame {
             @Override
             public void componentHidden(ComponentEvent e) {}
         });
+
+        /**
+         * Whenever the scroll pane is scrolled, generates thumbnails coming into view
+         * and deletes thumbnails exiting view.
+         */
+        picturePanelPane.getViewport().addChangeListener(new ChangeListener() {
+
+            public void stateChanged(ChangeEvent e) {
+                Rectangle currentView = picturePanel.getVisibleRect();
+                for (PictureLabel currentThumbnail: Library.getPictureLabels()) {
+                    if (currentThumbnail.getBounds().intersects(currentView)) {
+                        if (currentThumbnail.getIcon() == null) {
+                            currentThumbnail.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+                        }
+                    } else {
+                        currentThumbnail.removeThumbnail();
+                    }
+                }
+                currentView = null;
+            }
+        });
     }
 
+    /**
+     * Divides the current size of the picture panel by current thumbnail size
+     * to determine required number of columns in GridLayout.
+     */
     private void adjustColumnCount() {
         int newColumnCount = 0;
         int currentPanelSize;
 
         //if(picturePanelBiggerThanFrame) {
-            currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 450;
+            currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 460;
             //picturePanelBiggerThanFrame = false;
         /*}
         else {
@@ -384,6 +405,30 @@ public class MainFrame extends JFrame {
         }
     }
 
+    private void addPicturesToLibrary(final File[] importedPictures) {
+
+        Thread newPictureImport = new Thread() {
+            public void run() {
+                try {
+                    for (int i = 0; i < importedPictures.length; ++i) {
+                        PictureLabel currentThumb = new PictureLabel(new Picture(importedPictures[i]));
+                        Library.addPictureLabel(currentThumb);
+                        picturePanel.add(currentThumb);
+
+                        // Demonstrate the speed of importing pictures when using a single thread
+                        // (multiple threads caused memory errors
+                        System.out.println(importedPictures[i].getPath());
+                    }
+                } finally {
+                    System.out.println("Import Complete.");
+                    pack();
+                }
+            }
+        };
+        newPictureImport.start();
+        // System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
+    }
+
     public class ImportButtonListener implements ActionListener {
 
         @Override
@@ -393,51 +438,9 @@ public class MainFrame extends JFrame {
             importDialog.setMultipleMode(true);
             importDialog.setVisible(true);
 
-            final File[] importedPictures = importDialog.getFiles();
-
-            for (int i = 0; i < importedPictures.length; ++i)
-
-            {
-                final int currentIndex = i;
-                Thread newPictureImport = new Thread() {
-
-                    Picture currentPicture;
-                    PictureLabel currentThumb;
-
-                    public void run() {
-
-                        currentPicture = new Picture(importedPictures[currentIndex]);
-                        importedPictures[currentIndex] = null;
-                        currentThumb = new PictureLabel(currentPicture);
-                        currentPicture = null;
-                        currentThumb.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-
-                        Library.addPictureLabel(currentThumb);
-                        picturePanel.add(currentThumb);
-                        currentThumb = null;
-
-                    }
-                };
-
-                newPictureImport.start();
-
-                // if this is the last picture in batch
-                if (i == importedPictures.length - 1) {
-
-                    try {
-                        // stall until all pictures processed, works for up to 20/25 pictures
-                        newPictureImport.sleep(1000);
-                        newPictureImport.join();
-                    } catch (InterruptedException ex) {
-                    }
-                }
-            }
-            System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
-
-            pack();
+            addPicturesToLibrary(importDialog.getFiles());
+            importDialog = null;
         }
-
-
     }
 
     public static void main(String[] args){
