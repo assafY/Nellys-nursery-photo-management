@@ -2,9 +2,8 @@ package Core;
 
 import Data.Child;
 import Data.Picture;
-import Data.PictureLabel;
 
-import javax.swing.*;
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +15,6 @@ public class Library implements Serializable {
     private static Iterator childrenListIterator = childrenList.iterator();
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
     private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
-    private static ArrayList<PictureLabel> pictureLabels = new ArrayList<PictureLabel>();
     private static ArrayList<String> possibleArea = new ArrayList<String>();
     private static Iterator possibleAreaIterator = possibleArea.iterator();
     private static ArrayList<Date> possibleDate = new ArrayList<Date>();
@@ -24,18 +22,6 @@ public class Library implements Serializable {
 
     public static ArrayList<Child> getChildrenList() {
         return childrenList;
-    }
-
-    public static void addPictureToLibrary(Picture picture) {
-        pictureLibrary.add(picture);
-    }
-
-    public static void addPictureLabel(PictureLabel picLabel) {
-        pictureLabels.add(picLabel);
-    }
-
-    public static ArrayList<PictureLabel> getPictureLabels() {
-        return pictureLabels;
     }
 
     public static ArrayList<Picture> getPictureLibrary() {
@@ -54,8 +40,53 @@ public class Library implements Serializable {
         //TO DO
     }
 
-    public static void importPicture(String filePath) {
-        //TO DO
+    public static void importPicture(final File[] filePathsForImport) {
+        try {
+            //for evey file path sent from importing in GUI
+            for (int i = 0; i < filePathsForImport.length; ++i) {
+
+                //create picture object
+                Picture current = new Picture(filePathsForImport[i]);
+                //check if it is already imported into library
+                boolean exists = false;
+                for(int j = 0; j < pictureLibrary.size(); ++j){
+                    if(current.getImagePath().equals(pictureLibrary.get(j).getImagePath())){
+                        exists = true;
+                    }
+                }
+                System.out.println(exists);
+                //if it doesn't exist in library
+                if(!exists){
+                    //add picture to library
+                    pictureLibrary.add(current);
+                }
+                // Demonstrate the speed of importing pictures when using a single thread
+                // (multiple threads caused memory errors
+
+            }
+        } finally {
+            System.out.println("Import Complete.");
+            System.out.println(pictureLibrary);
+        }
+        /*Thread newPictureImport = new Thread() {
+            public void run() {
+                try {
+                    for (int i = 0; i < filePathsForImport.length; ++i) {
+                        Picture current = new Picture(filePathsForImport[i]);
+                        pictureLibrary.add(current);
+
+                        // Demonstrate the speed of importing pictures when using a single thread
+                        // (multiple threads caused memory errors
+                        System.out.println(filePathsForImport[i].getPath());
+                    }
+                } finally {
+                    System.out.println("Import Complete.");
+                    System.out.println(pictureLibrary);
+                }
+            }
+        };
+        newPictureImport.start();*/
+        // System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
     }
 
     public static void importFolder(String folderPath) {

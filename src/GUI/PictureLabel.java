@@ -1,4 +1,4 @@
-package Data;
+package GUI;
 
 import Core.Settings;
 import org.imgscalr.Scalr;
@@ -8,25 +8,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 public class PictureLabel extends JLabel {
 
-    private Picture picture;
+
+    private File imageFile;
     private BufferedImage thumbnail;
     private int currentSize;
     private boolean isSelected;
 
-    public PictureLabel(Picture picture) {
-        this.picture = picture;
+    public PictureLabel(File imageFile) {
+        this.imageFile = imageFile;
         thumbnail = null;
         isSelected = false;
 
         try {
-            thumbnail = ImageIO.read(new File(picture.getImagePath()));
+            thumbnail = ImageIO.read(imageFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,8 +58,8 @@ public class PictureLabel extends JLabel {
         }
     }
 
-    public String getPath() {
-        return picture.getImagePath();
+    public File getFile() {
+        return imageFile;
     }
 
     @Override

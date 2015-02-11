@@ -1,6 +1,5 @@
 package Data;
 
-import Core.Library;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
@@ -15,12 +14,13 @@ import java.util.Date;
 public class Picture {
 
     public static Tag METADATA;
-
+    private File imageFile;
     private String imagePath;
     private Object imageKey;
 
     public Picture(File pictureFile) {
 
+        this.imageFile = pictureFile;
         imagePath = pictureFile.getPath();
         METADATA = new Tag();
 
@@ -44,8 +44,6 @@ public class Picture {
             Date pictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
             METADATA.setDate(pictureTakenDate);
         }
-
-        Library.addPictureToLibrary(this);
     }
 
     public Object getImageKey() {
@@ -55,5 +53,7 @@ public class Picture {
         return imagePath;
     }
 
-
+    public File getImageFile() {
+        return imageFile;
+    }
 }

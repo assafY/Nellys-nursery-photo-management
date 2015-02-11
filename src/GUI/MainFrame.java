@@ -3,8 +3,7 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Data.Picture;
-import Data.PictureLabel;
-import static javax.swing.ScrollPaneConstants.*;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -12,13 +11,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.Hashtable;
 import java.awt.event.*;
-import java.io.File;
 import java.util.ArrayList;
+
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
 
@@ -70,6 +66,8 @@ public class MainFrame extends JFrame {
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
     private JPanel picturePanel = new JPanel(picturePanelLayout);
+    private ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+    private ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
     private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
     private JPanel scrollPanel = new JPanel();
     private JSlider zoomSlider;
@@ -97,8 +95,8 @@ public class MainFrame extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         add(mainPanel);
         pack();
-        setVisible(true);
         initialiseListeners();
+        setVisible(true);
     }
     private void createMenuBar(){
 
@@ -279,7 +277,7 @@ public class MainFrame extends JFrame {
         importButton.addActionListener(new ImportButtonListener());
 
         // change picture thumbnail size when slider is used
-        zoomSlider.addChangeListener(new ChangeListener() {
+        /*zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
 
@@ -308,7 +306,7 @@ public class MainFrame extends JFrame {
                 runAfterResize.start();
 
             }
-        });
+        });*/
 
         // adjust number of columns when window size changes
         this.addComponentListener(new ComponentListener() {
@@ -345,7 +343,7 @@ public class MainFrame extends JFrame {
 
             public void stateChanged(ChangeEvent e) {
                 Rectangle currentView = picturePanel.getVisibleRect();
-                for (PictureLabel currentThumbnail: Library.getPictureLabels()) {
+                for (PictureLabel currentThumbnail: thumbsOnDisplay) {
                     if (currentThumbnail.getBounds().intersects(currentView)) {
                         if (currentThumbnail.getIcon() == null) {
                             currentThumbnail.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
@@ -358,11 +356,21 @@ public class MainFrame extends JFrame {
             }
         });
     }
+    public static void main(String[] args){
+        try {
+            // Set System L&F
+            UIManager.setLookAndFeel(
+                    UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e){}
+        new MainFrame();
+    }
 
     /**
      * Divides the current size of the picture panel by current thumbnail size
      * to determine required number of columns in GridLayout.
      */
+
     private void adjustColumnCount() {
         int newColumnCount = 0;
         int currentPanelSize;
@@ -405,51 +413,28 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void addPicturesToLibrary(final File[] importedPictures) {
-
-        Thread newPictureImport = new Thread() {
-            public void run() {
-                try {
-                    for (int i = 0; i < importedPictures.length; ++i) {
-                        PictureLabel currentThumb = new PictureLabel(new Picture(importedPictures[i]));
-                        Library.addPictureLabel(currentThumb);
-                        picturePanel.add(currentThumb);
-
-                        // Demonstrate the speed of importing pictures when using a single thread
-                        // (multiple threads caused memory errors
-                        System.out.println(importedPictures[i].getPath());
-                    }
-                } finally {
-                    System.out.println("Import Complete.");
-                    pack();
-                }
-            }
-        };
-        newPictureImport.start();
-        // System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
-    }
-
-    public class ImportButtonListener implements ActionListener {
+    private class ImportButtonListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            //open system file manager to ask user for pictures to import
             FileDialog importDialog = new FileDialog(MainFrame.this, "Choose picture(s) to import", FileDialog.LOAD);
             importDialog.setFile("*.jpg");
             importDialog.setMultipleMode(true);
             importDialog.setVisible(true);
-
-            addPicturesToLibrary(importDialog.getFiles());
+            //import pictures into library
+            Library.importPicture(importDialog.getFiles());
+            updateTumbs(Library.getPictureLibrary()); //for test
             importDialog = null;
         }
-    }
 
-    public static void main(String[] args){
-        try {
-                // Set System L&F
-                UIManager.setLookAndFeel(
-                UIManager.getSystemLookAndFeelClassName());
+        //for test currently prints whole library
+        private void updateTumbs(ArrayList<Picture> picturesToProcess) {
+            for(int i = 0; i < picturesToProcess.size(); ++i){
+                PictureLabel current = new PictureLabel(picturesToProcess.get(i).getImageFile());
+                thumbsOnDisplay.add(current);
+                picturePanel.add(current);
             }
-        catch (Exception e){}
-        new MainFrame();
+        }
     }
 }
