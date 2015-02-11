@@ -1,6 +1,6 @@
 # SEG Project 3
 
-Nell's Nursery Photo Management System
+Nelly's Nursery Photo Management System
 
 # Contributers:
 
