@@ -1,47 +1,56 @@
 package Data;
 
-import javax.swing.*;
+import Core.Library;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 
-/**
- * Created by ivaylo on 06/02/15.
- */
 public class Picture {
-    private ArrayList<String> taggedChildren = new ArrayList<String>();
-    private ImageIcon pictureIcon;
-    private boolean tagged = false;
-    private String roomTag;
-    private Date date;
 
-    public Picture(String filePath){
-        pictureIcon = new ImageIcon(filePath);
+    public static Tag METADATA;
 
+    private String imagePath;
+    private Object imageKey;
+
+    public Picture(File pictureFile) {
+
+        imagePath = pictureFile.getPath();
+        METADATA = new Tag();
+
+        BasicFileAttributes attr = null;
+        Metadata originalPictureMetadata = null;
+
+        try {
+            attr = Files.readAttributes(pictureFile.toPath(), BasicFileAttributes.class);
+            originalPictureMetadata = ImageMetadataReader.readMetadata(pictureFile);
+        } catch (IOException e) {
+            //TODO: Handle exception
+        } catch (ImageProcessingException e1) {
+            //TODO: Handle exception
+        }
+
+        // store unique file key
+        imageKey = attr.fileKey();
+        // get original date and time picture was taken and add to metadata
+        ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
+        Date PictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+        METADATA.setDate(PictureTakenDate);
+
+        Library.addPictureToLibrary(this);
     }
 
-    public Boolean isTagged(){
-        return tagged;
+    public Object getImageKey() {
+        return imageKey;
     }
-
-    public void setDate(Date date){
-        this.date = date;
-    }
-
-    public ImageIcon getPictureIcon(){
-        return pictureIcon;
-    }
-
-    public Date getDate(){
-        return date;
-    }
-
-    public String getRoomTag(){
-        return roomTag;
-    }
-
-    public ArrayList<String> getTaggedChildren(){
-        return taggedChildren;
+    public String getImagePath() {
+        return imagePath;
     }
 
 
