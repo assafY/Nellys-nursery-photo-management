@@ -277,7 +277,7 @@ public class MainFrame extends JFrame {
         importButton.addActionListener(new ImportButtonListener());
 
         // change picture thumbnail size when slider is used
-        /*zoomSlider.addChangeListener(new ChangeListener() {
+        zoomSlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
 
@@ -306,7 +306,7 @@ public class MainFrame extends JFrame {
                 runAfterResize.start();
 
             }
-        });*/
+        });
 
         // adjust number of columns when window size changes
         this.addComponentListener(new ComponentListener() {
