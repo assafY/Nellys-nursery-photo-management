@@ -132,11 +132,11 @@ public class Library implements Serializable {
         pictureLibrary.add(picture);
     }
 
-    public static ArrayList<PictureLabel> getThumbsOnDisplay() {
+    public static synchronized ArrayList<PictureLabel> getThumbsOnDisplay() {
         return thumbsOnDisplay;
     }
 
-    public static void addThumbToDisplay(PictureLabel thumb) {
+    public static synchronized void addThumbToDisplay(PictureLabel thumb) {
         thumbsOnDisplay.add(thumb);
     }
 

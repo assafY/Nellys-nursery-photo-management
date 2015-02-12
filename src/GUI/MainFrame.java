@@ -408,9 +408,7 @@ public class MainFrame extends JFrame {
             PictureLabel currentThumb = new PictureLabel(picturesToDisplay.get(i));
             Library.addThumbToDisplay(currentThumb);
             picturePanel.add(currentThumb);
-            if (isInView(currentThumb, currentView)) {
-                currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-            }
+            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
 
         }
     }
