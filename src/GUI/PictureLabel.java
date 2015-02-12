@@ -1,6 +1,7 @@
 package GUI;
 
 import Core.Settings;
+import Data.Picture;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -9,41 +10,31 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 
 public class PictureLabel extends JLabel {
 
+    private static final int DEFAULT_SIZE = Settings.THUMBNAIL_SIZES[4];
 
-    private File imageFile;
-    private BufferedImage thumbnail;
+    private Picture picture;
     private int currentSize;
     private boolean isSelected;
 
-    public PictureLabel(File imageFile) {
-        this.imageFile = imageFile;
-        thumbnail = null;
+    public PictureLabel(Picture picture) {
+        this.picture = picture;
         isSelected = false;
-
-        try {
-            thumbnail = ImageIO.read(imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (thumbnail != null) {
-            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[0]);
-        }
 
         this.addMouseListener(new ThumbnailClickListener());
     }
 
-    public void createThumbnail(int size) {
+    public void showThumbnail(int size) {
         currentSize = size;
-        setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
+        setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
     }
 
-    public void removeThumbnail() {
+    public void hideThumbnail() {
         setIcon(null);
     }
 
@@ -58,8 +49,8 @@ public class PictureLabel extends JLabel {
         }
     }
 
-    public File getFile() {
-        return imageFile;
+    public Picture getPicture() {
+        return picture;
     }
 
     @Override

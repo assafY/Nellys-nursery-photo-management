@@ -1,10 +1,15 @@
 package Data;
 
+import Core.Settings;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import org.imgscalr.Scalr;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,22 +19,42 @@ import java.util.Date;
 public class Picture {
 
     public static Tag METADATA;
+
+    private BufferedImage thumbnail;
     private File imageFile;
-    private String imagePath;
     private Object imageKey;
 
     public Picture(File pictureFile) {
 
         this.imageFile = pictureFile;
-        imagePath = pictureFile.getPath();
         METADATA = new Tag();
 
+        createThumbnail();
+        getDateAndKey();
+    }
+
+    private void createThumbnail() {
+        thumbnail = null;
+
+        try {
+            thumbnail = ImageIO.read(imageFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (thumbnail != null) {
+            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[1]);
+
+        }
+    }
+
+    private void getDateAndKey() {
         BasicFileAttributes attr = null;
         Metadata originalPictureMetadata = null;
 
         try {
-            attr = Files.readAttributes(pictureFile.toPath(), BasicFileAttributes.class);
-            originalPictureMetadata = ImageMetadataReader.readMetadata(pictureFile);
+            attr = Files.readAttributes(imageFile.toPath(), BasicFileAttributes.class);
+            originalPictureMetadata = ImageMetadataReader.readMetadata(imageFile);
         } catch (IOException e) {
             //TODO: Handle exception
         } catch (ImageProcessingException e1) {
@@ -46,14 +71,23 @@ public class Picture {
         }
     }
 
+    // prints the number of bytes taken by a thumbnail
+    private void checkSizeOnDisk() {
+        DataBuffer buff = thumbnail.getRaster().getDataBuffer();
+        int bytes = buff.getSize() * DataBuffer.getDataTypeSize(buff.getDataType()) / 8;
+        System.out.println(bytes);
+    }
+
     public Object getImageKey() {
         return imageKey;
     }
     public String getImagePath() {
-        return imagePath;
+        return imageFile.getPath();
     }
-
     public File getImageFile() {
         return imageFile;
+    }
+    public BufferedImage getThumbnail() {
+        return thumbnail;
     }
 }

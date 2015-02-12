@@ -12,6 +12,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
@@ -61,16 +62,17 @@ public class MainFrame extends JFrame {
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
     //create center components
-    GridLayout picturePanelLayout = new GridLayout(0, 1, 5, 5);
+    private static GridLayout picturePanelLayout = new GridLayout(0, 1, 5, 5);
     //private BorderLayout picturePanelBorderLayout = new BorderLayout();
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
-    private JPanel picturePanel = new JPanel(picturePanelLayout);
-    private ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-    private ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
+    private static JPanel picturePanel = new JPanel(picturePanelLayout);
+    private PictureLabel[][] thumbsOnDisplayArray; // possible will be used for all labels currently on display
+                                              // 2D array to enable moving between pictures using keyboard
+                                              // ambitious but let's see what happens :o
     private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
     private JPanel scrollPanel = new JPanel();
-    private JSlider zoomSlider;
+    private static JSlider zoomSlider;
     //create east components
     private JPanel eastPanel = new JPanel(new BorderLayout());
     private JPanel tagPanel = new JPanel(new BorderLayout());
@@ -220,7 +222,7 @@ public class MainFrame extends JFrame {
         zoomSlider.setLabelTable(labelTable);
         zoomSlider.setPaintLabels(true);
 */
-        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 10, 5);
+        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
         picturePanelPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
 
         scrollPanel.add(zoomSlider);
@@ -281,29 +283,22 @@ public class MainFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
 
-                final ArrayList<PictureLabel> thumbs = thumbsOnDisplay;
+                final ArrayList<PictureLabel> thumbs = Library.getThumbsOnDisplay();
 
                 Thread sliderChangeThread = new Thread() {
                     public void run() {
-                        for (PictureLabel picLabel : thumbs) {
-                            picLabel.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-                        }
-                    }
-                };
 
-                Thread runAfterResize = new Thread() {
-                    public void run() {
                         try {
-                            sleep(500);
-                        } catch (InterruptedException e1) {
-
+                            for (PictureLabel picLabel : thumbs) {
+                                picLabel.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+                            }
+                        } finally {
+                            adjustColumnCount();
                         }
-                        adjustColumnCount();
                     }
                 };
 
                 sliderChangeThread.start();
-                runAfterResize.start();
 
             }
         });
@@ -313,19 +308,21 @@ public class MainFrame extends JFrame {
             @Override
             public void componentResized(ComponentEvent e) {
 
-                int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
+                adjustColumnCount();
+
+                /*int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
                 int framePanelGap = currentWindowSize - currentPanelSize;
 
-                //if (framePanelGap < 450) {
-                //    picturePanelBiggerThanFrame = true;
-                    adjustColumnCount();
+                if (framePanelGap < 450) {
+                    picturePanelBiggerThanFrame = true;
 
-                //}
-                //else {
-                //    picturePanelBiggerThanFrame = false;
-                //    adjustColumnCount();
-                //}
+
+                }
+                else {
+                    picturePanelBiggerThanFrame = false;
+                    adjustColumnCount();
+                }*/
             }
             @Override
             public void componentMoved(ComponentEvent e) {}
@@ -343,13 +340,13 @@ public class MainFrame extends JFrame {
 
             public void stateChanged(ChangeEvent e) {
                 Rectangle currentView = picturePanel.getVisibleRect();
-                for (PictureLabel currentThumbnail: thumbsOnDisplay) {
+                for (PictureLabel currentThumbnail: Library.getThumbsOnDisplay()) {
                     if (currentThumbnail.getBounds().intersects(currentView)) {
                         if (currentThumbnail.getIcon() == null) {
-                            currentThumbnail.createThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+                            currentThumbnail.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
                         }
                     } else {
-                        currentThumbnail.removeThumbnail();
+                        currentThumbnail.hideThumbnail();
                     }
                 }
                 currentView = null;
@@ -372,44 +369,35 @@ public class MainFrame extends JFrame {
      */
 
     private void adjustColumnCount() {
-        int newColumnCount = 0;
-        int currentPanelSize;
 
-        //if(picturePanelBiggerThanFrame) {
-            currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 460;
+        /*if(picturePanelBiggerThanFrame) {
+
             //picturePanelBiggerThanFrame = false;
-        /*}
+        }
         else {
             currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
         }*/
-        switch (zoomSlider.getValue()) {
-            case 0: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[0];
-                     break;
-            case 1: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[1];
-                break;
-            case 2: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[2];
-                break;
-            case 3: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[3];
-                break;
-            case 4: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[4];
-                break;
-            case 5: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[5];
-                break;
-            case 6: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[6];
-                break;
-            case 7: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[7];
-                break;
-            case 8: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[8];
-                break;
-            case 9: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[9];
-                break;
-            case 10: newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[10];
-                break;
-        }
+
+        int newColumnCount = 0;
+        int currentPanelSize = ((int) Math.round(MainFrame.this.getSize().getWidth())) - 460;
+
+        newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[zoomSlider.getValue()];
 
         if (picturePanelLayout.getColumns() != newColumnCount && newColumnCount != 0) {
             picturePanelLayout.setColumns(newColumnCount);
             picturePanel.revalidate();
+        }
+    }
+
+    public static void updateThumbnails() {
+
+        ArrayList<Picture> picturesToDisplay = Library.getPictureLibrary();
+
+        for(int i = 0; i < picturesToDisplay.size(); ++i){
+            PictureLabel currentThumb = new PictureLabel(picturesToDisplay.get(i));
+            Library.addThumbToDisplay(currentThumb);
+            picturePanel.add(currentThumb);
+
         }
     }
 
@@ -424,17 +412,7 @@ public class MainFrame extends JFrame {
             importDialog.setVisible(true);
             //import pictures into library
             Library.importPicture(importDialog.getFiles());
-            updateTumbs(Library.getPictureLibrary()); //for test
             importDialog = null;
-        }
-
-        //for test currently prints whole library
-        private void updateTumbs(ArrayList<Picture> picturesToProcess) {
-            for(int i = 0; i < picturesToProcess.size(); ++i){
-                PictureLabel current = new PictureLabel(picturesToProcess.get(i).getImageFile());
-                thumbsOnDisplay.add(current);
-                picturePanel.add(current);
-            }
         }
     }
 }

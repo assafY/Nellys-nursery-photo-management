@@ -2,6 +2,8 @@ package Core;
 
 import Data.Child;
 import Data.Picture;
+import GUI.MainFrame;
+import GUI.PictureLabel;
 
 import java.io.File;
 import java.io.Serializable;
@@ -19,6 +21,7 @@ public class Library implements Serializable {
     private static Iterator possibleAreaIterator = possibleArea.iterator();
     private static ArrayList<Date> possibleDate = new ArrayList<Date>();
     private static Iterator possibleDateIterator = possibleDate.iterator();
+    private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 
     public static ArrayList<Child> getChildrenList() {
         return childrenList;
@@ -40,52 +43,39 @@ public class Library implements Serializable {
         //TO DO
     }
 
-    public static void importPicture(final File[] filePathsForImport) {
-        try {
-            //for evey file path sent from importing in GUI
-            for (int i = 0; i < filePathsForImport.length; ++i) {
+    public static void importPicture(final File[] importedPictures) {
 
-                //create picture object
-                Picture current = new Picture(filePathsForImport[i]);
-                //check if it is already imported into library
-                boolean exists = false;
-                for(int j = 0; j < pictureLibrary.size(); ++j){
-                    if(current.getImagePath().equals(pictureLibrary.get(j).getImagePath())){
-                        exists = true;
-                    }
-                }
-                System.out.println(exists);
-                //if it doesn't exist in library
-                if(!exists){
-                    //add picture to library
-                    pictureLibrary.add(current);
-                }
-                // Demonstrate the speed of importing pictures when using a single thread
-                // (multiple threads caused memory errors
-
-            }
-        } finally {
-            System.out.println("Import Complete.");
-            System.out.println(pictureLibrary);
-        }
-        /*Thread newPictureImport = new Thread() {
+        Thread newPictureImport = new Thread() {
             public void run() {
                 try {
-                    for (int i = 0; i < filePathsForImport.length; ++i) {
-                        Picture current = new Picture(filePathsForImport[i]);
-                        pictureLibrary.add(current);
+                    //for evey file path sent from importing in GUI
+                    for (int i = 0; i < importedPictures.length; ++i) {
 
-                        // Demonstrate the speed of importing pictures when using a single thread
-                        // (multiple threads caused memory errors
-                        System.out.println(filePathsForImport[i].getPath());
+                        //check if it is already imported into library
+                        boolean exists = false;
+                        for (int j = 0; j < pictureLibrary.size(); ++j) {
+                            if (importedPictures[i].getPath().equals(pictureLibrary.get(j).getImagePath())) {
+                                exists = true;
+                            }
+                        }
+                        System.out.println(exists);
+                        //if it doesn't exist in library
+                        if (!exists) {
+                            //add picture to library
+                            Picture currentPicture = new Picture(importedPictures[i]);
+                            pictureLibrary.add(currentPicture);
+                            System.out.println("Added: " + currentPicture.getImagePath());
+                        }
+
                     }
                 } finally {
                     System.out.println("Import Complete.");
-                    System.out.println(pictureLibrary);
+                    MainFrame.updateThumbnails();
                 }
             }
         };
-        newPictureImport.start();*/
+
+        newPictureImport.start();
         // System.out.println("USED MEMORY: " + Runtime.getRuntime().totalMemory() + "FREE MEMORY: " + Runtime.getRuntime().freeMemory());
     }
 
@@ -130,6 +120,18 @@ public class Library implements Serializable {
 
     public static void removeChild(Child child) {
         childrenList.remove(child);
+    }
+
+    public static ArrayList<PictureLabel> getThumbsOnDisplay() {
+        return thumbsOnDisplay;
+    }
+
+    public static void addThumbToDisplay(PictureLabel thumb) {
+        thumbsOnDisplay.add(thumb);
+    }
+
+    public static void removeThumbFromDisplay(PictureLabel thumb) {
+        thumbsOnDisplay.remove(thumb);
     }
 
 }
