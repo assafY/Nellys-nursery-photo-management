@@ -48,6 +48,7 @@ public class Picture {
         }
     }
 
+    //TODO what if there is no date and key? boolean maybe?
     private void getDateAndKey() {
         BasicFileAttributes attr = null;
         Metadata originalPictureMetadata = null;

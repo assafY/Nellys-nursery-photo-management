@@ -15,6 +15,10 @@ public class Child {
         Library.addChild(this);
     }
 
+    public String getName() {
+    	return name;
+    }
+    
     public void addTaggedPicture(Picture picture) {
         taggedPictures.add(picture);
     }

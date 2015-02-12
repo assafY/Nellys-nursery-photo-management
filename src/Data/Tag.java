@@ -5,30 +5,48 @@ import java.util.Date;
 
 public class Tag {
 
-    private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
+	// there may be more than 3 rooms - let them decide the names
+    //private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
 
     private String room;
     private ArrayList<Child> children;
     private Date date;
 
+    /* comment section */ {
+//    public Tag(ArrayList<Child> children) {
+//    	this();
+//    	this.children = children;
+//    }
+//    public Tag(Date date) {
+//    	this();
+//    	this.date = date;
+//    }
+//    public Tag(String room) {
+//    	this();
+//    	this.room = room;
+//    }
+    }
+    
     public Tag() {
         room = null;
         children = new ArrayList<Child>();
         date = null;
     }
 
-    public void setRoom(int roomCode) {
-        this.room = ROOMS[roomCode];
+    public void setRoom(String room) {
+        this.room = room;
     }
 
-    public void addChild(Child child, Picture picture) {
+    public void addChild(Child child) {
+    	// , Picture picture
         children.add(child);
-        child.addTaggedPicture(picture);
+//        child.addTaggedPicture(picture);
     }
 
-    public void removeChild(Child child, Picture picture) {
+    public void removeChild(Child child) {
+    	// , Picture picture
         children.remove(child);
-        child.removeTaggedPicture(picture);
+//        child.removeTaggedPicture(picture);
     }
 
     public void setDate(Date date){
