@@ -18,8 +18,7 @@ import java.util.Date;
 
 public class Picture {
 
-    public static Tag METADATA;
-
+    private Tag metadata;
     private BufferedImage thumbnail;
     private File imageFile;
     private Object imageKey;
@@ -27,7 +26,7 @@ public class Picture {
     public Picture(File pictureFile) {
 
         this.imageFile = pictureFile;
-        METADATA = new Tag();
+        metadata = new Tag();
 
         createThumbnail();
         getDateAndKey();
@@ -68,7 +67,7 @@ public class Picture {
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
         if (directory != null) {
             Date pictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-            METADATA.setDate(pictureTakenDate);
+            metadata.setDate(pictureTakenDate);
         }
     }
 
@@ -90,5 +89,12 @@ public class Picture {
     }
     public BufferedImage getThumbnail() {
         return thumbnail;
+    }
+    public Tag getTag() {
+    	return metadata;
+    }
+    
+    public void setTag(Tag tag) {
+    	metadata = tag;
     }
 }
