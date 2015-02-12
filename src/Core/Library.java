@@ -2,6 +2,7 @@ package Core;
 
 import Data.Child;
 import Data.Picture;
+import Data.Tag;
 import GUI.MainFrame;
 import GUI.PictureLabel;
 
@@ -23,7 +24,7 @@ public class Library implements Serializable {
     private static Iterator possibleDateIterator = possibleDate.iterator();
     private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 
-    public static ArrayList<Child> getChildrenList() {
+    public static synchronized ArrayList<Child> getChildrenList() {
         return childrenList;
     }
 
@@ -31,18 +32,24 @@ public class Library implements Serializable {
         return pictureLibrary;
     }
 
-    public static void tagDate(ArrayList<Picture> picturesToTag, Date dateToTag) {
-        //TO DO
+    public void tagPicture(Picture picture, Tag tag) {
+    	//TODO 
     }
-
-    public static void tagArea(ArrayList<Picture> picturesToTag, String Area) {
-        //TO DO
+    
+    /* comment section */ {
+//    public static void tagDate(ArrayList<Picture> picturesToTag, Date dateToTag) {
+//        //TO DO
+//    }
+//
+//    public static void tagArea(ArrayList<Picture> picturesToTag, String Area) {
+//        //TO DO
+//    }
+//
+//    public static void tagChildren(ArrayList<Picture> picturesToTag, ArrayList<String> childreninPicture) {
+//        //TO DO
+//    }
     }
-
-    public static void tagChildren(ArrayList<Picture> picturesToTag, ArrayList<String> childreninPicture) {
-        //TO DO
-    }
-
+    
     public static void importPicture(final File[] importedPictures) {
 
         Thread newPictureImport = new Thread() {
@@ -86,38 +93,49 @@ public class Library implements Serializable {
     }
 
     public static void importFolder(String folderPath) {
-        //TO DO
+        //TODO for every picture in folder do importPicture()
     }
 
     public static ArrayList<Picture> searchByChild(String childName) {
-        ArrayList<Picture> result = new ArrayList<Picture>();
-        //TO DO
-        return result;
-    }
-
-    public static ArrayList<Picture> searchByDate(Date date) {
-        ArrayList<Picture> result = new ArrayList<Picture>();
-        //TO DO
-        return result;
-    }
-
-    public static ArrayList<Picture> searchByArea(String area) {
-        ArrayList<Picture> result = new ArrayList<Picture>();
-        //TO DO
-        return result;
+    	ArrayList<Picture> result = new ArrayList<Picture>();
+    	//TODO
+    	return result;
+  }
+    
+    /* comment section */ {
+//    public static ArrayList<Picture> searchByChild(String childName) {
+//        ArrayList<Picture> result = new ArrayList<Picture>();
+//        //TO DO
+//        return result;
+//    }
+//
+//    public static ArrayList<Picture> searchByDate(Date date) {
+//        ArrayList<Picture> result = new ArrayList<Picture>();
+//        //TO DO
+//        return result;
+//    }
+//
+//    public static ArrayList<Picture> searchByArea(String area) {
+//        ArrayList<Picture> result = new ArrayList<Picture>();
+//        //TO DO
+//        return result;
+//    }
     }
 
     public static void rotate(ArrayList<Picture> picturesToRotate, boolean direction) {
-        //TO DO (true = clockwise, false = anticlockwise)
-
+        //TODO (true = clockwise, false = anticlockwise)
     }
 
     public static void print(ArrayList<Picture> picturesToPrint) {
-        //TO DO
+        //TODO here? or in GUI?
     }
 
     public static void export(ArrayList<Picture> picturesToExport) {
-        //TO DO
+        //TODO
+    }
+    
+    public static void delete(ArrayList<Picture> picturesToDelete) {
+    	//TODO
     }
 
     public static void addChild(Child child) {
