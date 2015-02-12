@@ -289,8 +289,8 @@ public class MainFrame extends JFrame {
                     public void run() {
 
                         try {
-                            for (PictureLabel picLabel : thumbs) {
-                                picLabel.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+                            for (PictureLabel currentThumbnail : thumbs) {
+                                currentThumbnail.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
                             }
                         } finally {
                             adjustColumnCount();
@@ -341,7 +341,7 @@ public class MainFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 Rectangle currentView = picturePanel.getVisibleRect();
                 for (PictureLabel currentThumbnail: Library.getThumbsOnDisplay()) {
-                    if (currentThumbnail.getBounds().intersects(currentView)) {
+                    if (isInView(currentThumbnail, currentView)) {
                         if (currentThumbnail.getIcon() == null) {
                             currentThumbnail.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
                         }
@@ -353,6 +353,17 @@ public class MainFrame extends JFrame {
             }
         });
     }
+
+    private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
+
+        if (thumbnail.getBounds().intersects(currentView)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     public static void main(String[] args){
         try {
             // Set System L&F
@@ -389,14 +400,17 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public static void updateThumbnails() {
+    public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
 
-        ArrayList<Picture> picturesToDisplay = Library.getPictureLibrary();
+        Rectangle currentView = picturePanel.getVisibleRect();
 
         for(int i = 0; i < picturesToDisplay.size(); ++i){
             PictureLabel currentThumb = new PictureLabel(picturesToDisplay.get(i));
             Library.addThumbToDisplay(currentThumb);
             picturePanel.add(currentThumb);
+            if (isInView(currentThumb, currentView)) {
+                currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+            }
 
         }
     }

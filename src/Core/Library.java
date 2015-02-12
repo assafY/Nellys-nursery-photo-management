@@ -27,7 +27,7 @@ public class Library implements Serializable {
         return childrenList;
     }
 
-    public static ArrayList<Picture> getPictureLibrary() {
+    public static synchronized ArrayList<Picture> getPictureLibrary() {
         return pictureLibrary;
     }
 
@@ -46,6 +46,9 @@ public class Library implements Serializable {
     public static void importPicture(final File[] importedPictures) {
 
         Thread newPictureImport = new Thread() {
+
+            ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+
             public void run() {
                 try {
                     //for evey file path sent from importing in GUI
@@ -63,14 +66,17 @@ public class Library implements Serializable {
                         if (!exists) {
                             //add picture to library
                             Picture currentPicture = new Picture(importedPictures[i]);
-                            pictureLibrary.add(currentPicture);
+                            picturesToDisplay.add(currentPicture);
                             System.out.println("Added: " + currentPicture.getImagePath());
                         }
 
                     }
                 } finally {
                     System.out.println("Import Complete.");
-                    MainFrame.updateThumbnails();
+                    MainFrame.addThumbnailsToView(picturesToDisplay);
+                    for (int i = 0; i < picturesToDisplay.size(); ++i) {
+                        addPictureToLibrary(picturesToDisplay.get(i));
+                    }
                 }
             }
         };
@@ -120,6 +126,10 @@ public class Library implements Serializable {
 
     public static void removeChild(Child child) {
         childrenList.remove(child);
+    }
+
+    public static synchronized void addPictureToLibrary(Picture picture) {
+        pictureLibrary.add(picture);
     }
 
     public static ArrayList<PictureLabel> getThumbsOnDisplay() {
