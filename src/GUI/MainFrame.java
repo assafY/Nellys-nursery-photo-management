@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
     private JButton deleteButton = new JButton("Delete");
     private JButton printButton = new JButton("Print");
     //create center components
-    private static GridLayout picturePanelLayout = new GridLayout(0, 1, 5, 5);
+    private static GridLayout picturePanelLayout = new GridLayout(0, 1, 2, 2);
     //private BorderLayout picturePanelBorderLayout = new BorderLayout();
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
@@ -80,6 +80,7 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
+    private JPanel storeTagsPanel = new JPanel(new BorderLayout());
 
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
@@ -264,6 +265,13 @@ public class MainFrame extends JFrame {
         JFormattedTextField dateField = new JFormattedTextField();
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
+
+        //Additional panel for storing current tags
+        TitledBorder titledBorder = new TitledBorder(" Current Tags ");
+        EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
+        CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
+        storeTagsPanel.setBorder(compoundBorder);
+        tagPanel.add(storeTagsPanel, BorderLayout.SOUTH);
     }
     private void initialiseListeners(){
         exit.addActionListener(new ActionListener() {
@@ -396,9 +404,31 @@ public class MainFrame extends JFrame {
 
         if (picturePanelLayout.getColumns() != newColumnCount && newColumnCount != 0) {
             picturePanelLayout.setColumns(newColumnCount);
+
+            picturePanelLayout.setHgap(2);
+            picturePanelLayout.setVgap(2);
+
+
             picturePanel.revalidate();
+            picturePanel.repaint();
         }
     }
+
+
+    /*public void setPreferredLayoutSize(JPanel panel) {
+
+            int rows = picturePanelLayout.getRows();
+            int cols = picturePanelLayout.getColumns();
+            if (rows > 0) {
+                cols = (cells + rows - 1) / rows;
+            }
+            else {
+                rows = (cells + cols - 1) / cols;
+            }
+
+
+        }
+    }*/
 
     public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
 
