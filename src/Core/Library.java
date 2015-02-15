@@ -5,7 +5,9 @@ import Data.Picture;
 import Data.Tag;
 import GUI.MainFrame;
 import GUI.PictureLabel;
+import com.sun.deploy.util.SystemUtils;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ public class Library implements Serializable {
     private static ArrayList<Date> possibleDate = new ArrayList<Date>();
     private static Iterator possibleDateIterator = possibleDate.iterator();
     private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
+    private static ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
     public static synchronized ArrayList<Child> getChildrenList() {
         return childrenList;
@@ -33,9 +36,9 @@ public class Library implements Serializable {
     }
 
     public void tagPicture(Picture picture, Tag tag) {
-    	//TODO 
+        //TODO
     }
-    
+
     /* comment section */ {
 //    public static void tagDate(ArrayList<Picture> picturesToTag, Date dateToTag) {
 //        //TO DO
@@ -49,7 +52,7 @@ public class Library implements Serializable {
 //        //TO DO
 //    }
     }
-    
+
     public static void importPicture(final File[] importedPictures) {
 
         Thread newPictureImport = new Thread() {
@@ -79,11 +82,17 @@ public class Library implements Serializable {
 
                     }
                 } finally {
-                    System.out.println("Import Complete.");
-                    MainFrame.addThumbnailsToView(picturesToDisplay);
-                    for (int i = 0; i < picturesToDisplay.size(); ++i) {
-                        addPictureToLibrary(picturesToDisplay.get(i));
-                    }
+                    Runnable displayPictures = new Runnable() {
+
+                        public void run() {
+                            System.out.println("Import Complete.");
+                            MainFrame.addThumbnailsToView(picturesToDisplay);
+                            for (int i = 0; i < picturesToDisplay.size(); ++i) {
+                                addPictureToLibrary(picturesToDisplay.get(i));
+                            }
+                        }
+                    };
+                    SwingUtilities.invokeLater(displayPictures);
                 }
             }
         };
@@ -97,11 +106,11 @@ public class Library implements Serializable {
     }
 
     public static ArrayList<Picture> searchByChild(String childName) {
-    	ArrayList<Picture> result = new ArrayList<Picture>();
-    	//TODO
-    	return result;
-  }
-    
+        ArrayList<Picture> result = new ArrayList<Picture>();
+        //TODO
+        return result;
+    }
+
     /* comment section */ {
 //    public static ArrayList<Picture> searchByChild(String childName) {
 //        ArrayList<Picture> result = new ArrayList<Picture>();
@@ -133,9 +142,9 @@ public class Library implements Serializable {
     public static void export(ArrayList<Picture> picturesToExport) {
         //TODO
     }
-    
+
     public static void delete(ArrayList<Picture> picturesToDelete) {
-    	//TODO
+        //TODO
     }
 
     public static void addChild(Child child) {
@@ -160,6 +169,25 @@ public class Library implements Serializable {
 
     public static void removeThumbFromDisplay(PictureLabel thumb) {
         thumbsOnDisplay.remove(thumb);
+    }
+
+    public static ArrayList<PictureLabel> getSelectedThumbs() {
+        return selectedThumbs;
+    }
+
+    public static void addSelectedThumb(PictureLabel selectedThumb) {
+        selectedThumbs.add(selectedThumb);
+    }
+
+    public static void removeSelectedThumb(PictureLabel selectedThumb) {
+        selectedThumbs.remove(selectedThumb);
+    }
+
+    public static void removeAllSelectedThumbs() {
+        for (PictureLabel p: selectedThumbs) {
+            p.toggleSelection();
+        }
+        selectedThumbs.clear();
     }
 
 }

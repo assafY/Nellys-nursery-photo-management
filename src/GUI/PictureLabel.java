@@ -26,7 +26,7 @@ public class PictureLabel extends JLabel {
         this.picture = picture;
         isSelected = false;
 
-        this.addMouseListener(new ThumbnailClickListener());
+        this.addMouseListener(new ThumbnailMouseListener());
     }
 
     public void showThumbnail(int size) {
@@ -49,6 +49,10 @@ public class PictureLabel extends JLabel {
         }
     }
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
     public Picture getPicture() {
         return picture;
     }
@@ -67,7 +71,7 @@ public class PictureLabel extends JLabel {
         }
     }
 
-    public class ThumbnailClickListener extends MouseAdapter {
+    public class ThumbnailMouseListener extends MouseAdapter {
 
         /**
          * Incomlete picture selection method. Ideally a 2D array should store all labels and enable moving between
