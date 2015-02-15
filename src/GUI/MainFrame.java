@@ -2,8 +2,10 @@ package GUI;
 
 import Core.Library;
 import Core.Settings;
+import Data.Child;
 import Data.Picture;
 import Data.ThumbnailClickListener;
+import Data.Tag;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -11,10 +13,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -81,8 +85,16 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
-    private JPanel storeTagsPanel = new JPanel(new BorderLayout());
+    private JPanel storeTagsPanel = new JPanel(new FlowLayout());
+    JFormattedTextField dateField;
+    private JTextField childField = new JTextField(12);
+    private JTextField areaField = new JTextField(12);
+    private JLabel areaLabel = new JLabel("Area");
+    private JLabel dateLabel = new JLabel("Date");
+    private JButton doneButton = new JButton("Done");
+    private JButton resetButton = new JButton("Reset");
 
+    private Tag tagLabel = new Tag();
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
     private ThumbnailClickListener tcl = new ThumbnailClickListener();
@@ -251,20 +263,20 @@ public class MainFrame extends JFrame {
         descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
                 BorderLayout.NORTH);
         descriptionPanel.add(donePanel, BorderLayout.SOUTH);
-        donePanel.add(new JButton("Reset"));
-        donePanel.add(new JButton("Done"));
+        donePanel.add(resetButton);
+        donePanel.add(doneButton);
         eastPanel.add(tagPanel, BorderLayout.NORTH);
         tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
         tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
         tagsLabelsPanel.add(new JLabel("Child name"));
-        tagsLabelsPanel.add(new JLabel("Area"));
-        tagsLabelsPanel.add(new JLabel("Date"));
+        tagsLabelsPanel.add(areaLabel);
+        tagsLabelsPanel.add(dateLabel);
         tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
         tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
-        tagsFieldsPanel.add(new JTextField(12));
-        tagsFieldsPanel.add(new JTextField(12));
+        tagsFieldsPanel.add(childField);
+        tagsFieldsPanel.add(areaField);
         //field to enter/display date
-        JFormattedTextField dateField = new JFormattedTextField();
+        dateField = new JFormattedTextField();
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
 
@@ -366,6 +378,89 @@ public class MainFrame extends JFrame {
         });
 
         this.addKeyListener(tcl);
+
+        areaField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (!areaField.getText().isEmpty())
+					areaLabel.setForeground(Color.GREEN);
+				else
+					areaLabel.setForeground(Color.BLACK);
+			}
+		});
+        areaField.addFocusListener(new FocusAdapter() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				tagLabel.setRoom(areaField.getText());
+			}
+			
+		});
+        dateField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (!dateField.getText().isEmpty())
+					dateLabel.setForeground(Color.GREEN);
+				else
+					dateLabel.setForeground(Color.BLACK);
+			}
+		});
+        dateField.addFocusListener(new FocusAdapter() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				tagLabel.setDate(new Date());
+				//TODO implement date properly
+			}
+			
+		});
+        childField.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				storeTagsPanel.add(new JLabel(childField.getText()));
+				childField.setText("");
+				pack();
+			}
+		});
+        storeTagsPanel.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int c = storeTagsPanel.getComponentCount();
+				if (c != 0) {
+					storeTagsPanel.remove(c-1);
+					pack();
+				}
+			}
+		});
+        resetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				areaLabel.setForeground(Color.BLACK);
+				areaField.setText("");
+				dateLabel.setForeground(Color.BLACK);
+				dateField.setText("");
+				storeTagsPanel.removeAll();
+				childField.setText("");
+				tagLabel = new Tag();
+			}
+		});
+        doneButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Component[] children = storeTagsPanel.getComponents();
+				for (Component component : children) {
+					//TODO check if the child exists
+					String nameOfChild = ((JLabel) component).getText();
+					Child child = new Child(nameOfChild);
+					tagLabel.addChild(child);
+				}
+				System.out.println(tagLabel);
+			}
+		});
     }
 
     private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
