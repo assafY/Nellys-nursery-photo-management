@@ -3,6 +3,7 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Data.Picture;
+import Data.ThumbnailClickListener;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -67,7 +68,7 @@ public class MainFrame extends JFrame {
 
     private JPanel centerPanel = new JPanel(new BorderLayout());
     private static JPanel picturePanel = new JPanel(picturePanelLayout);
-    private PictureLabel[][] thumbsOnDisplayArray; // possible will be used for all labels currently on display
+    public static PictureLabel[][] thumbsOnDisplayArray; // possible will be used for all labels currently on display
                                               // 2D array to enable moving between pictures using keyboard
                                               // ambitious but let's see what happens :o
     private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
@@ -84,6 +85,7 @@ public class MainFrame extends JFrame {
 
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
+    private ThumbnailClickListener tcl = new ThumbnailClickListener();
 
     public MainFrame(){
         setTitle("Photo Management Software");
@@ -317,6 +319,8 @@ public class MainFrame extends JFrame {
             public void componentResized(ComponentEvent e) {
 
                 adjustColumnCount();
+                setFocusable(true);
+                requestFocus();
 
                 /*int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
@@ -360,6 +364,8 @@ public class MainFrame extends JFrame {
                 currentView = null;
             }
         });
+
+        this.addKeyListener(tcl);
     }
 
     private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
@@ -411,6 +417,7 @@ public class MainFrame extends JFrame {
 
             picturePanel.revalidate();
             picturePanel.repaint();
+            createThumbnailArray();
         }
     }
 
@@ -429,6 +436,28 @@ public class MainFrame extends JFrame {
 
         }
     }*/
+
+    private void createThumbnailArray() {
+        int columnCount = picturePanelLayout.getColumns();
+        int rowCount = Library.getThumbsOnDisplay().size() / columnCount;
+        if (Library.getThumbsOnDisplay().size() % columnCount != 0) {
+            ++rowCount;
+        }
+        System.out.println(rowCount);
+        int thumbnailCounter = 0;
+
+        thumbsOnDisplayArray = new PictureLabel[rowCount][columnCount];
+        for (int i = 0; i < rowCount; ++i) {
+            for (int j = 0; j < columnCount; ++j) {
+                if (thumbnailCounter != Library.getThumbsOnDisplay().size()) {
+                    thumbsOnDisplayArray[i][j] = Library.getThumbsOnDisplay().get(thumbnailCounter++);
+                }
+            }
+        }
+        tcl.refresh();
+
+
+    }
 
     public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
 
