@@ -35,8 +35,8 @@ public class Library implements Serializable {
         return pictureLibrary;
     }
 
-    public void tagPicture(Picture picture, Tag tag) {
-        //TODO
+    public static void tagPicture(Picture picture, Tag tag) {
+    	picture.setTag(tag);
     }
 
     /* comment section */ {

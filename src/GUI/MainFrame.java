@@ -281,7 +281,7 @@ public class MainFrame extends JFrame {
         tagsFieldsPanel.add(dateField);
 
         //Additional panel for storing current tags
-        TitledBorder titledBorder = new TitledBorder(" Current Tags ");
+        TitledBorder titledBorder = new TitledBorder(" Current Children ");
         EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
         storeTagsPanel.setBorder(compoundBorder);
@@ -392,7 +392,11 @@ public class MainFrame extends JFrame {
 			
 			@Override
 			public void focusLost(FocusEvent e) {
-				tagLabel.setRoom(areaField.getText());
+				String text = areaField.getText();
+				if (text == null || text.equals(""))
+					tagLabel.removeRoom();
+				else
+					tagLabel.setRoom(areaField.getText());
 			}
 			
 		});
@@ -409,7 +413,9 @@ public class MainFrame extends JFrame {
 			
 			@Override
 			public void focusLost(FocusEvent e) {
-				tagLabel.setDate(new Date());
+				Date date = new Date();
+				dateField.setText(""+date);
+				tagLabel.setDate(date);
 				//TODO implement date properly
 			}
 			
@@ -418,9 +424,12 @@ public class MainFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				storeTagsPanel.add(new JLabel(childField.getText()));
+				String text = childField.getText().trim();
+				if (text != null && !text.equals("")) {
+					storeTagsPanel.add(new JLabel(childField.getText()));
+					pack();
+				}
 				childField.setText("");
-				pack();
 			}
 		});
         storeTagsPanel.addMouseListener(new MouseAdapter() {
@@ -445,6 +454,7 @@ public class MainFrame extends JFrame {
 				storeTagsPanel.removeAll();
 				childField.setText("");
 				tagLabel = new Tag();
+				pack();
 			}
 		});
         doneButton.addActionListener(new ActionListener() {
@@ -452,6 +462,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Component[] children = storeTagsPanel.getComponents();
+				tagLabel.removeAllChildren();
 				for (Component component : children) {
 					//TODO check if the child exists
 					String nameOfChild = ((JLabel) component).getText();
