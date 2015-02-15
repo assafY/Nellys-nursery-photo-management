@@ -48,7 +48,7 @@ public class Tag {
 		children.remove(child);
 		// child.removeTaggedPicture(picture);
 	}
-	
+
 	public void removeAllChildren() {
 		children.clear();
 	}
@@ -56,7 +56,7 @@ public class Tag {
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
+
 	public void removeDate() {
 		this.date = null;
 	}
@@ -99,6 +99,7 @@ public class Tag {
 			}
 			tagString = tagString.substring(0, tagString.length() - 2);
 		}
+        
 		return tagString + ".";
 	}
 }
