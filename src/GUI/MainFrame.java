@@ -85,7 +85,7 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
-    private JPanel storeTagsPanel = new JPanel(new FlowLayout());
+    public static JPanel storeTagsPanel = new JPanel(new FlowLayout());
     JFormattedTextField dateField;
     private JTextField childField = new JTextField(12);
     private JTextField areaField = new JTextField(12);
@@ -98,6 +98,7 @@ public class MainFrame extends JFrame {
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
     private ThumbnailClickListener tcl = new ThumbnailClickListener();
+    private ArrayList<Child> autoCompleteList;
 
     public MainFrame(){
         setTitle("Photo Management Software");
@@ -280,6 +281,10 @@ public class MainFrame extends JFrame {
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
 
+        new Child("Assaf Yossifoff");
+        new Child("Asaf Shemtov");
+        new Child("Andrei Juganaru");
+
         //Additional panel for storing current tags
         TitledBorder titledBorder = new TitledBorder(" Current Children ");
         EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
@@ -420,7 +425,32 @@ public class MainFrame extends JFrame {
 			}
 			
 		});
-        childField.addActionListener(new ActionListener() {
+        childField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                super.keyReleased(e);
+                String currentInput = childField.getText().toString().toLowerCase();
+                System.out.println(childField.getText().toString());
+                // if the text field is not empty
+                if (!currentInput.equals("")) {
+
+                    autoCompleteList = new ArrayList<Child>();
+                    for (Child c : Library.getChildrenList()) {
+                        // for every country in the full country list, if it starts with the same text in the text field
+                        // add it to a new country list
+                        if (c.getName().toLowerCase().startsWith(currentInput)) {
+                            autoCompleteList.add(c);
+                        }
+                    }
+
+                    if (autoCompleteList.size() == 1) {
+                        storeTagsPanel.add(new TagTextLabel(autoCompleteList.get(0).getName()));
+                        storeTagsPanel.revalidate();
+                    }
+                }
+            }
+        });
+        /*childField.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -442,7 +472,7 @@ public class MainFrame extends JFrame {
 					pack();
 				}
 			}
-		});
+		});*/
         resetButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -452,7 +482,7 @@ public class MainFrame extends JFrame {
 				dateLabel.setForeground(Color.BLACK);
 				dateField.setText("");
 				storeTagsPanel.removeAll();
-				childField.setText("");
+				//childField.setText("");
 				tagLabel = new Tag();
 				pack();
 			}

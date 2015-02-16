@@ -7,7 +7,9 @@ import GUI.MainFrame;
 import GUI.PictureLabel;
 //import com.sun.deploy.util.SystemUtils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;

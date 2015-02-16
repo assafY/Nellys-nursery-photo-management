@@ -6,17 +6,18 @@ import GUI.PictureLabel;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.HashSet;
+//import java.util.HashSet;
 
 public class ThumbnailClickListener implements KeyListener {
 
-    private final HashSet<Character> pressedKeys = new HashSet<Character>();
+    //private final HashSet<Character> pressedKeys = new HashSet<Character>();
     public static boolean shiftIsPressed = false;
     public static boolean controlIsPressed = false;
+    public static PictureLabel mostRecentSelection = null;
 
     private int currentRow = 0;
     private int currentColumn = 0;
-    private PictureLabel mostRecentSelection = null;
+
 
     public void refresh() {
         if (mostRecentSelection != null) {

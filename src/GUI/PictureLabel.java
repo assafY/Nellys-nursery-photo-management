@@ -1,8 +1,9 @@
 package GUI;
 
+import Core.Library;
 import Core.Settings;
 import Data.Picture;
-
+import Data.ThumbnailClickListener;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -87,6 +88,13 @@ public class PictureLabel extends JLabel {
         public void mouseClicked(MouseEvent e) {
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
+                if (isSelected) {
+                    Library.removeSelectedThumb(PictureLabel.this);
+                }
+                else {
+                    Library.addSelectedThumb(PictureLabel.this);
+                    ThumbnailClickListener.mostRecentSelection = PictureLabel.this;
+                }
                 toggleSelection();
             }
             else if (clickCount == 2) {

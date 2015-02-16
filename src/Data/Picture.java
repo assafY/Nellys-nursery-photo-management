@@ -63,10 +63,15 @@ public class Picture {
 
         // store unique file key
         imageKey = attr.fileKey();
+        Date pictureTakenDate;
         // get original date and time picture was taken and add to metadata
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
         if (directory != null) {
-            Date pictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+            pictureTakenDate = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+            metadata.setDate(pictureTakenDate);
+        }
+        else { // use the date the file was created
+            pictureTakenDate = new Date(attr.creationTime().toMillis());
             metadata.setDate(pictureTakenDate);
         }
     }
