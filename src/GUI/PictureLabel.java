@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PictureLabel extends JLabel {
 
@@ -88,12 +89,20 @@ public class PictureLabel extends JLabel {
         public void mouseClicked(MouseEvent e) {
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
+
+                if (!ThumbnailClickListener.shiftIsPressed) {
+                    Library.removeAllSelectedThumbs();
+                }
+
                 if (isSelected) {
                     Library.removeSelectedThumb(PictureLabel.this);
+                    ThumbnailClickListener.mostRecentSelection = null;
+                    ThumbnailClickListener.refresh();
                 }
                 else {
                     Library.addSelectedThumb(PictureLabel.this);
                     ThumbnailClickListener.mostRecentSelection = PictureLabel.this;
+                    ThumbnailClickListener.refresh();
                 }
                 toggleSelection();
             }

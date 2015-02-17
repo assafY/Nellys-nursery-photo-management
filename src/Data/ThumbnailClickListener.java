@@ -15,11 +15,11 @@ public class ThumbnailClickListener implements KeyListener {
     public static boolean controlIsPressed = false;
     public static PictureLabel mostRecentSelection = null;
 
-    private int currentRow = 0;
-    private int currentColumn = 0;
+    private static int currentRow = 0;
+    private static int currentColumn = 0;
 
 
-    public void refresh() {
+    public static void refresh() {
         if (mostRecentSelection != null) {
             for (int i = 0; i < MainFrame.thumbsOnDisplayArray.length; ++i) {
                 for (int j = 0; j < MainFrame.thumbsOnDisplayArray[i].length; ++j) {
@@ -126,20 +126,22 @@ public class ThumbnailClickListener implements KeyListener {
                             case KeyEvent.VK_LEFT:
                                 if (currentColumn > 0) {
                                     if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn - 1] != null) {
+                                        mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
                                         if (!shiftIsPressed) {
                                             Library.removeAllSelectedThumbs();
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
+                                            //mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
                                             mostRecentSelection.toggleSelection();
                                             Library.addSelectedThumb(mostRecentSelection);
                                         }
                                         else {
-                                            if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn - 1].isSelected()) {
+                                            /*if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn - 1].isSelected()) {
                                                 mostRecentSelection.toggleSelection();
                                                 Library.removeSelectedThumb(mostRecentSelection);
                                                 mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
                                             }
-                                            else {
-                                                mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
+                                            else {*/
+                                            if (!mostRecentSelection.isSelected()) {
+                                                //mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][--currentColumn];
                                                 mostRecentSelection.toggleSelection();
                                                 Library.addSelectedThumb(mostRecentSelection);
                                             }
@@ -157,20 +159,22 @@ public class ThumbnailClickListener implements KeyListener {
                             case KeyEvent.VK_RIGHT:
                                 if (currentColumn < MainFrame.thumbsOnDisplayArray[currentRow].length - 1) {
                                     if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn + 1] != null) {
+                                        mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
                                         if (!shiftIsPressed) {
                                             Library.removeAllSelectedThumbs();
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
+                                            //mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
                                             mostRecentSelection.toggleSelection();
                                             Library.addSelectedThumb(mostRecentSelection);
                                         }
                                         else {
-                                            if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn + 1].isSelected()) {
+                                            /*if (MainFrame.thumbsOnDisplayArray[currentRow][currentColumn + 1].isSelected()) {
                                                 mostRecentSelection.toggleSelection();
                                                 Library.removeSelectedThumb(mostRecentSelection);
                                                 mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
                                             }
-                                            else {
-                                                mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
+                                            else {*/
+                                            if (!mostRecentSelection.isSelected()) {
+                                                //mostRecentSelection = MainFrame.thumbsOnDisplayArray[currentRow][++currentColumn];
                                                 mostRecentSelection.toggleSelection();
                                                 Library.addSelectedThumb(mostRecentSelection);
                                             }
@@ -195,16 +199,19 @@ public class ThumbnailClickListener implements KeyListener {
                             case KeyEvent.VK_UP:
                                 if (currentRow > 0) {
                                     if (MainFrame.thumbsOnDisplayArray[currentRow - 1][currentColumn] != null) {
+                                        mostRecentSelection = MainFrame.thumbsOnDisplayArray[--currentRow][currentColumn];
                                         if (!shiftIsPressed) {
                                             Library.removeAllSelectedThumbs();
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[--currentRow][currentColumn];
+                                            //mostRecentSelection = MainFrame.thumbsOnDisplayArray[--currentRow][currentColumn];
                                             mostRecentSelection.toggleSelection();
                                             Library.addSelectedThumb(mostRecentSelection);
                                         }
                                         else {
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[--currentRow][currentColumn];
-                                            mostRecentSelection.toggleSelection();
-                                            Library.addSelectedThumb(mostRecentSelection);
+                                            if(!mostRecentSelection.isSelected()) {
+                                                //mostRecentSelection = MainFrame.thumbsOnDisplayArray[--currentRow][currentColumn];
+                                                mostRecentSelection.toggleSelection();
+                                                Library.addSelectedThumb(mostRecentSelection);
+                                            }
                                         }
                                     }
                                 }
@@ -219,16 +226,19 @@ public class ThumbnailClickListener implements KeyListener {
                             case KeyEvent.VK_DOWN:
                                 if (currentRow < MainFrame.thumbsOnDisplayArray.length - 1) {
                                     if (MainFrame.thumbsOnDisplayArray[currentRow + 1][currentColumn] != null) {
+                                        mostRecentSelection = MainFrame.thumbsOnDisplayArray[++currentRow][currentColumn];
                                         if (!shiftIsPressed) {
                                             Library.removeAllSelectedThumbs();
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[++currentRow][currentColumn];
+                                            //mostRecentSelection = MainFrame.thumbsOnDisplayArray[++currentRow][currentColumn];
                                             mostRecentSelection.toggleSelection();
                                             Library.addSelectedThumb(mostRecentSelection);
                                         }
                                         else {
-                                            mostRecentSelection = MainFrame.thumbsOnDisplayArray[++currentRow][currentColumn];
-                                            mostRecentSelection.toggleSelection();
-                                            Library.addSelectedThumb(mostRecentSelection);
+                                            if (!mostRecentSelection.isSelected()) {
+                                                //mostRecentSelection = MainFrame.thumbsOnDisplayArray[++currentRow][currentColumn];
+                                                mostRecentSelection.toggleSelection();
+                                                Library.addSelectedThumb(mostRecentSelection);
+                                            }
                                         }
                                     }
                                     else {

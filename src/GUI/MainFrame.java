@@ -596,8 +596,6 @@ public class MainFrame extends JFrame {
 
     public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
 
-        Rectangle currentView = picturePanel.getVisibleRect();
-
         for(int i = 0; i < picturesToDisplay.size(); ++i){
             PictureLabel currentThumb = new PictureLabel(picturesToDisplay.get(i));
             Library.addThumbToDisplay(currentThumb);
