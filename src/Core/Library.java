@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Vector;
 
 public class Library implements Serializable {
 
@@ -31,6 +32,14 @@ public class Library implements Serializable {
 
     public static synchronized ArrayList<Child> getChildrenList() {
         return childrenList;
+    }
+
+    public static Vector<String> getChildrenNamesVector() {
+        Vector<String> childrenNames = new Vector<String>();
+        for (Child c: childrenList) {
+            childrenNames.add(c.getName());
+        }
+        return childrenNames;
     }
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {

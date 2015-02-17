@@ -6,6 +6,7 @@ import Data.Child;
 import Data.Picture;
 import Data.ThumbnailClickListener;
 import Data.Tag;
+import ch.rakudave.suggest.JSuggestField;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -87,7 +88,8 @@ public class MainFrame extends JFrame {
     private JPanel donePanel = new JPanel();
     public static JPanel storeTagsPanel = new JPanel(new FlowLayout());
     JFormattedTextField dateField;
-    private JTextField childField = new JTextField(12);
+    //private JTextField childField = new JTextField(12);
+    private JSuggestField childField;// = new JSuggestField(this, Library.getChildrenNamesVector());
     private JTextField areaField = new JTextField(12);
     private JLabel areaLabel = new JLabel("Area");
     private JLabel dateLabel = new JLabel("Date");
@@ -259,7 +261,7 @@ public class MainFrame extends JFrame {
         mainPanel.add(eastPanel, BorderLayout.EAST);
 
         eastPanel.setBorder(new TitledBorder("Add Tag: "));
-        eastPanel.add(descriptionPanel, BorderLayout.CENTER);
+        eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
         descriptionPanel.setBorder(new TitledBorder("Add desription: "));
         descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
                 BorderLayout.NORTH);
@@ -274,6 +276,16 @@ public class MainFrame extends JFrame {
         tagsLabelsPanel.add(dateLabel);
         tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
         tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
+
+        new Child("Assaf Yossifoff");
+        new Child("Polly Apostolova");
+        new Child("Andrei Juganaru");
+        new Child("John Waghorn");
+        new Child("Valya Popova");
+        new Child("Ivaylo Kirilov");
+        new Child("Dimitar Markovski");
+        new Child("Jonny Zephir");
+        childField = new JSuggestField(this, Library.getChildrenNamesVector());
         tagsFieldsPanel.add(childField);
         tagsFieldsPanel.add(areaField);
         //field to enter/display date
@@ -281,16 +293,12 @@ public class MainFrame extends JFrame {
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
 
-        new Child("Assaf Yossifoff");
-        new Child("Asaf Shemtov");
-        new Child("Andrei Juganaru");
-
         //Additional panel for storing current tags
-        TitledBorder titledBorder = new TitledBorder(" Current Children ");
+        TitledBorder titledBorder = new TitledBorder(" Children ");
         EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
         storeTagsPanel.setBorder(compoundBorder);
-        tagPanel.add(storeTagsPanel, BorderLayout.SOUTH);
+        eastPanel.add(storeTagsPanel, BorderLayout.CENTER);
     }
     private void initialiseListeners(){
         exit.addActionListener(new ActionListener() {
@@ -425,7 +433,7 @@ public class MainFrame extends JFrame {
 			}
 			
 		});
-        childField.addKeyListener(new KeyAdapter() {
+        /*childField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
                 super.keyReleased(e);
