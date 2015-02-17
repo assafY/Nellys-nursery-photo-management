@@ -2,10 +2,12 @@ package GUI;
 
 import Core.Settings;
 import Data.Picture;
+
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -21,6 +23,7 @@ public class PictureLabel extends JLabel {
     private Picture picture;
     private int currentSize;
     private boolean isSelected;
+    private Image image;
 
     public PictureLabel(Picture picture) {
         this.picture = picture;
@@ -31,7 +34,9 @@ public class PictureLabel extends JLabel {
 
     public void showThumbnail(int size) {
         currentSize = size;
-        setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
+        image = picture.getThumbnail().getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        setIcon(new ImageIcon(image));
+        //setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
     }
 
     public void hideThumbnail() {
