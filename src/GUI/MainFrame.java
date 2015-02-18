@@ -381,8 +381,7 @@ public class MainFrame extends JFrame {
     public static void main(String[] args){
         try {
             // Set System L&F
-            UIManager.setLookAndFeel(
-                    UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         }
         catch (Exception e){}
         new MainFrame();
