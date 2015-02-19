@@ -1,9 +1,10 @@
 package Data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Tag {
+public class Tag implements Serializable {
 
 	// there may be more than 3 rooms - let them decide the names
     //private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
