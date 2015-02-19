@@ -5,6 +5,7 @@ import Core.Settings;
 import Data.Picture;
 import Data.ThumbnailClickListener;
 import org.imgscalr.Scalr;
+import sun.applet.Main;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -12,6 +13,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.io.File;
@@ -87,6 +89,12 @@ public class PictureLabel extends JLabel {
          */
         @Override
         public void mouseClicked(MouseEvent e) {
+            if (PictureLabel.this.getParent() != null){
+                MouseListener[] m = PictureLabel.this.getParent().getMouseListeners();
+                for (MouseListener ml : m) {
+                    ml.mouseClicked(e);
+                }
+            }
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
 
@@ -98,11 +106,13 @@ public class PictureLabel extends JLabel {
                     Library.removeSelectedThumb(PictureLabel.this);
                     ThumbnailClickListener.mostRecentSelection = null;
                     ThumbnailClickListener.refresh();
+                    MainFrame.createTagLabels();
                 }
                 else {
                     Library.addSelectedThumb(PictureLabel.this);
                     ThumbnailClickListener.mostRecentSelection = PictureLabel.this;
                     ThumbnailClickListener.refresh();
+                    MainFrame.createTagLabels();
                 }
                 toggleSelection();
             }

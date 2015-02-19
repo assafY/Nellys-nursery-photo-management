@@ -86,10 +86,14 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
-    public static JPanel storeTagsPanel = new JPanel(new FlowLayout());
+    //private static GridBagLayout storedTagsLayout = new GridBagLayout();
+    public static JPanel storedTagsPanel = new JPanel();
+    private static int tagCounter = 1;
+    //private static ArrayList<JPanel> tagPanelList;
+    private static  JPanel currentTagPanel;
     JFormattedTextField dateField;
     //private JTextField childField = new JTextField(12);
-    private JSuggestField childField;// = new JSuggestField(this, Library.getChildrenNamesVector());
+    private JSuggestField childField;
     private JTextField areaField = new JTextField(12);
     private JLabel areaLabel = new JLabel("Area");
     private JLabel dateLabel = new JLabel("Date");
@@ -99,8 +103,7 @@ public class MainFrame extends JFrame {
     private Tag tagLabel = new Tag();
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
-    private ThumbnailClickListener tcl = new ThumbnailClickListener();
-    private ArrayList<Child> autoCompleteList;
+    private static ThumbnailClickListener tcl = new ThumbnailClickListener();
 
     public MainFrame(){
         setTitle("Photo Management Software");
@@ -227,7 +230,7 @@ public class MainFrame extends JFrame {
         functionPanel.add(zoomSlider, c);*/
 //        mainPanel.add(picturePanel, BorderLayout.CENTER);
 
-        picturePanel.add(scrollPanel, BorderLayout.SOUTH);
+        //picturePanel.add(scrollPanel, BorderLayout.SOUTH);
 /*        zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPreferredSize(new Dimension(400,45));
@@ -277,6 +280,8 @@ public class MainFrame extends JFrame {
         tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
         tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
 
+        // add us as children for testing purposes
+        // auto complete text field needs to be recreated and re-added every time a new child is added
         new Child("Assaf Yossifoff");
         new Child("Polly Apostolova");
         new Child("Andrei Juganaru");
@@ -285,6 +290,7 @@ public class MainFrame extends JFrame {
         new Child("Ivaylo Kirilov");
         new Child("Dimitar Markovski");
         new Child("Jonny Zephir");
+
         childField = new JSuggestField(this, Library.getChildrenNamesVector());
         tagsFieldsPanel.add(childField);
         tagsFieldsPanel.add(areaField);
@@ -293,12 +299,14 @@ public class MainFrame extends JFrame {
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
 
+        storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel, BoxLayout.Y_AXIS));
+
         //Additional panel for storing current tags
         TitledBorder titledBorder = new TitledBorder(" Children ");
         EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
-        storeTagsPanel.setBorder(compoundBorder);
-        eastPanel.add(storeTagsPanel, BorderLayout.CENTER);
+        storedTagsPanel.setBorder(compoundBorder);
+        tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
     }
     private void initialiseListeners(){
         exit.addActionListener(new ActionListener() {
@@ -344,8 +352,6 @@ public class MainFrame extends JFrame {
             public void componentResized(ComponentEvent e) {
 
                 adjustColumnCount();
-                setFocusable(true);
-                requestFocus();
 
                 /*int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
@@ -386,9 +392,26 @@ public class MainFrame extends JFrame {
                         currentThumbnail.hideThumbnail();
                     }
                 }
-                currentView = null;
             }
         });
+
+        picturePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
+            }
+        });
+
+        /*centerPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                setFocusable(true);
+                requestFocus();
+            }
+        });*/
 
         this.addKeyListener(tcl);
 
@@ -433,6 +456,28 @@ public class MainFrame extends JFrame {
 			}
 			
 		});
+
+        childField.addSelectionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
+                if (picturesToTag.size() == 0) {
+                    //TODO: no thumnails selected, either reset texfield or simply disable them until picture/s selected
+                } else {
+                    for (Child c : Library.getChildrenList()) {
+                        if (childField.getText().toLowerCase().equals(c.getName().toLowerCase())) {
+                            for (Picture p: Library.getSelectedPictures()) {
+                                if (!p.getTag().getChildren().contains(c)) {
+                                    p.getTag().addChild(c);
+                                    createTagLabels();
+                                    childField.setText("");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
         /*childField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
@@ -489,7 +534,7 @@ public class MainFrame extends JFrame {
 				areaField.setText("");
 				dateLabel.setForeground(Color.BLACK);
 				dateField.setText("");
-				storeTagsPanel.removeAll();
+				storedTagsPanel.removeAll();
 				//childField.setText("");
 				tagLabel = new Tag();
 				pack();
@@ -499,7 +544,7 @@ public class MainFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Component[] children = storeTagsPanel.getComponents();
+				Component[] children = storedTagsPanel.getComponents();
 				tagLabel.removeAllChildren();
 				for (Component component : children) {
 					//TODO check if the child exists
@@ -511,6 +556,55 @@ public class MainFrame extends JFrame {
 			}
 		});
     }
+
+    public static void createTagLabels() {
+
+        ArrayList<Child> taggedChildren = Library.getSelectedPictures().get(0).getTag().getChildren();
+        tagCounter = 1;
+        storedTagsPanel.removeAll();
+        storedTagsPanel.revalidate();
+
+        if (Library.getSelectedPictures().size() == 1) {
+            for (Child c : taggedChildren) {
+                if (tagCounter % 2 == 1) {
+                    currentTagPanel = new JPanel();
+                    currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                    storedTagsPanel.add(currentTagPanel);
+                    storedTagsPanel.validate();
+                    ++tagCounter;
+                } else {
+                    currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                    storedTagsPanel.validate();
+                    ++tagCounter;
+                }
+            }
+
+        } else {
+            for (Child c : taggedChildren) {
+                boolean childInAllPictures = true;
+                for (Picture p : Library.getSelectedPictures()) {
+                    if (!p.getTag().getChildren().contains(c)) {
+                        childInAllPictures = false;
+                        break;
+                    }
+                }
+                if (childInAllPictures) {
+                    if (tagCounter % 2 == 1) {
+                        currentTagPanel = new JPanel();
+                        currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                        storedTagsPanel.add(currentTagPanel);
+                        storedTagsPanel.validate();
+                        ++tagCounter;
+                    } else {
+                        currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                        storedTagsPanel.validate();
+                        ++tagCounter;
+                    }
+                }
+            }
+        }
+    }
+
 
     private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
 
@@ -580,7 +674,7 @@ public class MainFrame extends JFrame {
         }
     }*/
 
-    private void createThumbnailArray() {
+    private static void createThumbnailArray() {
         int columnCount = picturePanelLayout.getColumns();
         int rowCount = Library.getThumbsOnDisplay().size() / columnCount;
         if (Library.getThumbsOnDisplay().size() % columnCount != 0) {
@@ -598,8 +692,6 @@ public class MainFrame extends JFrame {
             }
         }
         tcl.refresh();
-
-
     }
 
     public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
@@ -609,8 +701,8 @@ public class MainFrame extends JFrame {
             Library.addThumbToDisplay(currentThumb);
             picturePanel.add(currentThumb);
             currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-
         }
+        createThumbnailArray();
     }
 
     private class ImportButtonListener implements ActionListener {
@@ -622,9 +714,12 @@ public class MainFrame extends JFrame {
             importDialog.setFile("*.jpg");
             importDialog.setMultipleMode(true);
             importDialog.setVisible(true);
+            if (Library.getPictureLibrary().size() == 0) {
+                setFocusable(true);
+                requestFocus();
+            }
             //import pictures into library
             Library.importPicture(importDialog.getFiles());
-            importDialog = null;
         }
     }
 }

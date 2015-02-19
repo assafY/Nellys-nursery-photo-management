@@ -186,6 +186,14 @@ public class Library implements Serializable {
         return selectedThumbs;
     }
 
+    public static ArrayList<Picture> getSelectedPictures() {
+        ArrayList<Picture> selectedPictures = new ArrayList<Picture>();
+        for (PictureLabel p: selectedThumbs) {
+            selectedPictures.add(p.getPicture());
+        }
+        return selectedPictures;
+    }
+
     public static void addSelectedThumb(PictureLabel selectedThumb) {
         selectedThumbs.add(selectedThumb);
     }
@@ -199,6 +207,15 @@ public class Library implements Serializable {
             p.toggleSelection();
         }
         selectedThumbs.clear();
+    }
+
+    public static void getCurrentMetadata() {
+        if (selectedThumbs.size() <= 1) {
+            // TODO: Show metadata on main frame
+        }
+        else {
+            // TODO: compare metadata of all selected photos and show common tags
+        }
     }
 
 }

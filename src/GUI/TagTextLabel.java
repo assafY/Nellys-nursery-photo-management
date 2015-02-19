@@ -1,5 +1,9 @@
 package GUI;
 
+import Core.Library;
+import Data.Child;
+import Data.Picture;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -12,16 +16,20 @@ public class TagTextLabel extends JPanel {
 
     private static BufferedImage tagDeleteButton;
 
+    private Child child;
     private JLabel tagLabel;
     private JLabel deleteButton;
+    private JPanel tagPanel;
 
-    public TagTextLabel(String tag) {
+    public TagTextLabel(Child c, JPanel tagPanel) {
 
         if (tagDeleteButton == null) {
             loadTagDeleteButton();
         }
 
-        tagLabel = new JLabel(tag);
+        this.child = c;
+
+        tagLabel = new JLabel(c.getName());
         setBorder(BorderFactory.createLineBorder(Color.black));
 
         deleteButton = new JLabel();
@@ -30,6 +38,8 @@ public class TagTextLabel extends JPanel {
         setLayout(new BorderLayout());
         add(tagLabel, BorderLayout.CENTER);
         add(deleteButton, BorderLayout.EAST);
+
+        this.tagPanel = tagPanel;
 
         addListener();
 
@@ -43,13 +53,24 @@ public class TagTextLabel extends JPanel {
         }
     }
 
+    @Override
+    public int getWidth() {
+        return tagLabel.getWidth() + deleteButton.getWidth();
+    }
+
     private void addListener() {
         deleteButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
-                MainFrame.storeTagsPanel.remove(TagTextLabel.this);
-                MainFrame.storeTagsPanel.revalidate();
+                tagPanel.remove(TagTextLabel.this);
+                tagPanel.revalidate();
+                for (Picture p: Library.getSelectedPictures()) {
+                    if (p.getTag().getChildren().contains(child)) {
+                        p.getTag().removeChild(child);
+                        MainFrame.createTagLabels();
+                    }
+                }
             }
         });
     }
