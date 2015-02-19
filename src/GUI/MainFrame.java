@@ -478,54 +478,7 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        /*childField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyReleased(KeyEvent e) {
-                super.keyReleased(e);
-                String currentInput = childField.getText().toString().toLowerCase();
-                System.out.println(childField.getText().toString());
-                // if the text field is not empty
-                if (!currentInput.equals("")) {
-
-                    autoCompleteList = new ArrayList<Child>();
-                    for (Child c : Library.getChildrenList()) {
-                        // for every country in the full country list, if it starts with the same text in the text field
-                        // add it to a new country list
-                        if (c.getName().toLowerCase().startsWith(currentInput)) {
-                            autoCompleteList.add(c);
-                        }
-                    }
-
-                    if (autoCompleteList.size() == 1) {
-                        storeTagsPanel.add(new TagTextLabel(autoCompleteList.get(0).getName()));
-                        storeTagsPanel.revalidate();
-                    }
-                }
-            }
-        });
-        /*childField.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String text = childField.getText().trim();
-				if (text != null && !text.equals("")) {
-					storeTagsPanel.add(new JLabel(childField.getText()));
-					pack();
-				}
-				childField.setText("");
-			}
-		});
-        storeTagsPanel.addMouseListener(new MouseAdapter() {
-			
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int c = storeTagsPanel.getComponentCount();
-				if (c != 0) {
-					storeTagsPanel.remove(c-1);
-					pack();
-				}
-			}
-		});*/
+        
         resetButton.addActionListener(new ActionListener() {
 			
 			@Override
