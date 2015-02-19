@@ -18,10 +18,16 @@ import javax.swing.event.ChangeListener;
 
 import java.awt.*;
 import java.awt.event.*;
+import  java.io.*;
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static java.awt.Color.*;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
@@ -43,6 +49,8 @@ public class MainFrame extends JFrame {
     MenuItem tag = new MenuItem("Tag");
     MenuItem delete = new MenuItem("Delete");
     MenuItem print = new MenuItem("Print");
+    MenuItem save = new MenuItem("Save");
+
     //creates root panel
     private JPanel mainPanel = new JPanel(new BorderLayout());
     //create north components
@@ -106,7 +114,10 @@ public class MainFrame extends JFrame {
     private boolean picturePanelBiggerThanFrame = false;
     private static ThumbnailClickListener tcl = new ThumbnailClickListener();
 
-    public MainFrame(){
+    private File [] savedFiles;
+
+
+    public MainFrame() throws IOException, ClassNotFoundException {
         setTitle("Photo Management Software");
         //setMinimumSize(new Dimension(1333, 766));
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -120,6 +131,7 @@ public class MainFrame extends JFrame {
         add(mainPanel);
         pack();
         initialiseListeners();
+        addSavedData();
         setVisible(true);
     }
     private void createMenuBar(){
@@ -128,6 +140,7 @@ public class MainFrame extends JFrame {
         file.add(imp);
         file.add(backup);
         file.add(exp);
+        file.add(save);
         file.addSeparator();
         file.add(exit);
 
@@ -246,18 +259,22 @@ public class MainFrame extends JFrame {
 */
         zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
         picturePanelPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
+        picturePanelPane.setBackground(WHITE);
 
         scrollPanel.add(zoomSlider);
         centerPanel.add(picturePanelPane, BorderLayout.CENTER);
         centerPanel.add(scrollPanel, BorderLayout.SOUTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-
         TitledBorder titledBorder = new TitledBorder("Pictures: ");
         EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
         CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titledBorder);
         centerPanel.setBorder(compoundBorder);
 
+        picturePanel.setBackground(WHITE);
+     //   centerPanel.setBackground(WHITE);
+
+    //    mainPanel.setBackground(WHITE);
 
     }
     private void createEastPanel(){
@@ -502,6 +519,25 @@ public class MainFrame extends JFrame {
 				System.out.println(tagLabel);
 			}
 		});
+
+        // Saving all the images that are currently being displayed
+        // by clicking the File-> Save button
+        save.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+                try {
+                    FileOutputStream savedFile = new FileOutputStream("savedLibrary.ser");
+                    ObjectOutputStream savedObject = new ObjectOutputStream(savedFile);
+                    savedObject.writeObject(Library.getPictureLibrary());
+                    savedObject.close();
+                    System.out.println("Saved");
+                } catch (FileNotFoundException ex1) {
+                    ex1.printStackTrace();
+                } catch (IOException ex2) {
+                    ex2.printStackTrace();
+                }
+
+            }
+        });
     }
 
     public static void createTagLabels() {
@@ -550,8 +586,29 @@ public class MainFrame extends JFrame {
                 }
             }
         }
+
     }
 
+
+    // Automatically adding pictures that have been imported and saved before
+     // thus a *.ser file is created.
+     // The latter was also pushed into the 'Displaying and saving images' branch
+    private void addSavedData() throws IOException, ClassNotFoundException {
+        FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
+        ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
+        try {
+            ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
+            savedFiles = new File[savedData.size()];
+            for(int i = 0; i < savedData.size();i++)
+            {
+                savedFiles [i] = savedData.get(i).getImageFile();
+            }
+            Library.importPicture(savedFiles);
+            restoredObject.close();
+        } catch (EOFException exception) {
+            exception.printStackTrace();
+        }
+    }
 
     private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
 
@@ -594,7 +651,13 @@ public class MainFrame extends JFrame {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         }
         catch (Exception e){}
-        new MainFrame();
+        try {
+            new MainFrame();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
