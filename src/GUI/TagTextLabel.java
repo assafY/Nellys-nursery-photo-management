@@ -23,17 +23,17 @@ public class TagTextLabel extends JPanel {
 
     public TagTextLabel(Child c, JPanel tagPanel) {
 
-        if (tagDeleteButton == null) {
-            loadTagDeleteButton();
-        }
+        //if (tagDeleteButton == null) {
+        //    loadTagDeleteButton();
+        //}
 
         this.child = c;
 
         tagLabel = new JLabel(c.getName());
         setBorder(BorderFactory.createLineBorder(Color.black));
 
-        deleteButton = new JLabel();
-        deleteButton.setIcon(new ImageIcon(tagDeleteButton));
+        deleteButton = new JLabel("d");
+        //deleteButton.setIcon(new ImageIcon(tagDeleteButton));
 
         setLayout(new BorderLayout());
         add(tagLabel, BorderLayout.CENTER);

@@ -5,7 +5,6 @@ import Data.Picture;
 import Data.Tag;
 import GUI.MainFrame;
 import GUI.PictureLabel;
-//import com.sun.deploy.util.SystemUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

@@ -478,7 +478,7 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        
+
         resetButton.addActionListener(new ActionListener() {
 			
 			@Override
