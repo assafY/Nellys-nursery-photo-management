@@ -75,10 +75,6 @@ public class PictureLabel extends JLabel {
         }
     }
 
-
-    //setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
-
-
     public void hideThumbnail() {
         setIcon(null);
     }

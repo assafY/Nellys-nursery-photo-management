@@ -320,8 +320,9 @@ public class MainFrame extends JFrame {
         storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel, BoxLayout.Y_AXIS));
 
         //Additional panel for storing current tags
-        TitledBorder titledBorder = new TitledBorder(" Children ");
-        EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
+        TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
+        EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
+
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
         storedTagsPanel.setBorder(compoundBorder);
         tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
@@ -479,8 +480,6 @@ public class MainFrame extends JFrame {
                                 if (!p.getTag().getChildren().contains(c)) {
                                     p.getTag().addChild(c);
                                     createTagLabels();
-                                    break;
-
                                 }
                             }
                         }
@@ -547,7 +546,11 @@ public class MainFrame extends JFrame {
         storedTagsPanel.removeAll();
         storedTagsPanel.revalidate();
 
-        if (Library.getSelectedPictures().size() == 1) {
+        if (Library.getSelectedPictures().size() == 0) {
+            storedTagsPanel.setVisible(false);
+        }
+        else if (Library.getSelectedPictures().size() == 1) {
+
             for (Child c : taggedChildren) {
                 if (tagCounter % 2 == 1) {
                     currentTagPanel = new JPanel();
@@ -563,6 +566,14 @@ public class MainFrame extends JFrame {
             }
 
         } else {
+            taggedChildren = new ArrayList<Child>();
+            for (int i = 0; i < Library.getSelectedPictures().size(); ++i) {
+                for (int j = 0; j < Library.getSelectedPictures().get(i).getTag().getChildren().size(); ++j) {
+                    if (!taggedChildren.contains(Library.getSelectedPictures().get(i).getTag().getChildren().get(j))) {
+                        taggedChildren.add(Library.getSelectedPictures().get(i).getTag().getChildren().get(j));
+                    }
+                }
+            }
             for (Child c : taggedChildren) {
                 boolean childInAllPictures = true;
                 for (Picture p : Library.getSelectedPictures()) {
