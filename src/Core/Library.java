@@ -5,14 +5,16 @@ import Data.Picture;
 import Data.Tag;
 import GUI.MainFrame;
 import GUI.PictureLabel;
-//import com.sun.deploy.util.SystemUtils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Vector;
 
 public class Library implements Serializable {
 
@@ -31,12 +33,20 @@ public class Library implements Serializable {
         return childrenList;
     }
 
+    public static Vector<String> getChildrenNamesVector() {
+        Vector<String> childrenNames = new Vector<String>();
+        for (Child c: childrenList) {
+            childrenNames.add(c.getName());
+        }
+        return childrenNames;
+    }
+
     public static synchronized ArrayList<Picture> getPictureLibrary() {
         return pictureLibrary;
     }
 
-    public void tagPicture(Picture picture, Tag tag) {
-        //TODO
+    public static void tagPicture(Picture picture, Tag tag) {
+    	picture.setTag(tag);
     }
 
     /* comment section */ {
@@ -175,6 +185,14 @@ public class Library implements Serializable {
         return selectedThumbs;
     }
 
+    public static ArrayList<Picture> getSelectedPictures() {
+        ArrayList<Picture> selectedPictures = new ArrayList<Picture>();
+        for (PictureLabel p: selectedThumbs) {
+            selectedPictures.add(p.getPicture());
+        }
+        return selectedPictures;
+    }
+
     public static void addSelectedThumb(PictureLabel selectedThumb) {
         selectedThumbs.add(selectedThumb);
     }
@@ -188,6 +206,15 @@ public class Library implements Serializable {
             p.toggleSelection();
         }
         selectedThumbs.clear();
+    }
+
+    public static void getCurrentMetadata() {
+        if (selectedThumbs.size() <= 1) {
+            // TODO: Show metadata on main frame
+        }
+        else {
+            // TODO: compare metadata of all selected photos and show common tags
+        }
     }
 
 }

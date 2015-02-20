@@ -2,8 +2,12 @@ package GUI;
 
 import Core.Library;
 import Core.Settings;
+import Data.Child;
 import Data.Picture;
 import Data.ThumbnailClickListener;
+import Data.Tag;
+import ch.rakudave.suggest.JSuggestField;
+import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -11,10 +15,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -71,7 +77,7 @@ public class MainFrame extends JFrame {
     public static PictureLabel[][] thumbsOnDisplayArray; // possible will be used for all labels currently on display
                                               // 2D array to enable moving between pictures using keyboard
                                               // ambitious but let's see what happens :o
-    private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
+    private static JScrollPane picturePanelPane = new JScrollPane(picturePanel);
     private JPanel scrollPanel = new JPanel();
     private static JSlider zoomSlider;
     //create east components
@@ -81,11 +87,24 @@ public class MainFrame extends JFrame {
     private JPanel tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
     private JPanel descriptionPanel = new JPanel(new BorderLayout());
     private JPanel donePanel = new JPanel();
-    private JPanel storeTagsPanel = new JPanel(new BorderLayout());
+    //private static GridBagLayout storedTagsLayout = new GridBagLayout();
+    public static JPanel storedTagsPanel = new JPanel();
+    private static int tagCounter = 1;
+    //private static ArrayList<JPanel> tagPanelList;
+    private static  JPanel currentTagPanel;
+    JFormattedTextField dateField;
+    //private JTextField childField = new JTextField(12);
+    private JSuggestField childField;
+    private JTextField areaField = new JTextField(12);
+    private JLabel areaLabel = new JLabel("Area");
+    private JLabel dateLabel = new JLabel("Date");
+    private JButton doneButton = new JButton("Done");
+    private JButton resetButton = new JButton("Reset");
 
+    private Tag tagLabel = new Tag();
     private int currentColumnCount = 0;
     private boolean picturePanelBiggerThanFrame = false;
-    private ThumbnailClickListener tcl = new ThumbnailClickListener();
+    private static ThumbnailClickListener tcl = new ThumbnailClickListener();
 
     public MainFrame(){
         setTitle("Photo Management Software");
@@ -212,7 +231,7 @@ public class MainFrame extends JFrame {
         functionPanel.add(zoomSlider, c);*/
 //        mainPanel.add(picturePanel, BorderLayout.CENTER);
 
-        picturePanel.add(scrollPanel, BorderLayout.SOUTH);
+        //picturePanel.add(scrollPanel, BorderLayout.SOUTH);
 /*        zoomSlider.setMajorTickSpacing(50);
         zoomSlider.setPaintTicks(true);
         zoomSlider.setPreferredSize(new Dimension(400,45));
@@ -246,34 +265,49 @@ public class MainFrame extends JFrame {
         mainPanel.add(eastPanel, BorderLayout.EAST);
 
         eastPanel.setBorder(new TitledBorder("Add Tag: "));
-        eastPanel.add(descriptionPanel, BorderLayout.CENTER);
+        eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
         descriptionPanel.setBorder(new TitledBorder("Add desription: "));
         descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
                 BorderLayout.NORTH);
         descriptionPanel.add(donePanel, BorderLayout.SOUTH);
-        donePanel.add(new JButton("Reset"));
-        donePanel.add(new JButton("Done"));
+        donePanel.add(resetButton);
+        donePanel.add(doneButton);
         eastPanel.add(tagPanel, BorderLayout.NORTH);
         tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
         tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
         tagsLabelsPanel.add(new JLabel("Child name"));
-        tagsLabelsPanel.add(new JLabel("Area"));
-        tagsLabelsPanel.add(new JLabel("Date"));
+        tagsLabelsPanel.add(areaLabel);
+        tagsLabelsPanel.add(dateLabel);
         tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
         tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
-        tagsFieldsPanel.add(new JTextField(12));
-        tagsFieldsPanel.add(new JTextField(12));
+
+        // add us as children for testing purposes
+        // auto complete text field needs to be recreated and re-added every time a new child is added
+        new Child("Assaf Yossifoff");
+        new Child("Polly Apostolova");
+        new Child("Andrei Juganaru");
+        new Child("John Waghorn");
+        new Child("Valya Popova");
+        new Child("Ivaylo Kirilov");
+        new Child("Dimitar Markovski");
+        new Child("Jonny Zephir");
+
+        childField = new JSuggestField(this, Library.getChildrenNamesVector());
+        tagsFieldsPanel.add(childField);
+        tagsFieldsPanel.add(areaField);
         //field to enter/display date
-        JFormattedTextField dateField = new JFormattedTextField();
+        dateField = new JFormattedTextField();
         dateField.setColumns(12);
         tagsFieldsPanel.add(dateField);
 
+        storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel, BoxLayout.Y_AXIS));
+
         //Additional panel for storing current tags
-        TitledBorder titledBorder = new TitledBorder(" Current Tags ");
+        TitledBorder titledBorder = new TitledBorder(" Children ");
         EmptyBorder emptyBorder = new EmptyBorder(20, 15, 20, 15);
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
-        storeTagsPanel.setBorder(compoundBorder);
-        tagPanel.add(storeTagsPanel, BorderLayout.SOUTH);
+        storedTagsPanel.setBorder(compoundBorder);
+        tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
     }
     private void initialiseListeners(){
         exit.addActionListener(new ActionListener() {
@@ -319,8 +353,6 @@ public class MainFrame extends JFrame {
             public void componentResized(ComponentEvent e) {
 
                 adjustColumnCount();
-                setFocusable(true);
-                requestFocus();
 
                 /*int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
                 int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
@@ -361,12 +393,165 @@ public class MainFrame extends JFrame {
                         currentThumbnail.hideThumbnail();
                     }
                 }
-                currentView = null;
+            }
+        });
+
+        picturePanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
             }
         });
 
         this.addKeyListener(tcl);
+
+        areaField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (!areaField.getText().isEmpty())
+					areaLabel.setForeground(Color.GREEN);
+				else
+					areaLabel.setForeground(Color.BLACK);
+			}
+		});
+        areaField.addFocusListener(new FocusAdapter() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				String text = areaField.getText();
+				if (text == null || text.equals(""))
+					tagLabel.removeRoom();
+				else
+					tagLabel.setRoom(areaField.getText());
+			}
+			
+		});
+        dateField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (!dateField.getText().isEmpty())
+					dateLabel.setForeground(Color.GREEN);
+				else
+					dateLabel.setForeground(Color.BLACK);
+			}
+		});
+        dateField.addFocusListener(new FocusAdapter() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				Date date = new Date();
+				dateField.setText(""+date);
+				tagLabel.setDate(date);
+				//TODO implement date properly
+			}
+			
+		});
+
+        childField.addSelectionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
+                if (picturesToTag.size() == 0) {
+                    //TODO: no thumnails selected, either reset texfield or simply disable them until picture/s selected
+                } else {
+                    for (Child c : Library.getChildrenList()) {
+                        if (childField.getText().toLowerCase().equals(c.getName().toLowerCase())) {
+                            for (Picture p: Library.getSelectedPictures()) {
+                                if (!p.getTag().getChildren().contains(c)) {
+                                    p.getTag().addChild(c);
+                                    createTagLabels();
+                                    break;
+
+                                }
+                            }
+                        }
+                    }
+                }
+                childField.setText("");
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				areaLabel.setForeground(Color.BLACK);
+				areaField.setText("");
+				dateLabel.setForeground(Color.BLACK);
+				dateField.setText("");
+				storedTagsPanel.removeAll();
+				childField.setText("");
+				tagLabel = new Tag();
+				pack();
+			}
+		});
+        doneButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Component[] children = storedTagsPanel.getComponents();
+				tagLabel.removeAllChildren();
+				for (Component component : children) {
+					//TODO check if the child exists
+					String nameOfChild = ((JLabel) component).getText();
+					Child child = new Child(nameOfChild);
+					tagLabel.addChild(child);
+				}
+				System.out.println(tagLabel);
+			}
+		});
     }
+
+    public static void createTagLabels() {
+
+        ArrayList<Child> taggedChildren = Library.getSelectedPictures().get(0).getTag().getChildren();
+        tagCounter = 1;
+        storedTagsPanel.removeAll();
+        storedTagsPanel.revalidate();
+
+        if (Library.getSelectedPictures().size() == 1) {
+            for (Child c : taggedChildren) {
+                if (tagCounter % 2 == 1) {
+                    currentTagPanel = new JPanel();
+                    currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                    storedTagsPanel.add(currentTagPanel);
+                    storedTagsPanel.validate();
+                    ++tagCounter;
+                } else {
+                    currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                    storedTagsPanel.validate();
+                    ++tagCounter;
+                }
+            }
+
+        } else {
+            for (Child c : taggedChildren) {
+                boolean childInAllPictures = true;
+                for (Picture p : Library.getSelectedPictures()) {
+                    if (!p.getTag().getChildren().contains(c)) {
+                        childInAllPictures = false;
+                        break;
+                    }
+                }
+                if (childInAllPictures) {
+                    if (tagCounter % 2 == 1) {
+                        currentTagPanel = new JPanel();
+                        currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                        storedTagsPanel.add(currentTagPanel);
+                        storedTagsPanel.validate();
+                        ++tagCounter;
+                    } else {
+                        currentTagPanel.add(new TagTextLabel(c, currentTagPanel));
+                        storedTagsPanel.validate();
+                        ++tagCounter;
+                    }
+                }
+            }
+        }
+    }
+
 
     private static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
 
@@ -377,6 +562,31 @@ public class MainFrame extends JFrame {
             return false;
         }
     }
+
+    /**
+     * If a new thumbnail is selected and only part of the thumbnail is visible
+     * in the scrollpane, the scrollbar goes up or down depending on direction.
+     *
+     */
+    /*public static void scrollVertical(String direction) {
+        Rectangle currentView = picturePanel.getVisibleRect();
+        JScrollBar jsb = picturePanelPane.getVerticalScrollBar();
+        if (ThumbnailClickListener.mostRecentSelection != null) {
+            if (tcl.mostRecentSelection.getVisibleRect().isEmpty()) {
+                if (direction == "UP") {
+                    jsb.setValue(jsb.getValue() - 1);
+                } else if (direction == "DOWN") {
+                    jsb.setValue(jsb.getValue() + 1);
+                }
+            } else {
+                if (direction == "UP") {
+                    jsb.setValue(jsb.getValue() - 150);
+                } else if (direction == "DOWN") {
+                    jsb.setValue(jsb.getValue() + 150);
+                }
+            }
+        }
+    }*/
 
     public static void main(String[] args){
         try {
@@ -436,7 +646,7 @@ public class MainFrame extends JFrame {
         }
     }*/
 
-    private void createThumbnailArray() {
+    private static void createThumbnailArray() {
         int columnCount = picturePanelLayout.getColumns();
         int rowCount = Library.getThumbsOnDisplay().size() / columnCount;
         if (Library.getThumbsOnDisplay().size() % columnCount != 0) {
@@ -454,21 +664,17 @@ public class MainFrame extends JFrame {
             }
         }
         tcl.refresh();
-
-
     }
 
     public static void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
-
-        Rectangle currentView = picturePanel.getVisibleRect();
 
         for(int i = 0; i < picturesToDisplay.size(); ++i){
             PictureLabel currentThumb = new PictureLabel(picturesToDisplay.get(i));
             Library.addThumbToDisplay(currentThumb);
             picturePanel.add(currentThumb);
             currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-
         }
+        createThumbnailArray();
     }
 
     private class ImportButtonListener implements ActionListener {
@@ -480,9 +686,12 @@ public class MainFrame extends JFrame {
             importDialog.setFile("*.jpg");
             importDialog.setMultipleMode(true);
             importDialog.setVisible(true);
+            if (Library.getPictureLibrary().size() == 0) {
+                setFocusable(true);
+                requestFocus();
+            }
             //import pictures into library
             Library.importPicture(importDialog.getFiles());
-            importDialog = null;
         }
     }
 }
