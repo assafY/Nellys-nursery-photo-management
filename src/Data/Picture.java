@@ -12,14 +12,16 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 
-public class Picture {
+public class Picture implements Serializable{
 
+    private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
-    private BufferedImage thumbnail;
+    private transient BufferedImage thumbnail;
     private File imageFile;
     private Object imageKey;
 
