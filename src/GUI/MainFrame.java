@@ -7,6 +7,7 @@ import Data.Picture;
 import Data.ThumbnailClickListener;
 import Data.Tag;
 import ch.rakudave.suggest.JSuggestField;
+import com.sun.javafx.scene.control.skin.VirtualScrollBar;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -76,7 +77,7 @@ public class MainFrame extends JFrame {
     public static PictureLabel[][] thumbsOnDisplayArray; // possible will be used for all labels currently on display
                                               // 2D array to enable moving between pictures using keyboard
                                               // ambitious but let's see what happens :o
-    private JScrollPane picturePanelPane = new JScrollPane(picturePanel);
+    private static JScrollPane picturePanelPane = new JScrollPane(picturePanel);
     private JPanel scrollPanel = new JPanel();
     private static JSlider zoomSlider;
     //create east components
@@ -404,15 +405,6 @@ public class MainFrame extends JFrame {
             }
         });
 
-        /*centerPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                setFocusable(true);
-                requestFocus();
-            }
-        });*/
-
         this.addKeyListener(tcl);
 
         areaField.addKeyListener(new KeyAdapter() {
@@ -470,12 +462,14 @@ public class MainFrame extends JFrame {
                                 if (!p.getTag().getChildren().contains(c)) {
                                     p.getTag().addChild(c);
                                     createTagLabels();
-                                    childField.setText("");
+                                    break;
+
                                 }
                             }
                         }
                     }
                 }
+                childField.setText("");
             }
         });
 
@@ -488,7 +482,7 @@ public class MainFrame extends JFrame {
 				dateLabel.setForeground(Color.BLACK);
 				dateField.setText("");
 				storedTagsPanel.removeAll();
-				//childField.setText("");
+				childField.setText("");
 				tagLabel = new Tag();
 				pack();
 			}
@@ -568,6 +562,31 @@ public class MainFrame extends JFrame {
             return false;
         }
     }
+
+    /**
+     * If a new thumbnail is selected and only part of the thumbnail is visible
+     * in the scrollpane, the scrollbar goes up or down depending on direction.
+     *
+     */
+    /*public static void scrollVertical(String direction) {
+        Rectangle currentView = picturePanel.getVisibleRect();
+        JScrollBar jsb = picturePanelPane.getVerticalScrollBar();
+        if (ThumbnailClickListener.mostRecentSelection != null) {
+            if (tcl.mostRecentSelection.getVisibleRect().isEmpty()) {
+                if (direction == "UP") {
+                    jsb.setValue(jsb.getValue() - 1);
+                } else if (direction == "DOWN") {
+                    jsb.setValue(jsb.getValue() + 1);
+                }
+            } else {
+                if (direction == "UP") {
+                    jsb.setValue(jsb.getValue() - 150);
+                } else if (direction == "DOWN") {
+                    jsb.setValue(jsb.getValue() + 150);
+                }
+            }
+        }
+    }*/
 
     public static void main(String[] args){
         try {
