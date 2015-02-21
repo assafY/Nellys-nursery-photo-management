@@ -88,6 +88,7 @@ public class PictureLabel extends JLabel {
             isSelected = false;
             repaint();
         }
+        MainFrame.updateSingleTags();
     }
 
     public boolean isSelected() {
