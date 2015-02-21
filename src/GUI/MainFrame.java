@@ -21,413 +21,427 @@ import java.util.Date;
 import static java.awt.Color.*;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
-
 public class MainFrame extends JFrame {
 
-    // menu bar component declaration
-    private MenuBar menuBar = new MenuBar();
-    Menu file;
-    Menu edit;
-    Menu tools;
-    Menu help;
-    MenuItem imp;
-    MenuItem exp;
-    MenuItem backup;
-    MenuItem exit;
-    MenuItem rotate;
-    MenuItem resize;
-    MenuItem crop;
-    MenuItem sel;
-    MenuItem tag;
-    MenuItem delete;
-    MenuItem print;
-    MenuItem save;
+	// menu bar component declaration
+	private MenuBar menuBar = new MenuBar();
+	Menu file;
+	Menu edit;
+	Menu tools;
+	Menu help;
+	MenuItem imp;
+	MenuItem exp;
+	MenuItem backup;
+	MenuItem exit;
+	MenuItem rotate;
+	MenuItem resize;
+	MenuItem crop;
+	MenuItem sel;
+	MenuItem tag;
+	MenuItem delete;
+	MenuItem print;
+	MenuItem save;
 
-    // root panel declaration
-    private JPanel mainPanel;
+	// root panel declaration
+	private JPanel mainPanel;
 
-    // north component declaration
-    private JPanel northPanel;
-    private JPanel searchPanel;
-    private JTextField filterField;
-    private JCheckBox taggedButton;
-    private JCheckBox unTaggedButton;
-    private JCheckBox incompleteButton;
-    private JCheckBox allButton;
-    private JPanel sortByPanel;
-    private JLabel labelSortby;
-    private JCheckBox nameAZ;
-    private JCheckBox nameZA;
+	// north component declaration
+	private JPanel northPanel;
+	private JPanel searchPanel;
+	private JTextField filterField;
+	private JCheckBox taggedButton;
+	private JCheckBox unTaggedButton;
+	private JCheckBox incompleteButton;
+	private JCheckBox allButton;
+	private JPanel sortByPanel;
+	private JLabel labelSortby;
+	private JCheckBox nameAZ;
+	private JCheckBox nameZA;
 
-    // west component declaration
-    private JPanel westPanel;
-    private JPanel buttonPanel;
-    private JButton importButton;
-    private JButton exportButton;
-    private JButton backupButton;
-    private JButton rotateButton;
-    private JButton deleteButton;
-    private JButton printButton;
+	// west component declaration
+	private JPanel westPanel;
+	private JPanel buttonPanel;
+	private JButton importButton;
+	private JButton exportButton;
+	private JButton backupButton;
+	private JButton rotateButton;
+	private JButton deleteButton;
+	private JButton printButton;
 
-    // center component declaration
-    private static GridLayout picturePanelLayout;
-    private JPanel centerPanel;
-    private static JPanel picturePanel;
-    public static PictureLabel[][] thumbsOnDisplayArray;
-    private static JScrollPane picturePanelPane;
-    private JPanel scrollPanel;
-    private static JSlider zoomSlider;
+	// center component declaration
+	private static GridLayout picturePanelLayout;
+	private JPanel centerPanel;
+	private static JPanel picturePanel;
+	public static PictureLabel[][] thumbsOnDisplayArray;
+	private static JScrollPane picturePanelPane;
+	private JPanel scrollPanel;
+	private static JSlider zoomSlider;
 
-    // east component declaration
-    private JPanel eastPanel;
-    private JPanel tagPanel;
-    private JPanel tagsLabelsPanel;
-    private JPanel tagsFieldsPanel;
-    private JPanel descriptionPanel;
-    private JPanel donePanel;
-    public static JPanel storedTagsPanel;
-    private static int tagCounter;
-    private static JPanel currentTagPanel;
-    private static JTextField dateField;
-    private JSuggestField childField;
-    private JTextField areaField;
-    private JLabel areaLabel;
-    private JLabel dateLabel;
-    private JButton doneButton;
-    private JButton resetButton;
+	// east component declaration
+	private JPanel eastPanel;
+	private JPanel tagPanel;
+	private JPanel tagsLabelsPanel;
+	private JPanel tagsFieldsPanel;
+	private JPanel descriptionPanel;
+	private JPanel donePanel;
+	public static JPanel storedTagsPanel;
+	private static int tagCounter;
+	private static JPanel currentTagPanel;
+	private static JTextField dateField;
+	private JSuggestField childField;
+	private JTextField areaField;
+	private JLabel areaLabel;
+	private JLabel dateLabel;
+	private JButton doneButton;
+	private JButton resetButton;
 
-    private Tag tagLabel = new Tag();
-    private int currentColumnCount = 0;
-    private boolean picturePanelBiggerThanFrame = false;
-    private static ThumbnailClickListener tcl = new ThumbnailClickListener();
+	private int currentColumnCount = 0;
+	private boolean picturePanelBiggerThanFrame = false;
+	private static ThumbnailClickListener tcl = new ThumbnailClickListener();
 
-    private File [] savedFiles;
+	private File[] savedFiles;
 
+	public MainFrame() throws IOException, ClassNotFoundException {
 
-    public MainFrame() throws IOException, ClassNotFoundException {
+		// root panel assignment
+		mainPanel = new JPanel(new BorderLayout());
 
-        // root panel assignment
-        mainPanel = new JPanel(new BorderLayout());
+		createMenuBar();
+		createNorthPanel();
+		createWestPanel();
+		createCenterPanel();
+		createEastPanel();
+		addListeners();
+		addSavedData();
 
-        createMenuBar();
-        createNorthPanel();
-        createWestPanel();
-        createCenterPanel();
-        createEastPanel();
-        addListeners();
-        addSavedData();
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		add(mainPanel);
 
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-        add(mainPanel);
+		setTitle("Photo Management Software");
+		// setMinimumSize(new Dimension(1333, 766));
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		pack();
+		setVisible(true);
+	}
 
-        setTitle("Photo Management Software");
-        //setMinimumSize(new Dimension(1333, 766));
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        pack();
-        setVisible(true);
-    }
+	private void createMenuBar() {
 
-    private void createMenuBar() {
+		// menu bar component assignment
+		file = new Menu("File");
+		edit = new Menu("Edit");
+		tools = new Menu("Tools");
+		help = new Menu("Help");
+		imp = new MenuItem("Import");
+		exp = new MenuItem("Export");
+		backup = new MenuItem("Backup");
+		exit = new MenuItem("Exit");
+		rotate = new MenuItem("Rotate");
+		resize = new MenuItem("Resize");
+		crop = new MenuItem("Crop");
+		sel = new MenuItem("Select");
+		tag = new MenuItem("Tag");
+		delete = new MenuItem("Delete");
+		print = new MenuItem("Print");
+		save = new MenuItem("Save");
 
-        // menu bar component assignment
-        file = new Menu("File");
-        edit = new Menu("Edit");
-        tools = new Menu("Tools");
-        help = new Menu("Help");
-        imp = new MenuItem("Import");
-        exp = new MenuItem("Export");
-        backup = new MenuItem("Backup");
-        exit = new MenuItem("Exit");
-        rotate = new MenuItem("Rotate");
-        resize = new MenuItem("Resize");
-        crop = new MenuItem("Crop");
-        sel = new MenuItem("Select");
-        tag = new MenuItem("Tag");
-        delete = new MenuItem("Delete");
-        print = new MenuItem("Print");
-        save = new MenuItem("Save");
+		menuBar.add(file);
+		file.add(imp);
+		file.add(backup);
+		file.add(exp);
+		file.add(save);
+		file.addSeparator();
+		file.add(exit);
 
-        menuBar.add(file);
-        file.add(imp);
-        file.add(backup);
-        file.add(exp);
-        file.add(save);
-        file.addSeparator();
-        file.add(exit);
+		menuBar.add(edit);
+		edit.add(rotate);
+		edit.add(resize);
+		edit.add(crop);
 
-        menuBar.add(edit);
-        edit.add(rotate);
-        edit.add(resize);
-        edit.add(crop);
+		menuBar.add(tools);
+		tools.add(sel);
+		tools.add(tag);
+		tools.add(delete);
+		tools.add(print);
 
-        menuBar.add(tools);
-        tools.add(sel);
-        tools.add(tag);
-        tools.add(delete);
-        tools.add(print);
+		menuBar.add(help);
 
-        menuBar.add(help);
+		setMenuBar(menuBar);
 
-        setMenuBar(menuBar);
+	}
 
-    }
+	private void createNorthPanel() {
 
-    private void createNorthPanel() {
+		// north panel component assignment
+		northPanel = new JPanel(new BorderLayout());
+		searchPanel = new JPanel();
+		filterField = new JTextField(22);
+		taggedButton = new JCheckBox("Tagged");
+		unTaggedButton = new JCheckBox("Untagged");
+		incompleteButton = new JCheckBox("Incomplete");
+		allButton = new JCheckBox("All");
+		sortByPanel = new JPanel();
+		labelSortby = new JLabel("Sort by: ");
+		nameAZ = new JCheckBox("name A-Z");
+		nameZA = new JCheckBox("name Z-A");
 
-        // north panel component assignment
-        northPanel = new JPanel(new BorderLayout());
-        searchPanel = new JPanel();
-        filterField = new JTextField(22);
-        taggedButton = new JCheckBox("Tagged");
-        unTaggedButton = new JCheckBox("Untagged");
-        incompleteButton = new JCheckBox("Incomplete");
-        allButton = new JCheckBox("All");
-        sortByPanel = new JPanel();
-        labelSortby = new JLabel("Sort by: ");
-        nameAZ = new JCheckBox("name A-Z");
-        nameZA = new JCheckBox("name Z-A");
+		mainPanel.add(northPanel, BorderLayout.NORTH);
+		northPanel.add(searchPanel, BorderLayout.WEST);
+		northPanel.add(sortByPanel, BorderLayout.EAST);
 
-        mainPanel.add(northPanel, BorderLayout.NORTH);
-        northPanel.add(searchPanel, BorderLayout.WEST);
-        northPanel.add(sortByPanel, BorderLayout.EAST);
+		taggedButton.setMnemonic(KeyEvent.VK_T);
+		taggedButton.setSelected(false);
+		unTaggedButton.setMnemonic(KeyEvent.VK_T);
+		unTaggedButton.setSelected(false);
+		incompleteButton.setMnemonic(KeyEvent.VK_T);
+		incompleteButton.setSelected(false);
+		allButton.setMnemonic(KeyEvent.VK_T);
+		allButton.setSelected(true);
+		searchPanel.add(filterField);
+		searchPanel.add(taggedButton);
+		searchPanel.add(unTaggedButton);
+		searchPanel.add(incompleteButton);
+		searchPanel.add(allButton);
+		nameAZ.setSelected(false);
+		nameZA.setSelected(false);
+		sortByPanel.add(labelSortby);
+		sortByPanel.add(nameAZ);
+		sortByPanel.add(nameZA);
 
-        taggedButton.setMnemonic(KeyEvent.VK_T);
-        taggedButton.setSelected(false);
-        unTaggedButton.setMnemonic(KeyEvent.VK_T);
-        unTaggedButton.setSelected(false);
-        incompleteButton.setMnemonic(KeyEvent.VK_T);
-        incompleteButton.setSelected(false);
-        allButton.setMnemonic(KeyEvent.VK_T);
-        allButton.setSelected(true);
-        searchPanel.add(filterField);
-        searchPanel.add(taggedButton);
-        searchPanel.add(unTaggedButton);
-        searchPanel.add(incompleteButton);
-        searchPanel.add(allButton);
-        nameAZ.setSelected(false);
-        nameZA.setSelected(false);
-        sortByPanel.add(labelSortby);
-        sortByPanel.add(nameAZ);
-        sortByPanel.add(nameZA);
+		TitledBorder titledBorder = new TitledBorder("Search: ");
+		EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
+		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
+				titledBorder);
+		northPanel.setBorder(compoundBorder);
 
-        TitledBorder titledBorder = new TitledBorder("Search: ");
-        EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
-        CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titledBorder);
-        northPanel.setBorder(compoundBorder);
+	}
 
-    }
+	private void createWestPanel() {
 
-    private void createWestPanel() {
+		// west component assignment
+		westPanel = new JPanel(new BorderLayout());
+		buttonPanel = new JPanel();
+		importButton = new JButton("Import");
+		exportButton = new JButton("Export");
+		backupButton = new JButton("Backup");
+		rotateButton = new JButton("Rotate");
+		deleteButton = new JButton("Delete");
+		printButton = new JButton("Print");
 
-        // west component assignment
-        westPanel = new JPanel(new BorderLayout());
-        buttonPanel = new JPanel();
-        importButton = new JButton("Import");
-        exportButton = new JButton("Export");
-        backupButton = new JButton("Backup");
-        rotateButton = new JButton("Rotate");
-        deleteButton = new JButton("Delete");
-        printButton = new JButton("Print");
+		mainPanel.add(westPanel, BorderLayout.WEST);
+		westPanel.add(buttonPanel, BorderLayout.NORTH);
+		buttonPanel.setLayout(new GridBagLayout());
 
-        mainPanel.add(westPanel, BorderLayout.WEST);
-        westPanel.add(buttonPanel, BorderLayout.NORTH);
-        buttonPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.insets = new Insets(4, 4, 4, 4);
+		c.gridx = 0;
+		c.gridy = 0;
+		buttonPanel.add(importButton, c);
+		c.gridy = 1;
+		buttonPanel.add(exportButton, c);
+		c.gridy = 2;
+		buttonPanel.add(backupButton, c);
+		c.gridy = 3;
+		buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
+		c.gridy = 6;
+		buttonPanel.add(rotateButton, c);
+		c.gridy = 9;
+		buttonPanel.add(deleteButton, c);
+		c.gridy = 10;
+		buttonPanel.add(printButton, c);
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(4,4,4,4);
-        c.gridx = 0;
-        c.gridy = 0;
-        buttonPanel.add(importButton, c);
-        c.gridy = 1;
-        buttonPanel.add(exportButton, c);
-        c.gridy = 2;
-        buttonPanel.add(backupButton, c);
-        c.gridy = 3;
-        buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
-        c.gridy = 6;
-        buttonPanel.add(rotateButton, c);
-        c.gridy = 9;
-        buttonPanel.add(deleteButton, c);
-        c.gridy = 10;
-        buttonPanel.add(printButton, c);
+		TitledBorder titledBorder = new TitledBorder("Tools: ");
+		westPanel.setBorder(titledBorder);
 
-        TitledBorder titledBorder = new TitledBorder("Tools: ");
-        westPanel.setBorder(titledBorder);
+	}
 
-    }
+	private void createCenterPanel() {
 
-    private void createCenterPanel() {
+		// center component assignment
+		picturePanelLayout = new GridLayout(0, 1, 2, 2);
+		picturePanel = new JPanel(picturePanelLayout);
+		picturePanel.setBackground(WHITE);
 
-        // center component assignment
-        picturePanelLayout = new GridLayout(0, 1, 2, 2);
-        picturePanel = new JPanel(picturePanelLayout);
-        picturePanel.setBackground(WHITE);
+		picturePanelPane = new JScrollPane(picturePanel);
+		picturePanelPane
+				.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
+		picturePanelPane.setBackground(WHITE);
 
-        picturePanelPane = new JScrollPane(picturePanel);
-        picturePanelPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
-        picturePanelPane.setBackground(WHITE);
+		zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
+		scrollPanel = new JPanel();
+		scrollPanel.add(zoomSlider);
 
-        zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
-        scrollPanel = new JPanel();
-        scrollPanel.add(zoomSlider);
+		TitledBorder titledBorder = new TitledBorder("Pictures: ");
+		EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
+		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
+				titledBorder);
 
-        TitledBorder titledBorder = new TitledBorder("Pictures: ");
-        EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
-        CompoundBorder compoundBorder = new CompoundBorder(emptyBorder, titledBorder);
+		centerPanel = new JPanel(new BorderLayout());
+		centerPanel.setBorder(compoundBorder);
+		centerPanel.add(picturePanelPane, BorderLayout.CENTER);
+		centerPanel.add(scrollPanel, BorderLayout.SOUTH);
 
-        centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBorder(compoundBorder);
-        centerPanel.add(picturePanelPane, BorderLayout.CENTER);
-        centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+		mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
+	}
 
-    }
+	private void createEastPanel() {
 
-    private void createEastPanel() {
+		// east component assignment
+		areaLabel = new JLabel("Area");
+		dateLabel = new JLabel("Date");
 
-        // east component assignment
-        areaLabel = new JLabel("Area");
-        dateLabel = new JLabel("Date");
+		tagsLabelsPanel = new JPanel(new GridLayout(0, 1));
+		tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
+		tagsLabelsPanel.add(new JLabel("Child name"));
+		tagsLabelsPanel.add(areaLabel);
+		tagsLabelsPanel.add(dateLabel);
 
-        tagsLabelsPanel = new JPanel(new GridLayout(0, 1));
-        tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
-        tagsLabelsPanel.add(new JLabel("Child name"));
-        tagsLabelsPanel.add(areaLabel);
-        tagsLabelsPanel.add(dateLabel);
+		/**
+		 * Add us as children for testing purposes. Auto complete text field
+		 * needs to be recreated and re-added every time a new child is added
+		 */
+		new Child("Assaf Yossifoff");
+		new Child("Polly Apostolova");
+		new Child("Andrei Juganaru");
+		new Child("John Waghorn");
+		new Child("Valya Popova");
+		new Child("Ivaylo Kirilov");
+		new Child("Dimitar Markovski");
+		new Child("Jonny Zephir");
+		/**
+		 * Finished adding mock children
+		 */
 
-        /**
-         * Add us as children for testing purposes.
-         * Auto complete text field needs to be recreated
-         * and re-added every time a new child is added
-         */
-        new Child("Assaf Yossifoff");
-        new Child("Polly Apostolova");
-        new Child("Andrei Juganaru");
-        new Child("John Waghorn");
-        new Child("Valya Popova");
-        new Child("Ivaylo Kirilov");
-        new Child("Dimitar Markovski");
-        new Child("Jonny Zephir");
-        /**
-         * Finished adding mock children
-         */
+		childField = new JSuggestField(this, Library.getChildrenNamesVector());
+		areaField = new JTextField(12);
+		dateField = new JFormattedTextField();
+		dateField.setColumns(12);
 
-        childField = new JSuggestField(this, Library.getChildrenNamesVector());
-        areaField = new JTextField(12);
-        dateField = new JFormattedTextField();
-        dateField.setColumns(12);
+		tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
+		tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
+		tagsFieldsPanel.add(childField);
+		tagsFieldsPanel.add(areaField);
+		tagsFieldsPanel.add(dateField);
 
-        tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
-        tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
-        tagsFieldsPanel.add(childField);
-        tagsFieldsPanel.add(areaField);
-        tagsFieldsPanel.add(dateField);
+		TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
+		EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
+		CompoundBorder compoundBorder = new CompoundBorder(titledBorder,
+				emptyBorder);
 
-        TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
-        EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
-        CompoundBorder compoundBorder = new CompoundBorder(titledBorder, emptyBorder);
+		storedTagsPanel = new JPanel();
+		storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel,
+				BoxLayout.Y_AXIS));
+		storedTagsPanel.setBorder(compoundBorder);
 
-        storedTagsPanel = new JPanel();
-        storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel, BoxLayout.Y_AXIS));
-        storedTagsPanel.setBorder(compoundBorder);
+		tagPanel = new JPanel(new BorderLayout());
+		tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
+		tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
+		tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
 
-        tagPanel = new JPanel(new BorderLayout());
-        tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
-        tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
-        tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
+		doneButton = new JButton("Done");
+		resetButton = new JButton("Reset");
 
-        doneButton = new JButton("Done");
-        resetButton = new JButton("Reset");
+		donePanel = new JPanel();
+		donePanel.add(resetButton);
+		donePanel.add(doneButton);
 
-        donePanel = new JPanel();
-        donePanel.add(resetButton);
-        donePanel.add(doneButton);
+		descriptionPanel = new JPanel(new BorderLayout());
+		descriptionPanel.setBorder(new TitledBorder("Add desription: "));
+		descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
+				BorderLayout.NORTH);
+		descriptionPanel.add(donePanel, BorderLayout.SOUTH);
 
-        descriptionPanel = new JPanel(new BorderLayout());
-        descriptionPanel.setBorder(new TitledBorder("Add desription: "));
-        descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)), BorderLayout.NORTH);
-        descriptionPanel.add(donePanel, BorderLayout.SOUTH);
+		eastPanel = new JPanel(new BorderLayout());
+		eastPanel.setBorder(new TitledBorder("Add Tag: "));
+		eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
+		eastPanel.add(tagPanel, BorderLayout.NORTH);
 
-        eastPanel = new JPanel(new BorderLayout());
-        eastPanel.setBorder(new TitledBorder("Add Tag: "));
-        eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
-        eastPanel.add(tagPanel, BorderLayout.NORTH);
+		mainPanel.add(eastPanel, BorderLayout.EAST);
 
-        mainPanel.add(eastPanel, BorderLayout.EAST);
-
-    }
+	}
 
 	private void addListeners() {
 
-        // add key listener for thumbnail selection using keyboard
-        addKeyListener(tcl);
+		// add key listener for thumbnail selection using keyboard
+		addKeyListener(tcl);
 
-        // exit menu item listener
-        exit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int dialogButton = JOptionPane.showConfirmDialog (null, "Are you sure you want to quit?", "Warning!", JOptionPane.YES_NO_OPTION);
-                if(dialogButton == JOptionPane.YES_OPTION) {
-                    System.exit(0);
-                }
-            }
-        });
+		// exit menu item listener
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int dialogButton = JOptionPane.showConfirmDialog(null,
+						"Are you sure you want to quit?", "Warning!",
+						JOptionPane.YES_NO_OPTION);
+				if (dialogButton == JOptionPane.YES_OPTION) {
+					System.exit(0);
+				}
+			}
+		});
 
-        importButton.addActionListener(new ImportButtonListener());
+		importButton.addActionListener(new ImportButtonListener());
 
-        // change picture thumbnail size when slider is used
-        zoomSlider.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
+		// change picture thumbnail size when slider is used
+		zoomSlider.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
 
-                final ArrayList<PictureLabel> thumbs = Library.getThumbsOnDisplay();
+				final ArrayList<PictureLabel> thumbs = Library
+						.getThumbsOnDisplay();
 
-                Thread sliderChangeThread = new Thread() {
-                    public void run() {
+				Thread sliderChangeThread = new Thread() {
+					public void run() {
 
-                        try {
-                            for (PictureLabel currentThumbnail : thumbs) {
-                                currentThumbnail.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
-                            }
-                        } finally {
-                            adjustColumnCount();
-                        }
-                    }
-                };
-                sliderChangeThread.start();
-            }
-        });
+						try {
+							for (PictureLabel currentThumbnail : thumbs) {
+								currentThumbnail
+										.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+												.getValue()]);
+							}
+						} finally {
+							adjustColumnCount();
+						}
+					}
+				};
+				sliderChangeThread.start();
+			}
+		});
 
-        // adjust number of columns when window size changes
-        this.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) {
+		// adjust number of columns when window size changes
+		this.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentResized(ComponentEvent e) {
 
-                adjustColumnCount();
-                //TODO: Fix this method !
-                /*int currentPanelSize = (int) Math.round(picturePanel.getSize().getWidth());
-                int currentWindowSize = (int) Math.round(e.getComponent().getSize().getWidth());
-                int framePanelGap = currentWindowSize - currentPanelSize;
+				adjustColumnCount();
+				// TODO: Fix this method !
+				/*
+				 * int currentPanelSize = (int)
+				 * Math.round(picturePanel.getSize().getWidth()); int
+				 * currentWindowSize = (int)
+				 * Math.round(e.getComponent().getSize().getWidth()); int
+				 * framePanelGap = currentWindowSize - currentPanelSize;
+				 * 
+				 * if (framePanelGap < 450) { picturePanelBiggerThanFrame =
+				 * true;
+				 * 
+				 * 
+				 * } else { picturePanelBiggerThanFrame = false;
+				 * adjustColumnCount(); }
+				 */
+			}
 
-                if (framePanelGap < 450) {
-                    picturePanelBiggerThanFrame = true;
+			@Override
+			public void componentMoved(ComponentEvent e) {
+			}
 
+			@Override
+			public void componentShown(ComponentEvent e) {
+			}
 
-                }
-                else {
-                    picturePanelBiggerThanFrame = false;
-                    adjustColumnCount();
-                }*/
-            }
-            @Override
-            public void componentMoved(ComponentEvent e) {}
-            @Override
-            public void componentShown(ComponentEvent e) {}
-            @Override
-            public void componentHidden(ComponentEvent e) {}
-        });
+			@Override
+			public void componentHidden(ComponentEvent e) {
+			}
+		});
 
 		/**
 		 * Whenever the scroll pane is scrolled, generates thumbnails coming
@@ -443,7 +457,7 @@ public class MainFrame extends JFrame {
 						if (currentThumbnail.getIcon() == null) {
 							currentThumbnail
 									.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                                            .getValue()]);
+											.getValue()]);
 						}
 					} else {
 						currentThumbnail.hideThumbnail();
@@ -453,106 +467,87 @@ public class MainFrame extends JFrame {
 		});
 
 		picturePanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                setFocusable(true);
-                requestFocus();
-            }
-        });
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				setFocusable(true);
+				requestFocus();
+			}
+		});
 
 		areaField.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
 
-                String text = tagLabel.getRoom();
-                if (text == null || text.equals(""))
-                    tagLabel.removeRoom();
-                else
-                    tagLabel.setRoom(areaField.getText());
-
-            }
-        });
+			}
+		});
 
 		dateField.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
 
-                ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
-                if (picturesToTag.size() == 0) {
-                    // TODO: no thumnails selected, either reset texfield or
-                    // simply disable them until pictures selected
-                } else {
-                    Date date = Library.getDate(dateField.getText());
-                    if (date != null) {
-                        for (Picture p : Library.getSelectedPictures()) {
-                            p.getTag().setDate(date);
-                        }
-                    } else {
-                        //TODO do something to alert a date is not good
-                    }
-                }
+				ArrayList<Picture> picturesToTag = Library
+						.getSelectedPictures();
+				if (picturesToTag.size() == 0) {
+					// TODO: no thumnails selected, either reset texfield or
+					// simply disable them until pictures selected
+				} else {
+					Date date = Library.getDate(dateField.getText());
+					if (date != null) {
+						for (Picture p : Library.getSelectedPictures()) {
+							p.getTag().setDate(date);
+						}
+					} else {
+						// TODO do something to alert a date is not good
+					}
+				}
 
-            }
-        });
+			}
+		});
 
 		childField.addSelectionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<Picture> picturesToTag = Library
-                        .getSelectedPictures();
-                if (picturesToTag.size() == 0) {
-                    // TODO: no thumnails selected, either reset texfield or
-                    // simply disable them until picture/s selected
-                } else {
-                    for (Child c : Library.getChildrenList()) {
-                        if (childField.getText().toLowerCase()
-                                .equals(c.getName().toLowerCase())) {
-                            for (Picture p : Library.getSelectedPictures()) {
-                                if (!p.getTag().getChildren().contains(c)) {
-                                    p.getTag().addChild(c);
-                                    createTagLabels();
-                                }
-                            }
-                        }
-                    }
-                }
-                childField.setText("");
-            }
-        });
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Picture> picturesToTag = Library
+						.getSelectedPictures();
+				if (picturesToTag.size() == 0) {
+					// TODO: no thumnails selected, either reset texfield or
+					// simply disable them until picture/s selected
+				} else {
+					for (Child c : Library.getChildrenList()) {
+						if (childField.getText().toLowerCase()
+								.equals(c.getName().toLowerCase())) {
+							for (Picture p : Library.getSelectedPictures()) {
+								if (!p.getTag().getChildren().contains(c)) {
+									p.getTag().addChild(c);
+									createTagLabels();
+								}
+							}
+						}
+					}
+				}
+				childField.setText("");
+			}
+		});
 
 		resetButton.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                areaLabel.setForeground(Color.BLACK);
-                areaField.setText("");
-                dateLabel.setForeground(Color.BLACK);
-                dateField.setText("");
-                storedTagsPanel.removeAll();
-                childField.setText("");
-                tagLabel = new Tag();
-                pack();
-            }
-        });
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				//TODO: probably remove reset button
+			}
+		});
 
 		doneButton.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Component[] children = storedTagsPanel.getComponents();
-                tagLabel.removeAllChildren();
-                for (Component component : children) {
-                    // TODO check if the child exists
-                    String nameOfChild = ((JLabel) component).getText();
-                    Child child = new Child(nameOfChild);
-                    tagLabel.addChild(child);
-                }
-                System.out.println(tagLabel);
-            }
-        });
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO: see if we need done button
+			}
+		});
 
 		// Saving all the images that are currently being displayed
 		// by clicking the File-> Save button
@@ -575,45 +570,44 @@ public class MainFrame extends JFrame {
 		});
 	}
 
-    /**
-     * This method creates child tag labels when a chlidren are tagged in
-     * a selected thumbnail. It redraws all labels for a picture every time
-     * a child is tagged or removed from the picture metadata.
-     */
+	/**
+	 * This method creates child tag labels when a chlidren are tagged in a
+	 * selected thumbnail. It redraws all labels for a picture every time a
+	 * child is tagged or removed from the picture metadata.
+	 */
 	public static void createTagLabels() {
 
-        // array list to keep all children tagged in a selected
-        // thumbnail or thumbnails
+		// array list to keep all children tagged in a selected
+		// thumbnail or thumbnails
 		ArrayList<Child> taggedChildren;
-        // counter to determine whether even or odd number of labels exist
+		// counter to determine whether even or odd number of labels exist
 		tagCounter = 1;
 
 		storedTagsPanel.removeAll();
 		storedTagsPanel.revalidate();
 
-        // if no pictures are selected
+		// if no pictures are selected
 		if (Library.getSelectedPictures().size() == 0) {
-            //TODO: hide panel if there are no tagged pictures
-		}
-        else {
+			// TODO: hide panel if there are no tagged pictures
+		} else {
 			taggedChildren = new ArrayList<Child>();
-            // for every selected picture
+			// for every selected picture
 			for (int i = 0; i < Library.getSelectedPictures().size(); ++i) {
-                // for every child that exists on any selected picture
+				// for every child that exists on any selected picture
 				for (int j = 0; j < Library.getSelectedPictures().get(i)
 						.getTag().getChildren().size(); ++j) {
-                    //if the child isn't already on the temp array list
+					// if the child isn't already on the temp array list
 					if (!taggedChildren.contains(Library.getSelectedPictures()
 							.get(i).getTag().getChildren().get(j))) {
-                        // add child
+						// add child
 						taggedChildren.add(Library.getSelectedPictures().get(i)
 								.getTag().getChildren().get(j));
 					}
 				}
 			}
-            // for every child found in previous loop
+			// for every child found in previous loop
 			for (Child c : taggedChildren) {
-                // check if tagged in all selected pictures
+				// check if tagged in all selected pictures
 				boolean childInAllPictures = true;
 				for (Picture p : Library.getSelectedPictures()) {
 					if (!p.getTag().getChildren().contains(c)) {
@@ -621,9 +615,9 @@ public class MainFrame extends JFrame {
 						break;
 					}
 				}
-                // if tagged in all selected pictures create a tag label and add
-                // to existing panel (if odd number of labels) or create a new
-                // JPanel one line below (if even number)
+				// if tagged in all selected pictures create a tag label and add
+				// to existing panel (if odd number of labels) or create a new
+				// JPanel one line below (if even number)
 				if (childInAllPictures) {
 					if (tagCounter % 2 == 1) {
 						currentTagPanel = new JPanel();
@@ -644,15 +638,23 @@ public class MainFrame extends JFrame {
 
 	}
 
+	/**
+	 * Updates date and area fields. Used when there is a change in picture
+	 * selection.
+	 */
 	public static void updateSingleTags() {
-		//date
+		/* date */
+		// selected pictures array and date string to go in text field
 		ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
 		String date = null;
+		// if no pics selected
 		if (picturesToTag.size() == 0) {
 			// TODO: no thumnails selected, either reset texfield or
 			// simply disable them until picture/s selected
 		} else {
+			// get the first picture's date
 			Date date1 = picturesToTag.get(0).getTag().getDate();
+			// for every pic see if the date is the same as the firs one's
 			for (Picture p : picturesToTag) {
 				Date date2 = p.getTag().getDate();
 				if (!date1.equals(date2)) {
@@ -660,7 +662,8 @@ public class MainFrame extends JFrame {
 					break;
 				}
 			}
-			if (date == null) 
+			// if all have same dates put the date in the field
+			if (date == null)
 				date = Library.getFormattedDate(date1);
 
 			dateField.setText(date);
@@ -687,7 +690,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-    // returns true if a pictureLabel is in view in the scroll pane
+	// returns true if a pictureLabel is in view in the scroll pane
 	private static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
@@ -760,9 +763,8 @@ public class MainFrame extends JFrame {
 	 * } }
 	 */
 
-
-    // creates a 2D array of currently shown thumbnails.
-    // used in the key listener for selection using keyboard
+	// creates a 2D array of currently shown thumbnails.
+	// used in the key listener for selection using keyboard
 	private static void createThumbnailArray() {
 		int columnCount = picturePanelLayout.getColumns();
 		int rowCount = Library.getThumbsOnDisplay().size() / columnCount;
