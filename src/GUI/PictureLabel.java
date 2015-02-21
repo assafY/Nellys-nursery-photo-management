@@ -88,7 +88,7 @@ public class PictureLabel extends JLabel {
             isSelected = false;
             repaint();
         }
-        MainFrame.updateSingleTags();
+
     }
 
     public boolean isSelected() {
@@ -140,6 +140,7 @@ public class PictureLabel extends JLabel {
                     ThumbnailClickListener.mostRecentSelection = null;
                     ThumbnailClickListener.refresh();
                     MainFrame.createTagLabels();
+                    toggleSelection();
                 }
                 else {
                     Library.addSelectedThumb(PictureLabel.this);

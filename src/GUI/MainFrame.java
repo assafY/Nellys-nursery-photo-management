@@ -634,6 +634,8 @@ public class MainFrame extends JFrame {
 					}
 				}
 			}
+
+            updateSingleTags();
 		}
 
 	}
@@ -657,7 +659,7 @@ public class MainFrame extends JFrame {
 			// for every pic see if the date is the same as the firs one's
 			for (Picture p : picturesToTag) {
 				Date date2 = p.getTag().getDate();
-				if (!date1.equals(date2)) {
+                if (!date1.equals(date2)) {
 					date = "";
 					break;
 				}
@@ -722,7 +724,6 @@ public class MainFrame extends JFrame {
 	 * Divides the current size of the picture panel by current thumbnail size
 	 * to determine required number of columns in GridLayout.
 	 */
-
 	private void adjustColumnCount() {
 
 		/*
