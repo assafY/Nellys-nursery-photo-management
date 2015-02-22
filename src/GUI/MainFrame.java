@@ -88,8 +88,8 @@ public class MainFrame extends JFrame {
 	private static int tagCounter;
 	private static JPanel currentTagPanel;
 	private static JTextField dateField;
+	private static JSuggestField areaField;
 	private JSuggestField childField;
-	private JTextField areaField;
 	private JLabel areaLabel;
 	private JLabel dateLabel;
 	private JButton doneButton;
@@ -309,12 +309,16 @@ public class MainFrame extends JFrame {
 		new Child("Ivaylo Kirilov");
 		new Child("Dimitar Markovski");
 		new Child("Jonny Zephir");
+
+		Library.addArea("Study Hub");
+		Library.addArea("New Lab");
+		Library.addArea("Garden");
 		/**
 		 * Finished adding mock children
 		 */
 
 		childField = new JSuggestField(this, Library.getChildrenNamesVector());
-		areaField = new JTextField(12);
+		areaField = new JSuggestField(this, Library.getAreasNamesVector());
 		dateField = new JFormattedTextField();
 		dateField.setColumns(12);
 
@@ -475,12 +479,28 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		areaField.addActionListener(new ActionListener() {
+		areaField.addSelectionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-
+				ArrayList<Picture> picturesToTag = Library
+						.getSelectedPictures();
+				if (picturesToTag.size() == 0) {
+					// TODO: no thumnails selected, either reset texfield or
+					// simply disable them until picture/s selected
+				} else {
+					for (String r : Library.getAreasList()) {
+						if (areaField.getText().toLowerCase()
+								.equals(r.toLowerCase())) {
+							for (Picture p : Library.getSelectedPictures()) {
+								if (p.getTag().getRoom() == null
+										|| !p.getTag().getRoom().equals(r)) {
+									p.getTag().setRoom(r);
+								}
+							}
+						}
+					}
+				}
 			}
 		});
 
@@ -537,7 +557,7 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO: probably remove reset button
+				// TODO: probably remove reset button
 			}
 		});
 
@@ -545,7 +565,7 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO: see if we need done button
+				// TODO: see if we need done button
 			}
 		});
 
@@ -635,7 +655,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 
-            updateSingleTags();
+			updateSingleTags();
 		}
 
 	}
@@ -645,9 +665,10 @@ public class MainFrame extends JFrame {
 	 * selection.
 	 */
 	public static void updateSingleTags() {
-		/* date */
 		// selected pictures array and date string to go in text field
 		ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
+
+		/* date */
 		String date = null;
 		// if no pics selected
 		if (picturesToTag.size() == 0) {
@@ -659,7 +680,7 @@ public class MainFrame extends JFrame {
 			// for every pic see if the date is the same as the firs one's
 			for (Picture p : picturesToTag) {
 				Date date2 = p.getTag().getDate();
-                if (!date1.equals(date2)) {
+				if (!date1.equals(date2)) {
 					date = "";
 					break;
 				}
@@ -669,12 +690,40 @@ public class MainFrame extends JFrame {
 				date = Library.getFormattedDate(date1);
 
 			dateField.setText(date);
+
 		}
+
+		/* room */
+		String room = null;
+		// if no pics selected
+		if (picturesToTag.size() == 0) {
+			// TODO: no thumnails selected, either reset texfield or
+			// simply disable them until picture/s selected
+		} else {
+			// get the first picture's area
+			String room1 = picturesToTag.get(0).getTag().getRoom();
+			// for every pic see if the area is the same as the firs one's
+			for (Picture p : picturesToTag) {
+				String room2 = p.getTag().getRoom();
+				if (room2 == null || !room1.equals(room2)) {
+					date = "";
+					break;
+				}
+			}
+			// if all have same areas put the date in the field
+			if (room == null)
+				room = room1;
+
+			areaField.setText(room);
+		}
+
 	}
 
-	// Automatically adding pictures that have been imported and saved before
-	// thus a *.ser file is created.
-	// The latter was also pushed into the 'Displaying and saving images' branch
+	/*
+	 * Automatically adding pictures that have been imported and saved before
+	 * thus a *.ser file is created. The latter was also pushed into the
+	 * 'Displaying and saving images' branch
+	 */
 	private void addSavedData() throws IOException, ClassNotFoundException {
 		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
 		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
@@ -692,7 +741,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	// returns true if a pictureLabel is in view in the scroll pane
+	/* returns true if a pictureLabel is in view in the scroll pane */
 	private static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
@@ -703,22 +752,25 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	/**
-	 * If a new thumbnail is selected and only part of the thumbnail is visible
-	 * in the scrollpane, the scrollbar goes up or down depending on direction.
-	 *
-	 */
-	/*
-	 * public static void scrollVertical(String direction) { Rectangle
-	 * currentView = picturePanel.getVisibleRect(); JScrollBar jsb =
-	 * picturePanelPane.getVerticalScrollBar(); if
-	 * (ThumbnailClickListener.mostRecentSelection != null) { if
-	 * (tcl.mostRecentSelection.getVisibleRect().isEmpty()) { if (direction ==
-	 * "UP") { jsb.setValue(jsb.getValue() - 1); } else if (direction == "DOWN")
-	 * { jsb.setValue(jsb.getValue() + 1); } } else { if (direction == "UP") {
-	 * jsb.setValue(jsb.getValue() - 150); } else if (direction == "DOWN") {
-	 * jsb.setValue(jsb.getValue() + 150); } } } }
-	 */
+	{
+		/**
+		 * If a new thumbnail is selected and only part of the thumbnail is
+		 * visible in the scrollpane, the scrollbar goes up or down depending on
+		 * direction.
+		 *
+		 */
+		/*
+		 * public static void scrollVertical(String direction) { Rectangle
+		 * currentView = picturePanel.getVisibleRect(); JScrollBar jsb =
+		 * picturePanelPane.getVerticalScrollBar(); if
+		 * (ThumbnailClickListener.mostRecentSelection != null) { if
+		 * (tcl.mostRecentSelection.getVisibleRect().isEmpty()) { if (direction
+		 * == "UP") { jsb.setValue(jsb.getValue() - 1); } else if (direction ==
+		 * "DOWN") { jsb.setValue(jsb.getValue() + 1); } } else { if (direction
+		 * == "UP") { jsb.setValue(jsb.getValue() - 150); } else if (direction
+		 * == "DOWN") { jsb.setValue(jsb.getValue() + 150); } } } }
+		 */
+	}
 
 	/**
 	 * Divides the current size of the picture panel by current thumbnail size
@@ -764,8 +816,10 @@ public class MainFrame extends JFrame {
 	 * } }
 	 */
 
-	// creates a 2D array of currently shown thumbnails.
-	// used in the key listener for selection using keyboard
+	/*
+	 * creates a 2D array of currently shown thumbnails. used in the key
+	 * listener for selection using keyboard
+	 */
 	private static void createThumbnailArray() {
 		int columnCount = picturePanelLayout.getColumns();
 		int rowCount = Library.getThumbsOnDisplay().size() / columnCount;

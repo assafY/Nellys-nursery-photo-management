@@ -26,10 +26,10 @@ public class Library implements Serializable {
 	private static Iterator childrenListIterator = childrenList.iterator();
 	private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
 	private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
-	private static ArrayList<String> possibleArea = new ArrayList<String>();
-	private static Iterator possibleAreaIterator = possibleArea.iterator();
-	private static ArrayList<Date> possibleDate = new ArrayList<Date>();
-	private static Iterator possibleDateIterator = possibleDate.iterator();
+	private static ArrayList<String> areasList = new ArrayList<String>();
+	private static Iterator areasListIterator = areasList.iterator();
+/**/	private static ArrayList<Date> possibleDate = new ArrayList<Date>();
+/**/	private static Iterator possibleDateIterator = possibleDate.iterator();
 	private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 	private static ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
@@ -44,13 +44,17 @@ public class Library implements Serializable {
 		}
 		return childrenNames;
 	}
+	
+	public static synchronized ArrayList<String> getAreasList() {
+		return areasList;
+	}
+
+	public static Vector<String> getAreasNamesVector() {
+		return new Vector<String>(areasList);
+	}
 
 	public static synchronized ArrayList<Picture> getPictureLibrary() {
 		return pictureLibrary;
-	}
-
-	public static void tagPicture(Picture picture, Tag tag) {
-		picture.setTag(tag);
 	}
 
 	/* comment section */{
@@ -159,7 +163,7 @@ public class Library implements Serializable {
 	}
 
 	public static void print(ArrayList<Picture> picturesToPrint) {
-		// TODO here? or in GUI?
+		// TODO 
 	}
 
 	public static void export(ArrayList<Picture> picturesToExport) {
@@ -178,6 +182,15 @@ public class Library implements Serializable {
 		childrenList.remove(child);
 	}
 
+	public static void addArea(String room) {
+		areasList.add(room);
+	}
+
+	public static void removeArea(Child room) {
+		areasList.remove(room);
+	}
+
+	
 	public static synchronized void addPictureToLibrary(Picture picture) {
 		pictureLibrary.add(picture);
 	}
