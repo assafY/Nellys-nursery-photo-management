@@ -2,11 +2,16 @@ package Data;
 
 import Core.Library;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Child {
+public class Child implements Serializable{
 
-    private String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3434858481118705418L;
+	private String name;
     private ArrayList<Picture> taggedPictures;
 
     public Child(String name) {

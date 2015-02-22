@@ -69,7 +69,8 @@ public class MainFrame extends JFrame {
 
 	// center component declaration
 	private static GridLayout picturePanelLayout;
-	private JPanel centerPanel;
+    private static JPanel centerPanel;
+    private static JPanel innerCenterPanel;
 	private static JPanel picturePanel;
 	public static PictureLabel[][] thumbsOnDisplayArray;
 	private static JScrollPane picturePanelPane;
@@ -279,10 +280,13 @@ public class MainFrame extends JFrame {
 		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 				titledBorder);
 
-		centerPanel = new JPanel(new BorderLayout());
-		centerPanel.setBorder(compoundBorder);
-		centerPanel.add(picturePanelPane, BorderLayout.CENTER);
-		centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+        innerCenterPanel = new JPanel(new BorderLayout());
+        innerCenterPanel.setBorder(compoundBorder);
+        innerCenterPanel.add(picturePanelPane, BorderLayout.CENTER);
+        innerCenterPanel.add(scrollPanel, BorderLayout.SOUTH);
+
+        centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(innerCenterPanel, BorderLayout.CENTER);
 
 		mainPanel.add(centerPanel, BorderLayout.CENTER);
 
@@ -652,7 +656,45 @@ public class MainFrame extends JFrame {
     private static void resetAreaField() {
 
     }
+    
     /**
+    /*
+     * Automatically adding pictures that have been imported and saved before
+     * thus a *.ser file is created. The latter was also pushed into the
+     * 'Displaying and saving images' branch
+     */
+    private void addSavedData() throws IOException, ClassNotFoundException {
+        FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
+        ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
+        try {
+            ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject
+                    .readObject();
+            savedFiles = new File[savedData.size()];
+            for (int i = 0; i < savedData.size(); i++) {
+                savedFiles[i] = savedData.get(i).getImageFile();
+            }
+            Library.importPicture(savedFiles);
+            restoredObject.close();
+        } catch (EOFException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    // returns CenterPanel
+    public static JPanel getCenterPanel()
+    {
+        return centerPanel;
+    }
+
+    // returns innerCenterPanel
+    public static JPanel getInnerCenterPanel()
+    {
+        return innerCenterPanel;
+    }
+
+
+	/**
+>>>>>>> -full Screen Images all done
 	 * This method creates child tag labels when a chlidren are tagged in a
 	 * selected thumbnail. It redraws all labels for a picture every time a
 	 * child is tagged or removed from the picture metadata.
@@ -789,29 +831,9 @@ public class MainFrame extends JFrame {
 
 	}
 
-	/*
-	 * Automatically adding pictures that have been imported and saved before
-	 * thus a *.ser file is created. The latter was also pushed into the
-	 * 'Displaying and saving images' branch
-	 */
-	private void addSavedData() throws IOException, ClassNotFoundException {
-		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
-		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
-		try {
-			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject
-					.readObject();
-			savedFiles = new File[savedData.size()];
-			for (int i = 0; i < savedData.size(); i++) {
-				savedFiles[i] = savedData.get(i).getImageFile();
-			}
-			Library.importPicture(savedFiles);
-			restoredObject.close();
-		} catch (EOFException exception) {
-			exception.printStackTrace();
-		}
-	}
 
-	/* returns true if a pictureLabel is in view in the scroll pane */
+	
+    /* returns true if a pictureLabel is in view in the scroll pane */
 	private static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
@@ -1003,6 +1025,10 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
+		}
+		for(int i = 0;i< Library.getThumbsOnDisplay().size();i++)
+		{
+			System.out.println(Library.getPictureLibrary().get(i));
 		}
 	}
 
