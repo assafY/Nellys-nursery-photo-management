@@ -672,6 +672,7 @@ public class MainFrame extends JFrame {
             savedFiles = new File[savedData.size()];
             for (int i = 0; i < savedData.size(); i++) {
                 savedFiles[i] = savedData.get(i).getImageFile();
+                System.out.println(savedFiles[i].getPath());
             }
             Library.importPicture(savedFiles);
             restoredObject.close();
