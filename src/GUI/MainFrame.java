@@ -116,7 +116,7 @@ public class MainFrame extends JFrame {
 		createCenterPanel();
 		createEastPanel();
 		addListeners();
-		saveData();
+		//saveData();
 		//addSavedData();
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

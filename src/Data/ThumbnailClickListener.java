@@ -247,7 +247,6 @@ public class ThumbnailClickListener implements KeyListener {
 
                 }
                 MainFrame.createTagLabels();
-                MainFrame.updateSingleTags();
             }
         }
     }
