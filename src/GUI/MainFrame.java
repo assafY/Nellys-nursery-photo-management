@@ -349,6 +349,8 @@ public class MainFrame extends JFrame {
 		// add key listener for thumbnail selection using keyboard
 		addKeyListener(tcl);
 
+        filterField.addActionListener(new SearchListener());
+
 		// exit menu item listener
 		exit.addActionListener(new ActionListener() {
 			@Override
@@ -929,6 +931,32 @@ public class MainFrame extends JFrame {
 			Library.importPicture(importDialog.getFiles());
 		}
 	}
+
+    /**
+     * method to action the search
+     */
+    private class SearchListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ArrayList<Child> allChildren = Library.getChildrenList();
+            //ArrayList<Picture> allPictures = Library.getPictureLibrary();
+            ArrayList<Picture> searchedPictures = new ArrayList<Picture>();
+
+            //gets text from GUI to a string
+            String searchChild = filterField.getText().toLowerCase();
+
+            //loops to the end of tagged children
+            for(int i = 0; i < allChildren.size();i++)
+            {
+                if (searchChild.equalsIgnoreCase(allChildren.get(i).getName())) {
+                    picturePanel.removeAll();
+                    MainFrame.addThumbnailsToView(allChildren.get(i).getTaggedPictures());
+                    filterField.setText("");
+                    break;
+                }
+            }
+        }
+    }
 
 	public static void main(String[] args) {
 		try {
