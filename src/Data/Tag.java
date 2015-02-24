@@ -9,7 +9,7 @@ public class Tag implements Serializable {
 	// there may be more than 3 rooms - let them decide the names
 	// private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
 
-	private String room;
+	private Area area;
 	private ArrayList<Child> children;
 	private Date date;
 
@@ -29,13 +29,13 @@ public class Tag implements Serializable {
 	}
 
 	public Tag() {
-		room = null;
+		area = null;
 		children = new ArrayList<Child>();
 		date = null;
 	}
 
-	public void setRoom(String room) {
-		this.room = room;
+	public void setArea(Area area) {
+		this.area = area;
 	}
 
 	public void addChild(Child child) {
@@ -62,12 +62,12 @@ public class Tag implements Serializable {
 		this.date = null;
 	}
 
-	public String getRoom() {
-		return room;
+	public Area getArea() {
+		return area;
 	}
 	
-	public void removeRoom() {
-		this.room = null;
+	public void removeArea() {
+		this.area = null;
 	}
 
 	public ArrayList<Child> getChildren() {
@@ -79,18 +79,18 @@ public class Tag implements Serializable {
 	}
 
 	public boolean isFullyTagged() {
-		return (room != null && children.size() > 0 && date != null);
+		return (area != null && children.size() > 0 && date != null);
 	}
 
 	public boolean isPartiallyTagged() {
-		return (room != null || children.size() > 0 || date != null);
+		return (area != null || children.size() > 0 || date != null);
 	}
 
 	@Override
 	public String toString() {
 		String tagString = "";
 		tagString += "Date: " + date + "\n";
-		tagString += "Area: " + room + "\n";
+		tagString += "Area: " + area.getName() + "\n";
 		tagString += "Children: ";
 		if (children.isEmpty()) {
 			tagString += "none";

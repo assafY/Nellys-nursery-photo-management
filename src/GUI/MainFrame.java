@@ -2,11 +2,10 @@ package GUI;
 
 import Core.Library;
 import Core.Settings;
-import Data.Child;
-import Data.Picture;
-import Data.ThumbnailClickListener;
-import Data.Tag;
+import Data.*;
 import ch.rakudave.suggest.JSuggestField;
+import org.apache.commons.lang3.text.WordUtils;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -48,7 +47,7 @@ public class MainFrame extends JFrame {
 	// north component declaration
 	private JPanel northPanel;
 	private JPanel searchPanel;
-	private JTextField filterField;
+	private JSuggestField filterField;
 	private JCheckBox taggedButton;
 	private JCheckBox unTaggedButton;
 	private JCheckBox incompleteButton;
@@ -172,40 +171,44 @@ public class MainFrame extends JFrame {
 	private void createNorthPanel() {
 
 		// north panel component assignment
-		northPanel = new JPanel(new BorderLayout());
+		northPanel = new JPanel(new GridLayout(1, 2));
 		searchPanel = new JPanel();
-		filterField = new JTextField(22);
+		filterField = new JSuggestField(MainFrame.this, Library.getAllNamesVector());
+        filterField.setPreferredSize(new Dimension(210, 30));
 		taggedButton = new JCheckBox("Tagged");
 		unTaggedButton = new JCheckBox("Untagged");
 		incompleteButton = new JCheckBox("Incomplete");
 		allButton = new JCheckBox("All");
 		sortByPanel = new JPanel();
-		labelSortby = new JLabel("Sort by: ");
-		nameAZ = new JCheckBox("name A-Z");
-		nameZA = new JCheckBox("name Z-A");
+		labelSortby = new JLabel("Filter: ");
+		//nameAZ = new JCheckBox("name A-Z");
+		//nameZA = new JCheckBox("name Z-A");
+
+        taggedButton.setMnemonic(KeyEvent.VK_T);
+        taggedButton.setSelected(false);
+        unTaggedButton.setMnemonic(KeyEvent.VK_T);
+        unTaggedButton.setSelected(false);
+        incompleteButton.setMnemonic(KeyEvent.VK_T);
+        incompleteButton.setSelected(false);
+        allButton.setMnemonic(KeyEvent.VK_T);
+        allButton.setSelected(true);
+        searchPanel.add(labelSortby);
+        searchPanel.add(filterField);
+        sortByPanel.add(taggedButton);
+        sortByPanel.add(unTaggedButton);
+        sortByPanel.add(incompleteButton);
+        sortByPanel.add(allButton);
 
 		mainPanel.add(northPanel, BorderLayout.NORTH);
-		northPanel.add(searchPanel, BorderLayout.WEST);
-		northPanel.add(sortByPanel, BorderLayout.EAST);
+		northPanel.add(searchPanel);
+		northPanel.add(sortByPanel);
 
-		taggedButton.setMnemonic(KeyEvent.VK_T);
-		taggedButton.setSelected(false);
-		unTaggedButton.setMnemonic(KeyEvent.VK_T);
-		unTaggedButton.setSelected(false);
-		incompleteButton.setMnemonic(KeyEvent.VK_T);
-		incompleteButton.setSelected(false);
-		allButton.setMnemonic(KeyEvent.VK_T);
-		allButton.setSelected(true);
-		searchPanel.add(filterField);
-		searchPanel.add(taggedButton);
-		searchPanel.add(unTaggedButton);
-		searchPanel.add(incompleteButton);
-		searchPanel.add(allButton);
-		nameAZ.setSelected(false);
-		nameZA.setSelected(false);
-		sortByPanel.add(labelSortby);
-		sortByPanel.add(nameAZ);
-		sortByPanel.add(nameZA);
+
+		//nameAZ.setSelected(false);
+		//nameZA.setSelected(false);
+		//sortByPanel.add(labelSortby);
+		//sortByPanel.add(nameAZ);
+		//sortByPanel.add(nameZA);
 
 		TitledBorder titledBorder = new TitledBorder("Search: ");
 		EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
@@ -297,28 +300,8 @@ public class MainFrame extends JFrame {
 		tagsLabelsPanel.add(areaLabel);
 		tagsLabelsPanel.add(dateLabel);
 
-		/**
-		 * Add us as children for testing purposes. Auto complete text field
-		 * needs to be recreated and re-added every time a new child is added
-		 */
-		new Child("Assaf Yossifoff");
-		new Child("Polly Apostolova");
-		new Child("Andrei Juganaru");
-		new Child("John Waghorn");
-		new Child("Valya Popova");
-		new Child("Ivaylo Kirilov");
-		new Child("Dimitar Markovski");
-		new Child("Jonny Zephir");
-
-		Library.addArea("Study Hub");
-		Library.addArea("New Lab");
-		Library.addArea("Garden");
-		/**
-		 * Finished adding mock children
-		 */
-
 		childField = new JSuggestField(this, Library.getChildrenNamesVector());
-		areaField = new JSuggestField(this, Library.getAreasNamesVector());
+		areaField = new JSuggestField(this, Library.getAreaNamesVector());
 		dateField = new JFormattedTextField();
 		dateField.setColumns(12);
 
@@ -369,6 +352,8 @@ public class MainFrame extends JFrame {
 
 		// add key listener for thumbnail selection using keyboard
 		addKeyListener(tcl);
+
+        filterField.addSelectionListener(new SearchListener());
 
 		// exit menu item listener
 		exit.addActionListener(new ActionListener() {
@@ -453,31 +438,59 @@ public class MainFrame extends JFrame {
 		 */
 		picturePanelPane.getViewport().addChangeListener(new ChangeListener() {
 
-			public void stateChanged(ChangeEvent e) {
-				Rectangle currentView = picturePanel.getVisibleRect();
-				for (PictureLabel currentThumbnail : Library
-						.getThumbsOnDisplay()) {
-					if (isInView(currentThumbnail, currentView)) {
-						if (currentThumbnail.getIcon() == null) {
-							currentThumbnail
-									.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-											.getValue()]);
-						}
-					} else {
-						currentThumbnail.hideThumbnail();
-					}
-				}
-			}
-		});
+            public void stateChanged(ChangeEvent e) {
+                Rectangle currentView = picturePanel.getVisibleRect();
+                for (PictureLabel currentThumbnail : Library
+                        .getThumbsOnDisplay()) {
+                    if (isInView(currentThumbnail, currentView)) {
+                        if (currentThumbnail.getIcon() == null) {
+                            currentThumbnail
+                                    .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+                                            .getValue()]);
+                        }
+                    } else {
+                        currentThumbnail.hideThumbnail();
+                    }
+                }
+            }
+        });
 
 		picturePanel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				setFocusable(true);
-				requestFocus();
-			}
-		});
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
+            }
+        });
+
+        areaField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (areaField.getText() != "") {
+                    boolean areaExists = false;
+                    for (Area a : Library.getAreaList()) {
+                        if (areaField.getText().toLowerCase()
+                                .equals(a.getName().toLowerCase())) {
+                            areaExists = true;
+                            break;
+                        }
+                    }
+                    if (!areaExists) {
+                        Area newArea = new Area(WordUtils.capitalize(areaField.getText()));
+                        for (Picture p : Library.getSelectedPictures()) {
+                            if (p.getTag().getArea() == null || !p.getTag().getArea().equals(newArea)) {
+                                p.getTag().setArea(newArea);
+                                newArea.addTaggedPicture(p);
+                            }
+                        }
+                        areaField.setSuggestData(Library.getAreaNamesVector());
+                        createTagLabels();
+
+                    }
+                }
+            }
+        });
 
 		areaField.addSelectionListener(new ActionListener() {
 
@@ -489,13 +502,14 @@ public class MainFrame extends JFrame {
 					// TODO: no thumnails selected, either reset texfield or
 					// simply disable them until picture/s selected
 				} else {
-					for (String r : Library.getAreasList()) {
+					for (Area a : Library.getAreaList()) {
 						if (areaField.getText().toLowerCase()
-								.equals(r.toLowerCase())) {
+								.equals(a.getName().toLowerCase())) {
 							for (Picture p : Library.getSelectedPictures()) {
-								if (p.getTag().getRoom() == null
-										|| !p.getTag().getRoom().equals(r)) {
-									p.getTag().setRoom(r);
+								if (p.getTag().getArea() == null
+										|| !p.getTag().getArea().equals(a)) {
+									p.getTag().setArea(a);
+                                    a.addTaggedPicture(p);
 								}
 							}
 						}
@@ -528,6 +542,38 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+        childField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (childField.getText() != "") {
+                    boolean childExists = false;
+                    for (Child c : Library.getChildrenList()) {
+                        if (childField.getText().toLowerCase()
+                                .equals(c.getName().toLowerCase())) {
+                            childExists = true;
+                            break;
+                        }
+                    }
+                    if (!childExists) {
+                        Child newChild = new Child(WordUtils.capitalize(childField.getText()));
+                        System.out.println(WordUtils.capitalize(childField.getText()));
+                        for (Picture p : Library.getSelectedPictures()) {
+                            if (!p.getTag().getChildren().contains(newChild)) {
+                                p.getTag().addChild(newChild);
+                                newChild.addTaggedPicture(p);
+                            }
+                        }
+                        childField.setSuggestData(Library.getChildrenNamesVector());
+                        createTagLabels();
+
+                    }
+                    childField.setText("");
+                }
+
+
+            }
+        });
+
 		childField.addSelectionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -543,6 +589,7 @@ public class MainFrame extends JFrame {
 							for (Picture p : Library.getSelectedPictures()) {
 								if (!p.getTag().getChildren().contains(c)) {
 									p.getTag().addChild(c);
+                                    c.addTaggedPicture(p);
 									createTagLabels();
 								}
 							}
@@ -552,6 +599,14 @@ public class MainFrame extends JFrame {
 				childField.setText("");
 			}
 		});
+
+        filterField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+                filterField.setSuggestData(Library.getAllNamesVector());
+            }
+        });
 
 		resetButton.addActionListener(new ActionListener() {
 
@@ -590,7 +645,14 @@ public class MainFrame extends JFrame {
 		});
 	}
 
-	/**
+    private void resetChildField() {
+
+    }
+
+    private static void resetAreaField() {
+
+    }
+    /**
 	 * This method creates child tag labels when a chlidren are tagged in a
 	 * selected thumbnail. It redraws all labels for a picture every time a
 	 * child is tagged or removed from the picture metadata.
@@ -664,7 +726,7 @@ public class MainFrame extends JFrame {
 	 * Updates date and area fields. Used when there is a change in picture
 	 * selection.
 	 */
-	public static void updateSingleTags() {
+	private static void updateSingleTags() {
 		// selected pictures array and date string to go in text field
 		ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
 
@@ -701,20 +763,28 @@ public class MainFrame extends JFrame {
 			// simply disable them until picture/s selected
 		} else {
 			// get the first picture's area
-			String room1 = picturesToTag.get(0).getTag().getRoom();
-			// for every pic see if the area is the same as the firs one's
-			for (Picture p : picturesToTag) {
-				String room2 = p.getTag().getRoom();
-				if (room2 == null || !room1.equals(room2)) {
-					date = "";
-					break;
-				}
-			}
-			// if all have same areas put the date in the field
-			if (room == null)
-				room = room1;
+            String area1 = null;
+            if (picturesToTag.get(0).getTag().getArea() != null) {
+                area1 = picturesToTag.get(0).getTag().getArea().getName();
+            }
 
-			areaField.setText(room);
+                // for every pic see if the area is the same as the first one's
+            String area2 = null;
+            for (Picture p : picturesToTag) {
+                if (p.getTag().getArea() != null) {
+                    area2 = p.getTag().getArea().getName();
+                }
+                if (area2 == null || !area1.equals(area2)) {
+                    room = "";
+                    break;
+                }
+            }
+            // if all have same areas put the area in the field
+            if (room == null)
+                room = area1;
+
+            areaField.setText(room);
+
 		}
 
 	}
@@ -872,6 +942,53 @@ public class MainFrame extends JFrame {
 			Library.importPicture(importDialog.getFiles());
 		}
 	}
+
+    /**
+     * method to action the search
+     */
+    private class SearchListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            if (filterField.getText().equals("All Pictures")) {
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                MainFrame.addThumbnailsToView(Library.getPictureLibrary());
+            }
+            else {
+                ArrayList<Child> allChildren = Library.getChildrenList();
+                ArrayList<Area> allAreas = Library.getAreaList();
+
+                //gets text from GUI to a string
+                String searchString = filterField.getText().toLowerCase();
+                boolean foundMatch = false;
+
+                //loops to the end of tagged children
+                for (int i = 0; i < allChildren.size(); ++i) {
+                    if (searchString.equalsIgnoreCase(allChildren.get(i).getName())) {
+                        picturePanel.removeAll();
+                        picturePanel.repaint();
+                        MainFrame.addThumbnailsToView(allChildren.get(i).getTaggedPictures());
+                        //filterField.setText("");
+                        foundMatch = true;
+                        break;
+                    }
+                }
+                if (!foundMatch) {
+                    for (int i = 0; i < allAreas.size(); ++i) {
+                        if (searchString.equalsIgnoreCase(allAreas.get(i).getName())) {
+                            picturePanel.removeAll();
+                            picturePanel.repaint();
+                            MainFrame.addThumbnailsToView(allAreas.get(i).getTaggedPictures());
+                            //filterField.setText("");
+                            foundMatch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 	public static void main(String[] args) {
 		try {

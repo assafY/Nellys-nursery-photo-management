@@ -68,6 +68,7 @@ public class TagTextLabel extends JPanel {
                 for (Picture p: Library.getSelectedPictures()) {
                     if (p.getTag().getChildren().contains(child)) {
                         p.getTag().removeChild(child);
+                        child.removeTaggedPicture(p);
                         MainFrame.createTagLabels();
                     }
                 }
