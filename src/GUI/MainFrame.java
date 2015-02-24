@@ -475,7 +475,7 @@ public class MainFrame extends JFrame {
                     if (!areaExists) {
                         Area newArea = new Area(WordUtils.capitalize(areaField.getText()));
                         for (Picture p : Library.getSelectedPictures()) {
-                            if (!p.getTag().getArea().equals(newArea)) {
+                            if (p.getTag().getArea() == null || !p.getTag().getArea().equals(newArea)) {
                                 p.getTag().setArea(newArea);
                                 newArea.addTaggedPicture(p);
                             }
@@ -484,7 +484,6 @@ public class MainFrame extends JFrame {
                         createTagLabels();
 
                     }
-                    areaField.setText("");
                 }
             }
         });
@@ -939,20 +938,35 @@ public class MainFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             ArrayList<Child> allChildren = Library.getChildrenList();
+            ArrayList<Area> allAreas = Library.getAreaList();
             //ArrayList<Picture> allPictures = Library.getPictureLibrary();
             ArrayList<Picture> searchedPictures = new ArrayList<Picture>();
 
             //gets text from GUI to a string
-            String searchChild = filterField.getText().toLowerCase();
+            String searchString = filterField.getText().toLowerCase();
+            boolean foundMatch = false;
 
             //loops to the end of tagged children
-            for(int i = 0; i < allChildren.size();i++)
-            {
-                if (searchChild.equalsIgnoreCase(allChildren.get(i).getName())) {
+            for (int i = 0; i < allChildren.size(); ++i) {
+                if (searchString.equalsIgnoreCase(allChildren.get(i).getName())) {
                     picturePanel.removeAll();
+                    picturePanel.repaint();
                     MainFrame.addThumbnailsToView(allChildren.get(i).getTaggedPictures());
                     filterField.setText("");
+                    foundMatch = true;
                     break;
+                }
+            }
+            if (!foundMatch) {
+                for (int i = 0; i < allAreas.size(); ++i) {
+                    if (searchString.equalsIgnoreCase(allAreas.get(i).getName())) {
+                        picturePanel.removeAll();
+                        picturePanel.repaint();
+                        MainFrame.addThumbnailsToView(allAreas.get(i).getTaggedPictures());
+                        filterField.setText("");
+                        foundMatch = true;
+                        break;
+                    }
                 }
             }
         }
