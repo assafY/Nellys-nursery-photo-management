@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,10 +20,10 @@ import javax.swing.event.InternalFrameListener;
 
 import org.imgscalr.Scalr;
 
-import com.sun.org.apache.bcel.internal.generic.NEWARRAY;
-
 import Core.Library;
-
+/**
+ * Creates a FullScreenPictures Inner Frame.
+ */
 public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
@@ -54,7 +52,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		this.setVisible(true);
 
 	}
-
+	
+	/**
+	 * Creates the thumbnail from the filepath that is passed.
+	 */
 	private void getPicture() {
 		try {
 			picture = ImageIO.read(new File(filePath));
@@ -69,21 +70,30 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			}
 		}
 	}
-
+	
+	/**
+	 * Creates the Label on which the picture is displayed.
+	 */
 	private void createLabel() {
 		fullScreenPicture = new JLabel();
 		fullScreenPicture.setIcon(new ImageIcon(picture));
 		fullScreenPicture.setHorizontalAlignment(JLabel.CENTER);
 		fullScreenPicture.setVerticalAlignment(JLabel.CENTER);
 	}
-
+	
+	/**
+	 * Creates all the buttons.
+	 */
 	private void createButtons() {
 		rotateLeftButton = new JButton("RotateLeft");
 		rotateRightButton = new JButton("RotateRight");
 		previousButton = new JButton("previous");
 		nextButton = new JButton("Next");
 	}
-
+	
+	/**
+	 * Creates the button`s panel.
+	 */
 	private void createButtonsPanel() {
 		buttonsPanel = new JPanel(new FlowLayout());
 		buttonsPanel.add(rotateLeftButton);
@@ -91,7 +101,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		buttonsPanel.add(previousButton);
 		buttonsPanel.add(nextButton);
 	}
-
+	
+	/**
+	 * Creates the main Panel.
+	 */
 	private void createMainPanel() {
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -100,7 +113,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		this.add(mainPanel);
 		pack();
 	}
-
+	
+	/**
+	 * Returns back to the list of imported pictures when the inner frame is closed.
+	 */
 	private void onClose() {
 		this.addInternalFrameListener(new InternalFrameListener() {
 			public void internalFrameOpened(InternalFrameEvent arg0) {}
@@ -116,6 +132,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		});
 	}
 
+	/**
+	 * Creates all the Listeners(Rotation and switch between pictures).
+	 */
 	private void createListeners() {
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -158,7 +177,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			}
 		});
 	}
-
+	
+	/**
+	 * Gets the previous and next thumbnails from the picture library.
+	 */
 	private void getPreviousAndNextPicture() {
 		try {
 			picture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
@@ -167,7 +189,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		}
 		resizeFullScreenPicture();
 	}
-
+	
+	/**
+	 * Resizes the thumbnails.
+	 */
 	private void resizeFullScreenPicture() {
 		if (picture.getHeight() > picture.getWidth()) {
 			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(picture, 560)));

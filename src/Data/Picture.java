@@ -76,12 +76,6 @@ public class Picture implements Serializable{
             pictureTakenDate = new Date(attr.creationTime().toMillis());
             metadata.setDate(pictureTakenDate);
         }
-        
-        int year = metadata.getDate().getYear();
-        int month = metadata.getDate().getMonth();
-        int day = metadata.getDate().getDate();
-        
-        metadata.setDate(new Date(year, month, day));
     }
 
     // prints the number of bytes taken by a thumbnail

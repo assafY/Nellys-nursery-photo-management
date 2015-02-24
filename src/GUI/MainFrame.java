@@ -5,6 +5,9 @@ import Core.Settings;
 import Data.*;
 import ch.rakudave.suggest.JSuggestField;
 import org.apache.commons.lang3.text.WordUtils;
+import Data.Child;
+import Data.Picture;
+import Data.ThumbnailClickListener;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -12,11 +15,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
+
 import static java.awt.Color.*;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -39,7 +44,6 @@ public class MainFrame extends JFrame {
 	MenuItem tag;
 	MenuItem delete;
 	MenuItem print;
-	MenuItem save;
 
 	// root panel declaration
 	private JPanel mainPanel;
@@ -69,8 +73,8 @@ public class MainFrame extends JFrame {
 
 	// center component declaration
 	private static GridLayout picturePanelLayout;
-    private static JPanel centerPanel;
-    private static JPanel innerCenterPanel;
+	private static JPanel centerPanel;
+	private static JPanel innerCenterPanel;
 	private static JPanel picturePanel;
 	public static PictureLabel[][] thumbsOnDisplayArray;
 	private static JScrollPane picturePanelPane;
@@ -112,6 +116,7 @@ public class MainFrame extends JFrame {
 		createCenterPanel();
 		createEastPanel();
 		addListeners();
+		saveData();
 		addSavedData();
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -142,13 +147,11 @@ public class MainFrame extends JFrame {
 		tag = new MenuItem("Tag");
 		delete = new MenuItem("Delete");
 		print = new MenuItem("Print");
-		save = new MenuItem("Save");
 
 		menuBar.add(file);
 		file.add(imp);
 		file.add(backup);
 		file.add(exp);
-		file.add(save);
 		file.addSeparator();
 		file.add(exit);
 
@@ -280,15 +283,22 @@ public class MainFrame extends JFrame {
 		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 				titledBorder);
 
-        innerCenterPanel = new JPanel(new BorderLayout());
+		/**centerPanel = new JPanel(new BorderLayout());
+		centerPanel.setBorder(compoundBorder);
+		centerPanel.add(picturePanelPane, BorderLayout.CENTER);
+		centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+
+		mainPanel.add(centerPanel, BorderLayout.CENTER); */
+		
+		innerCenterPanel = new JPanel(new BorderLayout());
         innerCenterPanel.setBorder(compoundBorder);
         innerCenterPanel.add(picturePanelPane, BorderLayout.CENTER);
         innerCenterPanel.add(scrollPanel, BorderLayout.SOUTH);
-
+        
         centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(innerCenterPanel, BorderLayout.CENTER);
 
-		mainPanel.add(centerPanel, BorderLayout.CENTER);
+        mainPanel.add(centerPanel, BorderLayout.CENTER);
 
 	}
 
@@ -627,72 +637,7 @@ public class MainFrame extends JFrame {
 				// TODO: see if we need done button
 			}
 		});
-
-		// Saving all the images that are currently being displayed
-		// by clicking the File-> Save button
-		save.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				try {
-					FileOutputStream savedFile = new FileOutputStream(
-							"savedLibrary.ser");
-					ObjectOutputStream savedObject = new ObjectOutputStream(
-							savedFile);
-					savedObject.writeObject(Library.getPictureLibrary());
-					savedObject.close();
-					System.out.println("Saved");
-				} catch (FileNotFoundException ex1) {
-					ex1.printStackTrace();
-				} catch (IOException ex2) {
-					ex2.printStackTrace();
-				}
-			}
-		});
 	}
-
-    private void resetChildField() {
-
-    }
-
-    private static void resetAreaField() {
-
-    }
-    
-    /**
-    /*
-     * Automatically adding pictures that have been imported and saved before
-     * thus a *.ser file is created. The latter was also pushed into the
-     * 'Displaying and saving images' branch
-     */
-    private void addSavedData() throws IOException, ClassNotFoundException {
-        FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
-        ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
-        try {
-            ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject
-                    .readObject();
-            savedFiles = new File[savedData.size()];
-            for (int i = 0; i < savedData.size(); i++) {
-                savedFiles[i] = savedData.get(i).getImageFile();
-                System.out.println(savedFiles[i].getPath());
-            }
-            Library.importPicture(savedFiles);
-            restoredObject.close();
-        } catch (EOFException exception) {
-            exception.printStackTrace();
-        }
-    }
-
-    // returns CenterPanel
-    public static JPanel getCenterPanel()
-    {
-        return centerPanel;
-    }
-
-    // returns innerCenterPanel
-    public static JPanel getInnerCenterPanel()
-    {
-        return innerCenterPanel;
-    }
-
 
 	/**
 >>>>>>> -full Screen Images all done
@@ -831,10 +776,75 @@ public class MainFrame extends JFrame {
 		}
 
 	}
-
-
 	
-    /* returns true if a pictureLabel is in view in the scroll pane */
+	
+	/**
+	 * Automatically saving pictures when the application is closed. 
+	 */
+	private void saveData() {
+		this.addWindowListener(new WindowListener() {
+			public void windowOpened(WindowEvent e) {}
+			public void windowIconified(WindowEvent e) {}
+			public void windowDeiconified(WindowEvent e) {}
+			public void windowDeactivated(WindowEvent e) {}
+			public void windowClosing(WindowEvent e) {
+				try {
+					FileOutputStream savedFile = new FileOutputStream(
+							"savedLibrary.ser");
+					ObjectOutputStream savedObject = new ObjectOutputStream(
+							savedFile);
+					savedObject.writeObject(Library.getPictureLibrary());
+					savedObject.close();
+					System.out.println("Saved");
+				} catch (FileNotFoundException ex1) {
+					ex1.printStackTrace();
+				} catch (IOException ex2) {
+					ex2.printStackTrace();
+				}
+				Library.deletePictureLibrary();
+			}
+			public void windowClosed(WindowEvent e) {}
+			public void windowActivated(WindowEvent e) {}
+		});
+	}
+	
+	/*
+	 * Automatically adding pictures that have been imported and saved before
+	 * thus a *.ser file is created. The latter was also pushed into the
+	 * 'Displaying and saving images' branch
+	 */
+	private void addSavedData() throws IOException, ClassNotFoundException {
+		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
+		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
+		try {
+			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
+			for (int i = 0; i < savedData.size(); i++) {
+				Picture recreatedPicture = new Picture(new File(savedData.get(i).getImagePath()));
+				recreatedPicture.setTag(savedData.get(i).getTag());
+				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
+				savedPictures.add(recreatedPicture);
+				MainFrame.addThumbnailsToView(savedPictures);
+				Library.getPictureLibrary().add(recreatedPicture);
+			}
+			restoredObject.close();
+		} catch (EOFException exception) {
+			exception.printStackTrace();
+		}
+	}
+	
+	// returns CenterPanel
+		public static JPanel getCenterPanel()
+		{
+			return centerPanel;
+		}
+		
+		// returns innerCenterPanel
+		public static JPanel getInnerCenterPanel()
+		{
+			return innerCenterPanel;
+		}
+
+	/* returns true if a pictureLabel is in view in the scroll pane */
 	private static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
@@ -1026,10 +1036,6 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
-		}
-		for(int i = 0;i< Library.getThumbsOnDisplay().size();i++)
-		{
-			System.out.println(Library.getPictureLibrary().get(i));
 		}
 	}
 

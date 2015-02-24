@@ -236,7 +236,12 @@ public class Library implements Serializable {
 	public static void removeSelectedThumb(PictureLabel selectedThumb) {
 		selectedThumbs.remove(selectedThumb);
 	}
-
+	
+	public static void deletePictureLibrary()
+	{
+		pictureLibrary = null;
+	}
+	
 	public static void removeAllSelectedThumbs() {
 		for (PictureLabel p : selectedThumbs) {
 			p.toggleSelection();
