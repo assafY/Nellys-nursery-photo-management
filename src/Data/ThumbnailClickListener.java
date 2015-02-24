@@ -18,10 +18,7 @@ public class ThumbnailClickListener implements KeyListener {
     private static int currentRow = 0;
     private static int currentColumn = 0;
 
-    /**
-     * updates mostRecentSelection when the 2D array is changed
-     * (column count change when resizing window).
-     */
+
     public static void refresh() {
         if (mostRecentSelection != null) {
             for (int i = 0; i < MainFrame.thumbsOnDisplayArray.length; ++i) {

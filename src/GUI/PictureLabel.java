@@ -28,6 +28,7 @@ public class PictureLabel extends JLabel {
     private int currentSize;
     private boolean isSelected;
     private Image image;
+    private FullScreenPicturesFrame frame;
 
     public PictureLabel(Picture picture) {
         this.picture = picture;
@@ -153,7 +154,11 @@ public class PictureLabel extends JLabel {
                 toggleSelection();
             }
             else if (clickCount == 2) {
-                //TODO: Open single image view
+            	frame = new FullScreenPicturesFrame(picture.getImagePath());
+				MainFrame.getCenterPanel().removeAll();
+				MainFrame.getCenterPanel().add(frame,BorderLayout.CENTER);
+				MainFrame.getCenterPanel().revalidate();
+				MainFrame.getCenterPanel().repaint();
             }
         }
 
