@@ -217,6 +217,10 @@ public class Library implements Serializable {
 		thumbsOnDisplay.remove(thumb);
 	}
 
+    public static void removeAllThumbsFromDisplay() {
+        thumbsOnDisplay = new ArrayList<PictureLabel>();
+    }
+
 	public static ArrayList<PictureLabel> getSelectedThumbs() {
 		return selectedThumbs;
 	}

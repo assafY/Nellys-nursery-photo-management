@@ -640,7 +640,6 @@ public class MainFrame extends JFrame {
 	}
 
 	/**
->>>>>>> -full Screen Images all done
 	 * This method creates child tag labels when a chlidren are tagged in a
 	 * selected thumbnail. It redraws all labels for a picture every time a
 	 * child is tagged or removed from the picture metadata.
@@ -986,6 +985,7 @@ public class MainFrame extends JFrame {
             if (filterField.getText().equals("All Pictures")) {
                 picturePanel.removeAll();
                 picturePanel.repaint();
+                Library.removeAllThumbsFromDisplay();
                 MainFrame.addThumbnailsToView(Library.getPictureLibrary());
             }
             else {
@@ -1001,8 +1001,9 @@ public class MainFrame extends JFrame {
                     if (searchString.equalsIgnoreCase(allChildren.get(i).getName())) {
                         picturePanel.removeAll();
                         picturePanel.repaint();
+                        Library.removeAllThumbsFromDisplay();
                         MainFrame.addThumbnailsToView(allChildren.get(i).getTaggedPictures());
-                        //filterField.setText("");
+                        createThumbnailArray();
                         foundMatch = true;
                         break;
                     }
@@ -1012,9 +1013,10 @@ public class MainFrame extends JFrame {
                         if (searchString.equalsIgnoreCase(allAreas.get(i).getName())) {
                             picturePanel.removeAll();
                             picturePanel.repaint();
+                            Library.removeAllThumbsFromDisplay();
                             MainFrame.addThumbnailsToView(allAreas.get(i).getTaggedPictures());
-                            //filterField.setText("");
-                            foundMatch = true;
+                            createThumbnailArray();
+                            //foundMatch = true;
                             break;
                         }
                     }
