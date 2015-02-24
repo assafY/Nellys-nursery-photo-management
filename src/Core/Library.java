@@ -58,6 +58,16 @@ public class Library implements Serializable {
         return areaNames;
 	}
 
+    public static Vector<String> getAllNamesVector() {
+        Vector<String> allNames = getChildrenNamesVector();
+        allNames.add("All Pictures");
+        for (int i = 0; i < getAreaNamesVector().size(); ++i) {
+            allNames.add(getAreaNamesVector().get(i));
+        }
+        return allNames;
+
+    }
+
 	public static synchronized ArrayList<Picture> getPictureLibrary() {
 		return pictureLibrary;
 	}
