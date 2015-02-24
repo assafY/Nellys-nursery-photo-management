@@ -950,9 +950,6 @@ public class MainFrame extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-
-
-
             if (filterField.getText().equals("All Pictures")) {
                 picturePanel.removeAll();
                 picturePanel.repaint();
