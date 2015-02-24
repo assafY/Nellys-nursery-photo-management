@@ -1,5 +1,6 @@
 package Core;
 
+import Data.Area;
 import Data.Child;
 import Data.Picture;
 import Data.Tag;
@@ -26,8 +27,8 @@ public class Library implements Serializable {
 	private static Iterator childrenListIterator = childrenList.iterator();
 	private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
 	private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
-	private static ArrayList<String> areasList = new ArrayList<String>();
-	private static Iterator areasListIterator = areasList.iterator();
+	private static ArrayList<Area> areaList = new ArrayList<Area>();
+	private static Iterator areasListIterator = areaList.iterator();
 /**/	private static ArrayList<Date> possibleDate = new ArrayList<Date>();
 /**/	private static Iterator possibleDateIterator = possibleDate.iterator();
 	private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
@@ -37,6 +38,10 @@ public class Library implements Serializable {
 		return childrenList;
 	}
 
+    public static synchronized ArrayList<Area> getAreaList() {
+        return areaList;
+    }
+
 	public static Vector<String> getChildrenNamesVector() {
 		Vector<String> childrenNames = new Vector<String>();
 		for (Child c : childrenList) {
@@ -44,13 +49,13 @@ public class Library implements Serializable {
 		}
 		return childrenNames;
 	}
-	
-	public static synchronized ArrayList<String> getAreasList() {
-		return areasList;
-	}
 
-	public static Vector<String> getAreasNamesVector() {
-		return new Vector<String>(areasList);
+	public static Vector<String> getAreaNamesVector() {
+		Vector<String> areaNames = new Vector<String>();
+        for (Area a : areaList) {
+            areaNames.add(a.getName());
+        }
+        return areaNames;
 	}
 
 	public static synchronized ArrayList<Picture> getPictureLibrary() {
@@ -138,12 +143,7 @@ public class Library implements Serializable {
 	}
 
 	/* comment section */{
-		// public static ArrayList<Picture> searchByChild(String childName) {
-		// ArrayList<Picture> result = new ArrayList<Picture>();
-		// //TO DO
-		// return result;
-		// }
-		//
+
 		// public static ArrayList<Picture> searchByDate(Date date) {
 		// ArrayList<Picture> result = new ArrayList<Picture>();
 		// //TO DO
@@ -182,12 +182,12 @@ public class Library implements Serializable {
 		childrenList.remove(child);
 	}
 
-	public static void addArea(String room) {
-		areasList.add(room);
+	public static void addArea(Area area) {
+		areaList.add(area);
 	}
 
-	public static void removeArea(Child room) {
-		areasList.remove(room);
+	public static void removeArea(Area area) {
+		areaList.remove(area);
 	}
 
 	

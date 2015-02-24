@@ -2,11 +2,10 @@ package GUI;
 
 import Core.Library;
 import Core.Settings;
-import Data.Child;
-import Data.Picture;
-import Data.ThumbnailClickListener;
-import Data.Tag;
+import Data.*;
 import ch.rakudave.suggest.JSuggestField;
+import org.apache.commons.lang3.text.WordUtils;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -297,28 +296,8 @@ public class MainFrame extends JFrame {
 		tagsLabelsPanel.add(areaLabel);
 		tagsLabelsPanel.add(dateLabel);
 
-		/**
-		 * Add us as children for testing purposes. Auto complete text field
-		 * needs to be recreated and re-added every time a new child is added
-		 */
-		new Child("Assaf Yossifoff");
-		new Child("Polly Apostolova");
-		new Child("Andrei Juganaru");
-		new Child("John Waghorn");
-		new Child("Valya Popova");
-		new Child("Ivaylo Kirilov");
-		new Child("Dimitar Markovski");
-		new Child("Jonny Zephir");
-
-		Library.addArea("Study Hub");
-		Library.addArea("New Lab");
-		Library.addArea("Garden");
-		/**
-		 * Finished adding mock children
-		 */
-
 		childField = new JSuggestField(this, Library.getChildrenNamesVector());
-		areaField = new JSuggestField(this, Library.getAreasNamesVector());
+		areaField = new JSuggestField(this, Library.getAreaNamesVector());
 		dateField = new JFormattedTextField();
 		dateField.setColumns(12);
 
@@ -479,6 +458,35 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+        areaField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (areaField.getText() != "") {
+                    boolean areaExists = false;
+                    for (Area a : Library.getAreaList()) {
+                        if (areaField.getText().toLowerCase()
+                                .equals(a.getName().toLowerCase())) {
+                            areaExists = true;
+                            break;
+                        }
+                    }
+                    if (!areaExists) {
+                        Area newArea = new Area(WordUtils.capitalize(areaField.getText()));
+                        for (Picture p : Library.getSelectedPictures()) {
+                            if (!p.getTag().getArea().equals(newArea)) {
+                                p.getTag().setArea(newArea);
+                                newArea.addTaggedPicture(p);
+                            }
+                        }
+                        areaField.setSuggestData(Library.getAreaNamesVector());
+                        createTagLabels();
+
+                    }
+                    areaField.setText("");
+                }
+            }
+        });
+
 		areaField.addSelectionListener(new ActionListener() {
 
 			@Override
@@ -489,13 +497,14 @@ public class MainFrame extends JFrame {
 					// TODO: no thumnails selected, either reset texfield or
 					// simply disable them until picture/s selected
 				} else {
-					for (String r : Library.getAreasList()) {
+					for (Area a : Library.getAreaList()) {
 						if (areaField.getText().toLowerCase()
-								.equals(r.toLowerCase())) {
+								.equals(a.getName().toLowerCase())) {
 							for (Picture p : Library.getSelectedPictures()) {
-								if (p.getTag().getRoom() == null
-										|| !p.getTag().getRoom().equals(r)) {
-									p.getTag().setRoom(r);
+								if (p.getTag().getArea() == null
+										|| !p.getTag().getArea().equals(a)) {
+									p.getTag().setArea(a);
+                                    a.addTaggedPicture(p);
 								}
 							}
 						}
@@ -528,6 +537,38 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+        childField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (childField.getText() != "") {
+                    boolean childExists = false;
+                    for (Child c : Library.getChildrenList()) {
+                        if (childField.getText().toLowerCase()
+                                .equals(c.getName().toLowerCase())) {
+                            childExists = true;
+                            break;
+                        }
+                    }
+                    if (!childExists) {
+                        Child newChild = new Child(WordUtils.capitalize(childField.getText()));
+                        System.out.println(WordUtils.capitalize(childField.getText()));
+                        for (Picture p : Library.getSelectedPictures()) {
+                            if (!p.getTag().getChildren().contains(newChild)) {
+                                p.getTag().addChild(newChild);
+                                newChild.addTaggedPicture(p);
+                            }
+                        }
+                        childField.setSuggestData(Library.getChildrenNamesVector());
+                        createTagLabels();
+
+                    }
+                    childField.setText("");
+                }
+
+
+            }
+        });
+
 		childField.addSelectionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -543,6 +584,7 @@ public class MainFrame extends JFrame {
 							for (Picture p : Library.getSelectedPictures()) {
 								if (!p.getTag().getChildren().contains(c)) {
 									p.getTag().addChild(c);
+                                    c.addTaggedPicture(p);
 									createTagLabels();
 								}
 							}
@@ -590,7 +632,14 @@ public class MainFrame extends JFrame {
 		});
 	}
 
-	/**
+    private void resetChildField() {
+
+    }
+
+    private static void resetAreaField() {
+
+    }
+    /**
 	 * This method creates child tag labels when a chlidren are tagged in a
 	 * selected thumbnail. It redraws all labels for a picture every time a
 	 * child is tagged or removed from the picture metadata.
@@ -664,7 +713,7 @@ public class MainFrame extends JFrame {
 	 * Updates date and area fields. Used when there is a change in picture
 	 * selection.
 	 */
-	public static void updateSingleTags() {
+	private static void updateSingleTags() {
 		// selected pictures array and date string to go in text field
 		ArrayList<Picture> picturesToTag = Library.getSelectedPictures();
 
@@ -701,20 +750,28 @@ public class MainFrame extends JFrame {
 			// simply disable them until picture/s selected
 		} else {
 			// get the first picture's area
-			String room1 = picturesToTag.get(0).getTag().getRoom();
-			// for every pic see if the area is the same as the firs one's
-			for (Picture p : picturesToTag) {
-				String room2 = p.getTag().getRoom();
-				if (room2 == null || !room1.equals(room2)) {
-					date = "";
-					break;
-				}
-			}
-			// if all have same areas put the date in the field
-			if (room == null)
-				room = room1;
+            String area1 = null;
+            if (picturesToTag.get(0).getTag().getArea() != null) {
+                area1 = picturesToTag.get(0).getTag().getArea().getName();
+            }
 
-			areaField.setText(room);
+                // for every pic see if the area is the same as the first one's
+            String area2 = null;
+            for (Picture p : picturesToTag) {
+                if (p.getTag().getArea() != null) {
+                    area2 = p.getTag().getArea().getName();
+                }
+                if (area2 == null || !area1.equals(area2)) {
+                    room = "";
+                    break;
+                }
+            }
+            // if all have same areas put the area in the field
+            if (room == null)
+                room = area1;
+
+            areaField.setText(room);
+
 		}
 
 	}

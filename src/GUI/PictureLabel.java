@@ -140,7 +140,9 @@ public class PictureLabel extends JLabel {
                     ThumbnailClickListener.mostRecentSelection = null;
                     ThumbnailClickListener.refresh();
                     MainFrame.createTagLabels();
-                    toggleSelection();
+                    if (!ThumbnailClickListener.shiftIsPressed) {
+                        toggleSelection();
+                    }
                 }
                 else {
                     Library.addSelectedThumb(PictureLabel.this);
