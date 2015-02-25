@@ -28,6 +28,7 @@ public class PictureLabel extends JLabel {
     private int currentSize;
     private boolean isSelected;
     private Image image;
+    private boolean horizontal = true;
     private FullScreenPicturesFrame frame;
 
     public PictureLabel(Picture picture) {
@@ -40,6 +41,7 @@ public class PictureLabel extends JLabel {
     public void showThumbnail(int size) {
         currentSize = size;
         if(picture.getThumbnail().getHeight() > picture.getThumbnail().getWidth()) {
+            horizontal = false;
             if (currentSize == 109) {
                 setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 27)));
                 this.setBorder(BorderFactory.createEmptyBorder(0,23,0,0));
@@ -72,6 +74,7 @@ public class PictureLabel extends JLabel {
                 this.setBorder(BorderFactory.createEmptyBorder(0,114,0,0));
             }
         } else {
+            horizontal = true;
             setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
         }
     }
@@ -94,6 +97,10 @@ public class PictureLabel extends JLabel {
 
     public boolean isSelected() {
         return isSelected;
+    }
+
+    public boolean isHorizontal() {
+        return horizontal;
     }
 
     public Picture getPicture() {

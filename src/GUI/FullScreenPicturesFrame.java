@@ -64,9 +64,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		}
 		if (picture != null) {
 			if (picture.getHeight() > picture.getWidth()) {
-				picture = Scalr.resize(picture, 560);
+				picture = Scalr.resize(picture, picture.getWidth() / 3);
 			} else {
-				picture = Scalr.resize(picture, 800);
+                picture = Scalr.resize(picture, picture.getHeight() / 3);
 			}
 		}
 	}
@@ -185,6 +185,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		try {
 			picture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
 		} catch (IOException e1) {
+            //TOTO: Handle exception
 			e1.printStackTrace();
 		}
 		resizeFullScreenPicture();

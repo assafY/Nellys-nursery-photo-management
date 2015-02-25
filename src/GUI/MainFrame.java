@@ -456,14 +456,16 @@ public class MainFrame extends JFrame {
                 Rectangle currentView = picturePanel.getVisibleRect();
                 for (PictureLabel currentThumbnail : Library
                         .getThumbsOnDisplay()) {
-                    if (isInView(currentThumbnail, currentView)) {
-                        if (currentThumbnail.getIcon() == null) {
-                            currentThumbnail
-                                    .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                                            .getValue()]);
+                    if (currentThumbnail.isHorizontal()) {
+                        if (isInView(currentThumbnail, currentView)) {
+                            if (currentThumbnail.getIcon() == null) {
+                                currentThumbnail
+                                        .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+                                                .getValue()]);
+                            }
+                        } else {
+                            currentThumbnail.hideThumbnail();
                         }
-                    } else {
-                        currentThumbnail.hideThumbnail();
                     }
                 }
             }
@@ -730,6 +732,7 @@ public class MainFrame extends JFrame {
 			for (Picture p : picturesToTag) {
 				Date date2 = p.getTag().getDate();
 				if (!date1.equals(date2)) {
+                    System.out.println(date1 + "not equals " + date2);
 					date = "";
 					break;
 				}
