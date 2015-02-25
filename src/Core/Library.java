@@ -90,8 +90,38 @@ public class Library implements Serializable {
 	}
 
 	public static void importPicture(final File[] importedPictures) {
+		//specify no. of threads not including thread for leftover pictures
+		int noOfThreads = 10;
+		//size of array
+		int importSize = importedPictures.length;
+		//leftover calculated by size of array % no. of threads
+		int leftover = 0;
+		while(importSize % noOfThreads != 0 && importSize > noOfThreads){
+			++leftover;
+			--importSize;
+		}
+		//if there are more pictures than threads to import pictures
+		if(importedPictures.length > noOfThreads){
+			//find out how many pictures will go in each thread and import
+			int chunkSize = importSize/noOfThreads;
+			for(int i = 0; i<importSize; i+=chunkSize){
+				File[] partition = new File[chunkSize];
+				System.arraycopy(importedPictures,i,partition,0,chunkSize);
+				new PictureImportThread(partition).start();
+			}
+			//import leftover pictures
+			if(leftover > 0){
+				File[] partialPartition = new File[leftover];
+				System.arraycopy(importedPictures,importedPictures.length - leftover, partialPartition,0,leftover);
+				new PictureImportThread(partialPartition).start();
+			}
+		}
+		//if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
+		else{
+			new PictureImportThread(importedPictures).start();
+		}
 
-		Thread newPictureImport = new Thread() {
+		/*Thread newPictureImport = new Thread() {
 
 			ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
 
@@ -136,7 +166,7 @@ public class Library implements Serializable {
 			}
 		};
 
-		newPictureImport.start();
+		newPictureImport.start();*/
 		// System.out.println("USED MEMORY: " +
 		// Runtime.getRuntime().totalMemory() + "FREE MEMORY: " +
 		// Runtime.getRuntime().freeMemory());
