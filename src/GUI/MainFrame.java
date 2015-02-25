@@ -731,8 +731,7 @@ public class MainFrame extends JFrame {
 			// for every pic see if the date is the same as the firs one's
 			for (Picture p : picturesToTag) {
 				Date date2 = p.getTag().getDate();
-				if (!date1.equals(date2)) {
-                    System.out.println(date1 + "not equals " + date2);
+				if (!Library.getFormattedDate(date1).equals(Library.getFormattedDate(date2))) {
 					date = "";
 					break;
 				}
