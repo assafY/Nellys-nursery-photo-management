@@ -27,6 +27,10 @@ public class Library implements Serializable {
         frames.add(frame);
     }
 
+    public static ArrayList<MainFrame> getFrames() {
+        return frames;
+    }
+
     public static synchronized ArrayList<Child> getChildrenList() {
         return childrenList;
     }
