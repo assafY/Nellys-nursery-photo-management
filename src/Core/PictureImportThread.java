@@ -43,7 +43,7 @@ public class PictureImportThread extends Thread {
 
                 public void run() {
                     System.out.println("Import Complete.");
-                    for (MainFrame mainFrame : Library.getFrames()) {
+                    for (MainFrame mainFrame : MainFrame.getMainFrames()) {
                         mainFrame.addThumbnailsToView(picturesToDisplay);
                     }
                     for (int i = 0; i < picturesToDisplay.size(); ++i) {

@@ -82,6 +82,7 @@ public class MainFrame extends JFrame {
 	private JPanel scrollPanel;
 	private static JSlider zoomSlider;
 
+	// selection stuff
 	private PictureLabel mostRecentSelection = null;
 	private boolean shiftIsPressed = false;
 	private boolean controlIsPressed = false;
@@ -110,9 +111,16 @@ public class MainFrame extends JFrame {
 	private int currentColumnCount = 0;
 	private boolean picturePanelBiggerThanFrame = false;
 	private Listeners.ThumbnailClickListener tcl;
+	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
 	private File[] savedFiles;
 
+	/**
+	 * Constructor for the application
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public MainFrame() throws IOException, ClassNotFoundException {
 
 		// root panel assignment
@@ -132,7 +140,7 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		pack();
 		setVisible(true);
-		Library.addFramesToNotify(this);
+		frames.add(this);
 	}
 
 	private void createMenuBar() {
@@ -179,202 +187,199 @@ public class MainFrame extends JFrame {
 	}
 
 	private void createPanels() {
-		createNorthPanel();
-		createWestPanel();
-		createCenterPanel();
-		createEastPanel();
-	}
 
-	private void createNorthPanel() {
+		/* private void createNorthPanel() */{
 
-		// north panel component assignment
-		northPanel = new JPanel(new GridLayout(1, 2));
-		searchPanel = new JPanel();
-		searchField = new JSuggestField(MainFrame.this,
-				Library.getAllNamesVector());
-		searchField.setPreferredSize(new Dimension(210, 30));
-		taggedCheckBox = new JCheckBox("Tagged");
-		unTaggedCheckBox = new JCheckBox("Untagged");
-		incompleteCheckBox = new JCheckBox("Incomplete");
-		allCheckBox = new JCheckBox("All");
-		sortByPanel = new JPanel();
-		sortByLabel = new JLabel("Filter: ");
-		// nameAZ = new JCheckBox("name A-Z");
-		// nameZA = new JCheckBox("name Z-A");
+			// north panel component assignment
+			northPanel = new JPanel(new GridLayout(1, 2));
+			searchPanel = new JPanel();
+			searchField = new JSuggestField(MainFrame.this,
+					Library.getAllNamesVector());
+			searchField.setPreferredSize(new Dimension(210, 30));
+			taggedCheckBox = new JCheckBox("Tagged");
+			unTaggedCheckBox = new JCheckBox("Untagged");
+			incompleteCheckBox = new JCheckBox("Incomplete");
+			allCheckBox = new JCheckBox("All");
+			sortByPanel = new JPanel();
+			sortByLabel = new JLabel("Filter: ");
+			// nameAZ = new JCheckBox("name A-Z");
+			// nameZA = new JCheckBox("name Z-A");
 
-		taggedCheckBox.setMnemonic(KeyEvent.VK_T);
-		taggedCheckBox.setSelected(false);
-		unTaggedCheckBox.setMnemonic(KeyEvent.VK_T);
-		unTaggedCheckBox.setSelected(false);
-		incompleteCheckBox.setMnemonic(KeyEvent.VK_T);
-		incompleteCheckBox.setSelected(false);
-		allCheckBox.setMnemonic(KeyEvent.VK_T);
-		allCheckBox.setSelected(true);
-		searchPanel.add(sortByLabel);
-		searchPanel.add(searchField);
-		sortByPanel.add(taggedCheckBox);
-		sortByPanel.add(unTaggedCheckBox);
-		sortByPanel.add(incompleteCheckBox);
-		sortByPanel.add(allCheckBox);
+			taggedCheckBox.setMnemonic(KeyEvent.VK_T);
+			taggedCheckBox.setSelected(false);
+			unTaggedCheckBox.setMnemonic(KeyEvent.VK_T);
+			unTaggedCheckBox.setSelected(false);
+			incompleteCheckBox.setMnemonic(KeyEvent.VK_T);
+			incompleteCheckBox.setSelected(false);
+			allCheckBox.setMnemonic(KeyEvent.VK_T);
+			allCheckBox.setSelected(true);
+			searchPanel.add(sortByLabel);
+			searchPanel.add(searchField);
+			sortByPanel.add(taggedCheckBox);
+			sortByPanel.add(unTaggedCheckBox);
+			sortByPanel.add(incompleteCheckBox);
+			sortByPanel.add(allCheckBox);
 
-		mainPanel.add(northPanel, BorderLayout.NORTH);
-		northPanel.add(searchPanel);
-		northPanel.add(sortByPanel);
+			mainPanel.add(northPanel, BorderLayout.NORTH);
+			northPanel.add(searchPanel);
+			northPanel.add(sortByPanel);
 
-		// nameAZ.setSelected(false);
-		// nameZA.setSelected(false);
-		// sortByPanel.add(labelSortby);
-		// sortByPanel.add(nameAZ);
-		// sortByPanel.add(nameZA);
+			// nameAZ.setSelected(false);
+			// nameZA.setSelected(false);
+			// sortByPanel.add(labelSortby);
+			// sortByPanel.add(nameAZ);
+			// sortByPanel.add(nameZA);
 
-		TitledBorder titledBorder = new TitledBorder("Search: ");
-		EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
-		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
-				titledBorder);
-		northPanel.setBorder(compoundBorder);
+			TitledBorder titledBorder = new TitledBorder("Search: ");
+			EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
+			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
+					titledBorder);
+			northPanel.setBorder(compoundBorder);
 
-	}
+		}
 
-	private void createWestPanel() {
+		/* private void createWestPanel() */{
 
-		// west component assignment
-		westPanel = new JPanel(new BorderLayout());
-		buttonPanel = new JPanel();
-		importButton = new JButton("Import");
-		exportButton = new JButton("Export");
-		backupButton = new JButton("Backup");
-		rotateButton = new JButton("Rotate");
-		deleteButton = new JButton("Delete");
-		printButton = new JButton("Print");
+			// west component assignment
+			westPanel = new JPanel(new BorderLayout());
+			buttonPanel = new JPanel();
+			importButton = new JButton("Import");
+			exportButton = new JButton("Export");
+			backupButton = new JButton("Backup");
+			rotateButton = new JButton("Rotate");
+			deleteButton = new JButton("Delete");
+			printButton = new JButton("Print");
 
-		mainPanel.add(westPanel, BorderLayout.WEST);
-		westPanel.add(buttonPanel, BorderLayout.NORTH);
-		buttonPanel.setLayout(new GridBagLayout());
+			mainPanel.add(westPanel, BorderLayout.WEST);
+			westPanel.add(buttonPanel, BorderLayout.NORTH);
+			buttonPanel.setLayout(new GridBagLayout());
 
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.insets = new Insets(4, 4, 4, 4);
-		c.gridx = 0;
-		c.gridy = 0;
-		buttonPanel.add(importButton, c);
-		c.gridy = 1;
-		buttonPanel.add(exportButton, c);
-		c.gridy = 2;
-		buttonPanel.add(backupButton, c);
-		c.gridy = 3;
-		buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
-		c.gridy = 6;
-		buttonPanel.add(rotateButton, c);
-		c.gridy = 9;
-		buttonPanel.add(deleteButton, c);
-		c.gridy = 10;
-		buttonPanel.add(printButton, c);
+			GridBagConstraints c = new GridBagConstraints();
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.insets = new Insets(4, 4, 4, 4);
+			c.gridx = 0;
+			c.gridy = 0;
+			buttonPanel.add(importButton, c);
+			c.gridy = 1;
+			buttonPanel.add(exportButton, c);
+			c.gridy = 2;
+			buttonPanel.add(backupButton, c);
+			c.gridy = 3;
+			buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
+			c.gridy = 6;
+			buttonPanel.add(rotateButton, c);
+			c.gridy = 9;
+			buttonPanel.add(deleteButton, c);
+			c.gridy = 10;
+			buttonPanel.add(printButton, c);
 
-		TitledBorder titledBorder = new TitledBorder("Tools: ");
-		westPanel.setBorder(titledBorder);
+			TitledBorder titledBorder = new TitledBorder("Tools: ");
+			westPanel.setBorder(titledBorder);
 
-	}
+		}
 
-	private void createCenterPanel() {
+		/* private void createCenterPanel() */{
 
-		// center component assignment
-		picturePanelLayout = new GridLayout(0, 1, 2, 2);
-		picturePanel = new JPanel(picturePanelLayout);
-		picturePanel.setBackground(WHITE);
+			// center component assignment
+			picturePanelLayout = new GridLayout(0, 1, 2, 2);
+			picturePanel = new JPanel(picturePanelLayout);
+			picturePanel.setBackground(WHITE);
 
-		picturePanelScrollPane = new JScrollPane(picturePanel);
-		picturePanelScrollPane
-				.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
-		picturePanelScrollPane.setBackground(WHITE);
+			picturePanelScrollPane = new JScrollPane(picturePanel);
+			picturePanelScrollPane
+					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
+			picturePanelScrollPane.setBackground(WHITE);
 
-		zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
-		scrollPanel = new JPanel();
-		scrollPanel.add(zoomSlider);
+			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
+			scrollPanel = new JPanel();
+			scrollPanel.add(zoomSlider);
 
-		TitledBorder titledBorder = new TitledBorder("Pictures: ");
-		EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
-		CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
-				titledBorder);
+			TitledBorder titledBorder = new TitledBorder("Pictures: ");
+			EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
+			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
+					titledBorder);
 
-		/**
-		 * centerPanel = new JPanel(new BorderLayout());
-		 * centerPanel.setBorder(compoundBorder);
-		 * centerPanel.add(picturePanelPane, BorderLayout.CENTER);
-		 * centerPanel.add(scrollPanel, BorderLayout.SOUTH);
-		 * 
-		 * mainPanel.add(centerPanel, BorderLayout.CENTER);
-		 */
+			/**
+			 * centerPanel = new JPanel(new BorderLayout());
+			 * centerPanel.setBorder(compoundBorder);
+			 * centerPanel.add(picturePanelPane, BorderLayout.CENTER);
+			 * centerPanel.add(scrollPanel, BorderLayout.SOUTH);
+			 * 
+			 * mainPanel.add(centerPanel, BorderLayout.CENTER);
+			 */
 
-		innerCenterPanel = new JPanel(new BorderLayout());
-		innerCenterPanel.setBorder(compoundBorder);
-		innerCenterPanel.add(picturePanelScrollPane, BorderLayout.CENTER);
-		innerCenterPanel.add(scrollPanel, BorderLayout.SOUTH);
+			innerCenterPanel = new JPanel(new BorderLayout());
+			innerCenterPanel.setBorder(compoundBorder);
+			innerCenterPanel.add(picturePanelScrollPane, BorderLayout.CENTER);
+			innerCenterPanel.add(scrollPanel, BorderLayout.SOUTH);
 
-		centerPanel = new JPanel(new BorderLayout());
-		centerPanel.add(innerCenterPanel, BorderLayout.CENTER);
+			centerPanel = new JPanel(new BorderLayout());
+			centerPanel.add(innerCenterPanel, BorderLayout.CENTER);
 
-		mainPanel.add(centerPanel, BorderLayout.CENTER);
+			mainPanel.add(centerPanel, BorderLayout.CENTER);
 
-	}
+		}
 
-	private void createEastPanel() {
+		/* private void createEastPanel() */{
 
-		// east component assignment
-		areaLabel = new JLabel("Area");
-		dateLabel = new JLabel("Date");
+			// east component assignment
+			areaLabel = new JLabel("Area");
+			dateLabel = new JLabel("Date");
 
-		tagsLabelsPanel = new JPanel(new GridLayout(0, 1));
-		tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
-		tagsLabelsPanel.add(new JLabel("Child name"));
-		tagsLabelsPanel.add(areaLabel);
-		tagsLabelsPanel.add(dateLabel);
+			tagsLabelsPanel = new JPanel(new GridLayout(0, 1));
+			tagsLabelsPanel.setBorder(new EmptyBorder(7, 7, 7, 7));
+			tagsLabelsPanel.add(new JLabel("Child name"));
+			tagsLabelsPanel.add(areaLabel);
+			tagsLabelsPanel.add(dateLabel);
 
-		childField = new JSuggestField(this, Library.getChildrenNamesVector());
-		areaField = new JSuggestField(this, Library.getAreaNamesVector());
-		dateField = new JFormattedTextField();
-		dateField.setColumns(12);
+			childField = new JSuggestField(this,
+					Library.getChildrenNamesVector());
+			areaField = new JSuggestField(this, Library.getAreaNamesVector());
+			dateField = new JFormattedTextField();
+			dateField.setColumns(12);
 
-		tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
-		tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
-		tagsFieldsPanel.add(childField);
-		tagsFieldsPanel.add(areaField);
-		tagsFieldsPanel.add(dateField);
+			tagsFieldsPanel = new JPanel(new GridLayout(0, 1));
+			tagsFieldsPanel.setBorder(new EmptyBorder(17, 17, 17, 17));
+			tagsFieldsPanel.add(childField);
+			tagsFieldsPanel.add(areaField);
+			tagsFieldsPanel.add(dateField);
 
-		TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
-		EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
-		CompoundBorder compoundBorder = new CompoundBorder(titledBorder,
-				emptyBorder);
+			TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
+			EmptyBorder emptyBorder = new EmptyBorder(10, 10, 10, 10);
+			CompoundBorder compoundBorder = new CompoundBorder(titledBorder,
+					emptyBorder);
 
-		storedTagsPanel = new JPanel();
-		storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel,
-				BoxLayout.Y_AXIS));
-		storedTagsPanel.setBorder(compoundBorder);
+			storedTagsPanel = new JPanel();
+			storedTagsPanel.setLayout(new BoxLayout(storedTagsPanel,
+					BoxLayout.Y_AXIS));
+			storedTagsPanel.setBorder(compoundBorder);
 
-		tagPanel = new JPanel(new BorderLayout());
-		tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
-		tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
-		tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
+			tagPanel = new JPanel(new BorderLayout());
+			tagPanel.add(tagsLabelsPanel, BorderLayout.CENTER);
+			tagPanel.add(tagsFieldsPanel, BorderLayout.EAST);
+			tagPanel.add(storedTagsPanel, BorderLayout.SOUTH);
 
-		doneButton = new JButton("Done");
-		resetButton = new JButton("Reset");
+			doneButton = new JButton("Done");
+			resetButton = new JButton("Reset");
 
-		donePanel = new JPanel();
-		donePanel.add(resetButton);
-		donePanel.add(doneButton);
+			donePanel = new JPanel();
+			donePanel.add(resetButton);
+			donePanel.add(doneButton);
 
-		descriptionPanel = new JPanel(new BorderLayout());
-		descriptionPanel.setBorder(new TitledBorder("Add desription: "));
-		descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
-				BorderLayout.NORTH);
-		descriptionPanel.add(donePanel, BorderLayout.SOUTH);
+			descriptionPanel = new JPanel(new BorderLayout());
+			descriptionPanel.setBorder(new TitledBorder("Add desription: "));
+			descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
+					BorderLayout.NORTH);
+			descriptionPanel.add(donePanel, BorderLayout.SOUTH);
 
-		eastPanel = new JPanel(new BorderLayout());
-		eastPanel.setBorder(new TitledBorder("Add Tag: "));
-		eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
-		eastPanel.add(tagPanel, BorderLayout.NORTH);
+			eastPanel = new JPanel(new BorderLayout());
+			eastPanel.setBorder(new TitledBorder("Add Tag: "));
+			eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
+			eastPanel.add(tagPanel, BorderLayout.NORTH);
 
-		mainPanel.add(eastPanel, BorderLayout.EAST);
+			mainPanel.add(eastPanel, BorderLayout.EAST);
 
+		}
 	}
 
 	private void addListeners() {
@@ -772,8 +777,8 @@ public class MainFrame extends JFrame {
 
 			private int currentRow = 0;
 			private int currentColumn = 0;
-			
-			public void setCurrentPosition (int row, int col) {
+
+			public void setCurrentPosition(int row, int col) {
 				currentRow = row;
 				currentColumn = col;
 			}
@@ -952,6 +957,33 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+	/**
+	 * Call this method when the display needs to be updated
+	 */
+	public static void updateViews() {
+		for (MainFrame mainFrame : frames) {
+			mainFrame.updateView();
+		}
+	}
+
+	/**
+	 * This method is being called when refreshing the display. Put here all
+	 * reconstructors.
+	 */
+	private void updateView() {
+		// TODO maybe have multiple methods for pics, tags etc that run in
+		// separate threads
+	}
+
+	/**
+	 * Gets the MainFrame objects. In general a list with one window - the app
+	 * 
+	 * @return
+	 */
+	public static ArrayList<MainFrame> getMainFrames() {
+		return frames;
+	}
+
 	public void refresh() {
 		if (getMostRecentSelection() != null) {
 			for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
@@ -966,15 +998,15 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
-	
+
 	public boolean isShiftPressed() {
 		return shiftIsPressed;
 	}
-	
+
 	public boolean isControlPressed() {
 		return controlIsPressed;
 	}
-	
+
 	public PictureLabel getMostRecentSelection() {
 		return mostRecentSelection;
 	}
@@ -1077,14 +1109,14 @@ public class MainFrame extends JFrame {
 				if (childInAllPictures) {
 					if (tagCounter % 2 == 1) {
 						currentTagPanel = new JPanel();
-						currentTagPanel
-								.add(new TagTextLabel(c, currentTagPanel, this));
+						currentTagPanel.add(new TagTextLabel(c,
+								currentTagPanel, this));
 						storedTagsPanel.add(currentTagPanel);
 						storedTagsPanel.validate();
 						++tagCounter;
 					} else {
-						currentTagPanel
-								.add(new TagTextLabel(c, currentTagPanel, this));
+						currentTagPanel.add(new TagTextLabel(c,
+								currentTagPanel, this));
 						storedTagsPanel.validate();
 						++tagCounter;
 					}
@@ -1307,19 +1339,8 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	/*
-	 * public void setPreferredLayoutSize(JPanel panel) {
-	 * 
-	 * int rows = picturePanelLayout.getRows(); int cols =
-	 * picturePanelLayout.getColumns(); if (rows > 0) { cols = (cells + rows -
-	 * 1) / rows; } else { rows = (cells + cols - 1) / cols; }
-	 * 
-	 * 
-	 * } }
-	 */
-
-	/*
-	 * creates a 2D array of currently shown thumbnails. used in the key
+	/**
+	 * Creates a 2D array of currently shown thumbnails. used in the key
 	 * listener for selection using keyboard
 	 */
 	private void createThumbnailArray() {
@@ -1358,16 +1379,10 @@ public class MainFrame extends JFrame {
 
 	public static void main(String[] args) {
 		try {
-			// Set System L&F
 			UIManager
 					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		} catch (Exception e) {
-		}
-		try {
 			new MainFrame();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

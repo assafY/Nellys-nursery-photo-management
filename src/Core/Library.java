@@ -13,30 +13,12 @@ import java.util.Vector;
 
 public class Library implements Serializable {
 
-    private static ArrayList<Child> childrenList = new ArrayList<Child>();
-    private static Iterator childrenListIterator = childrenList.iterator();
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
-    private static Iterator pictureLibraryIterator = pictureLibrary.iterator();
+    private static ArrayList<Child> childrenList = new ArrayList<Child>();
     private static ArrayList<Area> areaList = new ArrayList<Area>();
-    private static Iterator areasListIterator = areaList.iterator();
-    /**/    private static ArrayList<Date> possibleDate = new ArrayList<Date>();
-    /**/    private static Iterator possibleDateIterator = possibleDate.iterator();
-    private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
-
-    public static void addFramesToNotify(MainFrame frame) {
-        frames.add(frame);
-    }
-
-    public static ArrayList<MainFrame> getFrames() {
-        return frames;
-    }
 
     public static synchronized ArrayList<Child> getChildrenList() {
         return childrenList;
-    }
-
-    public static synchronized ArrayList<Area> getAreaList() {
-        return areaList;
     }
 
     public static Vector<String> getChildrenNamesVector() {
@@ -45,6 +27,10 @@ public class Library implements Serializable {
             childrenNames.add(c.getName());
         }
         return childrenNames;
+    }
+    
+    public static synchronized ArrayList<Area> getAreaList() {
+        return areaList;
     }
 
     public static Vector<String> getAreaNamesVector() {
