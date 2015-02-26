@@ -7,9 +7,6 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 
-/**
- * Created by ivaylo on 25/02/15.
- */
 public class PictureImportThread extends Thread {
     File[] importedPictures;
     ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
@@ -46,7 +43,9 @@ public class PictureImportThread extends Thread {
 
                 public void run() {
                     System.out.println("Import Complete.");
-                    MainFrame.addThumbnailsToView(picturesToDisplay);
+                    for (MainFrame mainFrame : MainFrame.getMainFrames()) {
+                        mainFrame.addThumbnailsToView(picturesToDisplay);
+                    }
                     for (int i = 0; i < picturesToDisplay.size(); ++i) {
                         Library.addPictureToLibrary(picturesToDisplay.get(i));
                     }
