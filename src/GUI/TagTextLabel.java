@@ -20,8 +20,9 @@ public class TagTextLabel extends JPanel {
     private JLabel tagLabel;
     private JLabel deleteButton;
     private JPanel tagPanel;
+    private MainFrame mainFrame;
 
-    public TagTextLabel(Child c, JPanel tagPanel) {
+    public TagTextLabel(Child c, JPanel tagPanel, MainFrame mainFrame) {
 
         if (tagDeleteButton == null) {
             loadTagDeleteButton();
@@ -40,6 +41,7 @@ public class TagTextLabel extends JPanel {
         add(deleteButton, BorderLayout.EAST);
 
         this.tagPanel = tagPanel;
+        this.mainFrame = mainFrame;
 
         addListener();
 
@@ -65,11 +67,11 @@ public class TagTextLabel extends JPanel {
                 super.mouseClicked(e);
                 tagPanel.remove(TagTextLabel.this);
                 tagPanel.revalidate();
-                for (Picture p: Library.getSelectedPictures()) {
+                for (Picture p: mainFrame.getSelectedPictures()) {
                     if (p.getTag().getChildren().contains(child)) {
                         p.getTag().removeChild(child);
                         child.removeTaggedPicture(p);
-                        MainFrame.createTagLabels();
+                        mainFrame.createTagLabels();
                     }
                 }
             }

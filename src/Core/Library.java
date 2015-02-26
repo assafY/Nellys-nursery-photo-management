@@ -31,9 +31,12 @@ public class Library implements Serializable {
 	private static Iterator areasListIterator = areaList.iterator();
 /**/	private static ArrayList<Date> possibleDate = new ArrayList<Date>();
 /**/	private static Iterator possibleDateIterator = possibleDate.iterator();
-	private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
-	private static ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
+	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
+	public static void addFramesToNotify(MainFrame frame) {
+		frames.add(frame);
+	}
+	
 	public static synchronized ArrayList<Child> getChildrenList() {
 		return childrenList;
 	}
@@ -155,7 +158,9 @@ public class Library implements Serializable {
 
 						public void run() {
 							System.out.println("Import Complete.");
-							MainFrame.addThumbnailsToView(picturesToDisplay);
+							for (MainFrame mainFrame : frames) {
+								mainFrame.addThumbnailsToView(picturesToDisplay);
+							}
 							for (int i = 0; i < picturesToDisplay.size(); ++i) {
 								addPictureToLibrary(picturesToDisplay.get(i));
 							}
@@ -235,62 +240,21 @@ public class Library implements Serializable {
 		pictureLibrary.add(picture);
 	}
 
-	public static synchronized ArrayList<PictureLabel> getThumbsOnDisplay() {
-		return thumbsOnDisplay;
-	}
-
-	public static synchronized void addThumbToDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.add(thumb);
-	}
-
-	public static void removeThumbFromDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.remove(thumb);
-	}
-
-    public static void removeAllThumbsFromDisplay() {
-        thumbsOnDisplay = new ArrayList<PictureLabel>();
-    }
-
-	public static ArrayList<PictureLabel> getSelectedThumbs() {
-		return selectedThumbs;
-	}
-
-	public static ArrayList<Picture> getSelectedPictures() {
-		ArrayList<Picture> selectedPictures = new ArrayList<Picture>();
-		for (PictureLabel p : selectedThumbs) {
-			selectedPictures.add(p.getPicture());
-		}
-		return selectedPictures;
-	}
-
-	public static void addSelectedThumb(PictureLabel selectedThumb) {
-		selectedThumbs.add(selectedThumb);
-	}
-
-	public static void removeSelectedThumb(PictureLabel selectedThumb) {
-		selectedThumbs.remove(selectedThumb);
-	}
+	
 	
 	public static void deletePictureLibrary()
 	{
 		pictureLibrary = null;
 	}
-	
-	public static void removeAllSelectedThumbs() {
-		for (PictureLabel p : selectedThumbs) {
-			p.toggleSelection();
-		}
-		selectedThumbs.clear();
-	}
 
-	public static void getCurrentMetadata() {
-		if (selectedThumbs.size() <= 1) {
-			// TODO: Show metadata on main frame
-		} else {
-			// TODO: compare metadata of all selected photos and show common
-			// tags
-		}
-	}
+//	public static void getCurrentMetadata() {
+//		if (selectedThumbs.size() <= 1) {
+//			// TODO: Show metadata on main frame
+//		} else {
+//			// TODO: compare metadata of all selected photos and show common
+//			// tags
+//		}
+//	}
 
 	public static Date getDate(String s) {
 		int date = Integer.parseInt(s.substring(0, 2));

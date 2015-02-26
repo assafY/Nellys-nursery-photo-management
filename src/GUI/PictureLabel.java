@@ -3,7 +3,6 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Data.Picture;
-import Data.ThumbnailClickListener;
 import org.imgscalr.Scalr;
 import sun.applet.Main;
 
@@ -30,11 +29,12 @@ public class PictureLabel extends JLabel {
     private Image image;
     private boolean horizontal = true;
     private FullScreenPicturesFrame frame;
+    private MainFrame mainFrame;
 
-    public PictureLabel(Picture picture) {
+    public PictureLabel(Picture picture, MainFrame mainFrame) {
         this.picture = picture;
         isSelected = false;
-
+        this.mainFrame = mainFrame;
         this.addMouseListener(new ThumbnailMouseListener());
     }
 
@@ -139,24 +139,24 @@ public class PictureLabel extends JLabel {
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
 
-                if (!ThumbnailClickListener.shiftIsPressed) {
-                    Library.removeAllSelectedThumbs();
+                if (!mainFrame.isShiftPressed()) {
+                    mainFrame.removeAllSelectedThumbs();
                 }
 
                 if (isSelected) {
-                    Library.removeSelectedThumb(PictureLabel.this);
-                    ThumbnailClickListener.mostRecentSelection = null;
-                    ThumbnailClickListener.refresh();
-                    MainFrame.createTagLabels();
-                    if (!ThumbnailClickListener.shiftIsPressed) {
+                    mainFrame.removeSelectedThumb(PictureLabel.this);
+                    mainFrame.setMostRecentSelection(null);
+                    mainFrame.refresh();
+                    mainFrame.createTagLabels();
+                    if (!mainFrame.isShiftPressed()) {
                         toggleSelection();
                     }
                 }
                 else {
-                    Library.addSelectedThumb(PictureLabel.this);
-                    ThumbnailClickListener.mostRecentSelection = PictureLabel.this;
-                    ThumbnailClickListener.refresh();
-                    MainFrame.createTagLabels();
+                    mainFrame.addSelectedThumb(PictureLabel.this);
+                    mainFrame.setMostRecentSelection(PictureLabel.this);
+                    mainFrame.refresh();
+                    mainFrame.createTagLabels();
                 }
                 toggleSelection();
             }
