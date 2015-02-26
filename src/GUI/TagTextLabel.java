@@ -1,6 +1,7 @@
 package GUI;
 
 import Core.Library;
+import Core.Taggable;
 import Data.Child;
 import Data.Picture;
 
@@ -16,13 +17,13 @@ public class TagTextLabel extends JPanel {
 
     private static BufferedImage tagDeleteButton;
 
-    private Child child;
+    private Taggable child;
     private JLabel tagLabel;
     private JLabel deleteButton;
     private JPanel tagPanel;
     private MainFrame mainFrame;
 
-    public TagTextLabel(Child c, JPanel tagPanel, MainFrame mainFrame) {
+    public TagTextLabel(Taggable c, JPanel tagPanel, MainFrame mainFrame) {
 
         if (tagDeleteButton == null) {
             loadTagDeleteButton();

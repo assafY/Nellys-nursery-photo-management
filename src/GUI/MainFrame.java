@@ -2,6 +2,7 @@ package GUI;
 
 import Core.Library;
 import Core.Settings;
+import Core.Taggable;
 import Data.*;
 import ch.rakudave.suggest.JSuggestField;
 
@@ -496,43 +497,41 @@ public class MainFrame extends JFrame {
 				});
 
 		picturePanel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				setFocusable(true);
-				requestFocus();
-			}
-		});
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
+            }
+        });
 
-		areaField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (areaField.getText() != "") {
-					boolean areaExists = false;
-					for (Area a : Library.getAreaList()) {
-						if (areaField.getText().toLowerCase()
-								.equals(a.getName().toLowerCase())) {
-							areaExists = true;
-							break;
-						}
-					}
-					if (!areaExists) {
-						Area newArea = new Area(WordUtils.capitalize(areaField
-								.getText()));
-						for (Picture p : getSelectedPictures()) {
-							if (p.getTag().getArea() == null
-									|| !p.getTag().getArea().equals(newArea)) {
-								p.getTag().setArea(newArea);
-								newArea.addTaggedPicture(p);
-							}
-						}
-						areaField.setSuggestData(Library.getAreaNamesVector());
-						createTagLabels();
+        areaField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (areaField.getText() != "") {
+                    boolean areaExists = false;
+                    for (Area a : Library.getAreaList()) {
+                        if (areaField.getText().toLowerCase()
+                                .equals(a.getName().toLowerCase())) {
+                            areaExists = true;
+                            break;
+                        }
+                    }
+                    if (!areaExists) {
+                        Taggable newArea = new Area(WordUtils.capitalize(areaField.getText()));
+                        for (Picture p : getSelectedPictures()) {
+                            if (p.getTag().getArea() == null || !p.getTag().getArea().equals(newArea)) {
+                                p.getTag().setArea(newArea);
+                                newArea.addTaggedPicture(p);
+                            }
+                        }
+                        areaField.setSuggestData(Library.getAreaNamesVector());
+                        createTagLabels();
 
-					}
-				}
-			}
-		});
+                    }
+                }
+            }
+        });
 
 		areaField.addSelectionListener(new ActionListener() {
 
@@ -1067,7 +1066,7 @@ public class MainFrame extends JFrame {
 
 		// array list to keep all children tagged in a selected
 		// thumbnail or thumbnails
-		ArrayList<Child> taggedChildren;
+		ArrayList<Taggable> taggedChildren;
 		// counter to determine whether even or odd number of labels exist
 		tagCounter = 1;
 
@@ -1078,7 +1077,7 @@ public class MainFrame extends JFrame {
 		if (getSelectedPictures().size() == 0) {
 			// TODO: hide panel if there are no tagged pictures
 		} else {
-			taggedChildren = new ArrayList<Child>();
+			taggedChildren = new ArrayList<Taggable>();
 			// for every selected picture
 			for (int i = 0; i < getSelectedPictures().size(); ++i) {
 				// for every child that exists on any selected picture
@@ -1094,7 +1093,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 			// for every child found in previous loop
-			for (Child c : taggedChildren) {
+			for (Taggable c : taggedChildren) {
 				// check if tagged in all selected pictures
 				boolean childInAllPictures = true;
 				for (Picture p : getSelectedPictures()) {

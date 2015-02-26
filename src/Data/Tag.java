@@ -1,5 +1,7 @@
 package Data;
 
+import Core.Taggable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,8 +11,8 @@ public class Tag implements Serializable {
 	// there may be more than 3 rooms - let them decide the names
 	// private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
 
-	private Area area;
-	private ArrayList<Child> children;
+	private Taggable area;
+	private ArrayList<Taggable> children;
 	private Date date;
 
 	/* comment section */{
@@ -30,21 +32,21 @@ public class Tag implements Serializable {
 
 	public Tag() {
 		area = null;
-		children = new ArrayList<Child>();
+		children = new ArrayList<Taggable>();
 		date = null;
 	}
 
-	public void setArea(Area area) {
+	public void setArea(Taggable area) {
 		this.area = area;
 	}
 
-	public void addChild(Child child) {
+	public void addChild(Taggable child) {
 		// , Picture picture
 		children.add(child);
 		// child.addTaggedPicture(picture);
 	}
 
-	public void removeChild(Child child) {
+	public void removeChild(Taggable child) {
 		// , Picture picture
 		children.remove(child);
 		// child.removeTaggedPicture(picture);
@@ -62,7 +64,7 @@ public class Tag implements Serializable {
 		this.date = null;
 	}
 
-	public Area getArea() {
+	public Taggable getArea() {
 		return area;
 	}
 	
@@ -70,7 +72,7 @@ public class Tag implements Serializable {
 		this.area = null;
 	}
 
-	public ArrayList<Child> getChildren() {
+	public ArrayList<Taggable> getChildren() {
 		return children;
 	}
 
@@ -95,7 +97,7 @@ public class Tag implements Serializable {
 		if (children.isEmpty()) {
 			tagString += "none";
 		} else {
-			for (Child child : children) {
+			for (Taggable child : children) {
 				tagString += "" + child.getName() + ", ";
 			}
 			tagString = tagString.substring(0, tagString.length() - 2);

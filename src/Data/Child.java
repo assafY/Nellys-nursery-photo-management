@@ -5,7 +5,7 @@ import Core.Taggable;
 
 import java.io.Serializable;
 
-public class Child extends Taggable implements Serializable{
+public class Child extends Taggable implements Serializable {
 
 	private static final long serialVersionUID = 3434858481118705418L;
 
