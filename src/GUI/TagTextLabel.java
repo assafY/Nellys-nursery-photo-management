@@ -1,8 +1,6 @@
 package GUI;
 
-import Core.Library;
 import Core.Taggable;
-import Data.Child;
 import Data.Picture;
 
 import javax.imageio.ImageIO;

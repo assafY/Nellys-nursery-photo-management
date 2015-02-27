@@ -80,11 +80,11 @@ public class TagPanel extends JPanel {
     public void resetTagLabels() {
 
         childTagPanel.removeAll();
-        childTagPanel.revalidate();
+        childTagPanel.repaint();
         areaTagPanel.removeAll();
-        areaTagPanel.revalidate();
+        areaTagPanel.repaint();
         dateTagPanel.removeAll();
-        dateTagPanel.revalidate();
+        dateTagPanel.repaint();
 
         // array list to keep all children tagged in a selected
         // thumbnail or thumbnails
@@ -92,6 +92,8 @@ public class TagPanel extends JPanel {
         ArrayList<Picture> selectedPictures = mainFrame.getSelectedPictures();
 
         tagCounter = 1;
+        boolean areaInAllPictures = true;
+        ArrayList<Taggable> areaList = new ArrayList<Taggable>();
 
         // if no pictures are selected
         if (selectedPictures.size() == 0) {
@@ -113,79 +115,37 @@ public class TagPanel extends JPanel {
             }
         }
 
-        boolean areaInAllPictures = true;
-        Taggable area1 = selectedPictures.get(0).getTag().getArea();
-        Taggable area2 = null;
-
         // for every tag found in previous loop
         for (Taggable t : taggedComponents) {
             // check if tagged in all selected pictures
 
+            // child tags
             boolean childInAllPictures = true;
-            boolean areaTagged = false;
             if (t.getType() == Settings.CHILD_TAG) {
                 for (Picture p : selectedPictures) {
 
                     if (!p.getTag().getTaggedComponents().contains(t)) {
                         childInAllPictures = false;
                     }
-
                 }
             }
 
-            else if (t.getType() == Settings.AREA_TAG && !areaTagged) {
-                areaTagged = true;
+            // area tags
+            else if (t.getType() == Settings.AREA_TAG && areaInAllPictures) {
                 for (Picture p: selectedPictures) {
-                    Taggable areaTag = p.getTag().getArea();
-                    if (areaTag != null) {
-                        area2 = areaTag;
+                    if (p.getTag().isAreaSet()) {
+                        if (!areaList.contains(t)) {
+                            areaList.add(t);
+                        }
+                    }
+                    else {
+                        areaInAllPictures = false;
                     }
                 }
-                if (area2 == null || !area1.equals(area2)) {
-                    System.out.println(area1 + " does not equal " + area2);
-                    areaInAllPictures = false;
-                }
-                else {
-                    areaInAllPictures = true;
-                }
             }
-            if (!areaTagged) {
+            if (!areaInAllPictures || areaList.size() > 1) {
                 areaInAllPictures = false;
             }
-
-
-            /* room */
-            /*String room = null;
-            // if no pics selected
-            if (picturesToTag.size() == 0) {
-                // TODO: no thumnails selected, either reset texfield or
-                // simply disable them until picture/s selected
-            } else {
-                // get the first picture's area
-                String area1 = null;
-                if (picturesToTag.get(0).getTag().getArea() != null) {
-                    area1 = picturesToTag.get(0).getTag().getArea().getName();
-                }
-
-                // for every pic see if the area is the same as the first one's
-                String area2 = null;
-                for (Picture p : picturesToTag) {
-                    if (p.getTag().getArea() != null) {
-                        area2 = p.getTag().getArea().getName();
-                    }
-                    if (area2 == null || !area1.equals(area2)) {
-                        room = "";
-                        break;
-                    }
-                }
-                // if all have same areas put the area in the field
-                if (room == null)
-                    room = area1;
-
-                areaField.setText(room);
-
-            }*/
-
 
             // if this is a child tag
             if (t.getType() == Settings.CHILD_TAG) {
@@ -210,22 +170,18 @@ public class TagPanel extends JPanel {
             }
         }
 
-
+        // if area is the same in all pictures
         if (areaInAllPictures) {
             Taggable areaTag = selectedPictures.get(0).getTag().getArea();
             areaTagPanel.removeAll();
             areaTagPanel.revalidate();
             if (areaTag != null) {
+                // add tag label to area panel
                 areaTagPanel.add(new TagTextLabel(areaTag, areaTagPanel, mainFrame));
-                System.out.println("same area in all pics");
             }
         }
-        else {
-            areaTagPanel.removeAll();
-            areaTagPanel.validate();
-        }
 
-		/* date */
+		// check for similar date on all selected pictures
             String date = null;
             // if no pics selected
             if (selectedPictures.size() == 0) {
