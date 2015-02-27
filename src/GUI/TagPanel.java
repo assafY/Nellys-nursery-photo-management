@@ -77,6 +77,11 @@ public class TagPanel extends JPanel {
         dateTagPanel.setBorder(dateCompoundBorder);
     }
 
+    /**
+     * This method creates tag labels when a components are tagged in a
+     * selected thumbnail. It redraws all labels for a picture every time a
+     * component is tagged or removed from the picture metadata.
+     */
     public void resetTagLabels() {
 
         childTagPanel.removeAll();
@@ -132,13 +137,12 @@ public class TagPanel extends JPanel {
 
             // area tags
             else if (t.getType() == Settings.AREA_TAG && areaInAllPictures) {
-                for (Picture p: selectedPictures) {
+                for (Picture p : selectedPictures) {
                     if (p.getTag().isAreaSet()) {
                         if (!areaList.contains(t)) {
                             areaList.add(t);
                         }
-                    }
-                    else {
+                    } else {
                         areaInAllPictures = false;
                     }
                 }
@@ -181,30 +185,55 @@ public class TagPanel extends JPanel {
             }
         }
 
-		// check for similar date on all selected pictures
-            String date = null;
-            // if no pics selected
-            if (selectedPictures.size() == 0) {
-                // TODO: no thumnails selected, either reset texfield or
-                // simply disable them until picture/s selected
-            } else {
-                // get the first picture's date
-                Date date1 = selectedPictures.get(0).getTag().getDate();
-                // for every pic see if the date is the same as the firs one's
-                for (Picture p : selectedPictures) {
-                    Date date2 = p.getTag().getDate();
-                    if (!Library.getFormattedDate(date1).equals(
-                            Library.getFormattedDate(date2))) {
-                        date = "";
-                        break;
-                    }
+        // check for similar date on all selected pictures
+        String date = null;
+        // if no pics selected
+        if (selectedPictures.size() == 0) {
+            // TODO: no thumnails selected, either reset texfield or
+            // simply disable them until picture/s selected
+        } else {
+            // get the first picture's date
+            Date date1 = selectedPictures.get(0).getTag().getDate();
+            // for every pic see if the date is the same as the firs one's
+            for (Picture p : selectedPictures) {
+                Date date2 = p.getTag().getDate();
+                if (!Library.getFormattedDate(date1).equals(
+                        Library.getFormattedDate(date2))) {
+                    date = "";
+                    break;
                 }
-                // if all have same dates put the date in the field
-                if (date == null)
-                    date = Library.getFormattedDate(date1);
-
-                dateTagPanel.add(new JLabel(date));
             }
+            // if all have same dates put the date in the field
+            if (date == null)
+                date = Library.getFormattedDate(date1);
+
+            dateTagPanel.add(new JLabel(date));
         }
+    }
+
+    public void addDateFieldListener() {
+        /*dateField.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				ArrayList<Picture> picturesToTag = getSelectedPictures();
+				if (picturesToTag.size() == 0) {
+					// TODO: no thumnails selected, either reset texfield or
+					// simply disable them until pictures selected
+				} else {
+					Date date = Library.getDate(dateField.getText());
+					if (date != null) {
+						for (Picture p : getSelectedPictures()) {
+							p.getTag().setDate(date);
+						}
+					} else {
+						// TODO do something to alert a date is not good
+					}
+				}
+
+			}
+		});*/
+    }
 
 }

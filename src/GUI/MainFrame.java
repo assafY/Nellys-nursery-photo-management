@@ -60,8 +60,6 @@ public class MainFrame extends JFrame {
 	private JCheckBox allCheckBox;
 	private JPanel sortByPanel;
 	private JLabel sortByLabel;
-	private JCheckBox nameAZCheckBox;
-	private JCheckBox nameZACheckBox;
 
 	// west component declaration
 	private JPanel westPanel;
@@ -94,17 +92,10 @@ public class MainFrame extends JFrame {
 	// east component declaration
 	private JPanel eastPanel;
 	private JPanel tagPanel;
-	private JPanel tagsLabelsPanel;
-	private JPanel tagsFieldsPanel;
 	private JPanel descriptionPanel;
 	private JPanel donePanel;
 	public static TagPanel storedTagsPanel;
-
-	//private static JTextField dateField;
-	//private static JSuggestField areaField;
 	private JSuggestField tagField;
-	//private JLabel areaLabel;
-	//private JLabel dateLabel;
 	private JButton doneButton;
 	private JButton resetButton;
 
@@ -290,15 +281,6 @@ public class MainFrame extends JFrame {
 			EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
 			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 					titledBorder);
-
-			/**
-			 * centerPanel = new JPanel(new BorderLayout());
-			 * centerPanel.setBorder(compoundBorder);
-			 * centerPanel.add(picturePanelPane, BorderLayout.CENTER);
-			 * centerPanel.add(scrollPanel, BorderLayout.SOUTH);
-			 * 
-			 * mainPanel.add(centerPanel, BorderLayout.CENTER);
-			 */
 
 			innerCenterPanel = new JPanel(new BorderLayout());
 			innerCenterPanel.setBorder(compoundBorder);
@@ -487,82 +469,6 @@ public class MainFrame extends JFrame {
                 requestFocus();
             }
         });
-
-        /*areaField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (areaField.getText() != "") {
-                    boolean areaExists = false;
-                    for (Area a : Library.getAreaList()) {
-                        if (areaField.getText().toLowerCase()
-                                .equals(a.getName().toLowerCase())) {
-                            areaExists = true;
-                            break;
-                        }
-                    }
-                    if (!areaExists) {
-                        Taggable newArea = new Area(WordUtils.capitalize(areaField.getText()));
-                        for (Picture p : getSelectedPictures()) {
-                            if (p.getTag().getArea() == null || !p.getTag().getArea().equals(newArea)) {
-                                p.getTag().setArea(newArea);
-                                newArea.addTaggedPicture(p);
-                            }
-                        }
-                        areaField.setSuggestData(Library.getAreaNamesVector());
-                        createTagLabels();
-
-                    }
-                }
-            }
-        });
-
-		areaField.addSelectionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Picture> picturesToTag = getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until picture/s selected
-				} else {
-					for (Area a : Library.getAreaList()) {
-						if (areaField.getText().toLowerCase()
-								.equals(a.getName().toLowerCase())) {
-							for (Picture p : getSelectedPictures()) {
-								if (p.getTag().getArea() == null
-										|| !p.getTag().getArea().equals(a)) {
-									p.getTag().setArea(a);
-									a.addTaggedPicture(p);
-								}
-							}
-						}
-					}
-				}
-			}
-		});*/
-
-		/*dateField.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				ArrayList<Picture> picturesToTag = getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until pictures selected
-				} else {
-					Date date = Library.getDate(dateField.getText());
-					if (date != null) {
-						for (Picture p : getSelectedPictures()) {
-							p.getTag().setDate(date);
-						}
-					} else {
-						// TODO do something to alert a date is not good
-					}
-				}
-
-			}
-		});*/
 
 		tagField.addSelectionListener(new ActionListener() {
 			@Override
@@ -992,11 +898,6 @@ public class MainFrame extends JFrame {
 		selectedThumbs.clear();
 	}
 
-	/**
-	 * This method creates tag labels when a components are tagged in a
-	 * selected thumbnail. It redraws all labels for a picture every time a
-	 * component is tagged or removed from the picture metadata.
-	 */
 	public void createTagLabels() {
             storedTagsPanel.resetTagLabels();
 	}
