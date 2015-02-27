@@ -3,11 +3,14 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
-import Data.*;
 import ch.rakudave.suggest.JSuggestField;
-
+import Data.Area;
 import Data.Child;
 import Data.Picture;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -15,13 +18,12 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
 
-import static java.awt.Color.*;
+import static java.awt.Color.WHITE;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
@@ -1086,6 +1088,16 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
+		new JFXPanel();
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				DirectoryChooser directoryChooser = new DirectoryChooser();
+				File selectedDirectory =
+						directoryChooser.showDialog(new Stage());
+				Library.importFolder(selectedDirectory);
+			}
+		});
 		try {
 			UIManager
 					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
