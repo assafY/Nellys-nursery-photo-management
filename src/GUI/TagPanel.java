@@ -212,28 +212,7 @@ public class TagPanel extends JPanel {
     }
 
     public void addDateFieldListener() {
-        /*dateField.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				ArrayList<Picture> picturesToTag = getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until pictures selected
-				} else {
-					Date date = Library.getDate(dateField.getText());
-					if (date != null) {
-						for (Picture p : getSelectedPictures()) {
-							p.getTag().setDate(date);
-						}
-					} else {
-						// TODO do something to alert a date is not good
-					}
-				}
-
-			}
-		});*/
+        // TODO: make date panel editable if date does not exist or needs to be changed
     }
 
 }
