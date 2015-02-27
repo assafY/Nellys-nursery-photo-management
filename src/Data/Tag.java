@@ -37,6 +37,19 @@ public class Tag implements Serializable {
         }
 		// child.removeTaggedPicture(picture);
 	}
+
+    public Taggable getArea() {
+
+        if (areaSet) {
+            for (Taggable t : taggedComponents) {
+                if (t.getType() == Settings.AREA_TAG) {
+                    return t;
+                }
+            }
+        }
+
+        return null;
+    }
 	
 	public void removeAllTags() {
 		taggedComponents.clear();

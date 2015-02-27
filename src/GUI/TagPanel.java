@@ -113,28 +113,79 @@ public class TagPanel extends JPanel {
             }
         }
 
+        boolean areaInAllPictures = true;
+        Taggable area1 = selectedPictures.get(0).getTag().getArea();
+        Taggable area2 = null;
 
         // for every tag found in previous loop
         for (Taggable t : taggedComponents) {
             // check if tagged in all selected pictures
-            boolean childInAllPictures = true;
-            boolean areaInAllPictures = true;
 
-            for (Picture p : selectedPictures) {
-                if (!childInAllPictures && !areaInAllPictures) {
-                    break;
-                }
-                if (!p.getTag().getTaggedComponents().contains(t)) {
-                    if (t.getType() == Settings.CHILD_TAG) {
+            boolean childInAllPictures = true;
+            boolean areaTagged = false;
+            if (t.getType() == Settings.CHILD_TAG) {
+                for (Picture p : selectedPictures) {
+
+                    if (!p.getTag().getTaggedComponents().contains(t)) {
                         childInAllPictures = false;
                     }
-                    else if (t.getType() == Settings.AREA_TAG) {
-                        areaInAllPictures = false;
-                        System.out.println(t.getName() + ": " + t.getType());
 
-                    }
                 }
             }
+
+            else if (t.getType() == Settings.AREA_TAG && !areaTagged) {
+                areaTagged = true;
+                for (Picture p: selectedPictures) {
+                    Taggable areaTag = p.getTag().getArea();
+                    if (areaTag != null) {
+                        area2 = areaTag;
+                    }
+                }
+                if (area2 == null || !area1.equals(area2)) {
+                    System.out.println(area1 + " does not equal " + area2);
+                    areaInAllPictures = false;
+                }
+                else {
+                    areaInAllPictures = true;
+                }
+            }
+            if (!areaTagged) {
+                areaInAllPictures = false;
+            }
+
+
+            /* room */
+            /*String room = null;
+            // if no pics selected
+            if (picturesToTag.size() == 0) {
+                // TODO: no thumnails selected, either reset texfield or
+                // simply disable them until picture/s selected
+            } else {
+                // get the first picture's area
+                String area1 = null;
+                if (picturesToTag.get(0).getTag().getArea() != null) {
+                    area1 = picturesToTag.get(0).getTag().getArea().getName();
+                }
+
+                // for every pic see if the area is the same as the first one's
+                String area2 = null;
+                for (Picture p : picturesToTag) {
+                    if (p.getTag().getArea() != null) {
+                        area2 = p.getTag().getArea().getName();
+                    }
+                    if (area2 == null || !area1.equals(area2)) {
+                        room = "";
+                        break;
+                    }
+                }
+                // if all have same areas put the area in the field
+                if (room == null)
+                    room = area1;
+
+                areaField.setText(room);
+
+            }*/
+
 
             // if this is a child tag
             if (t.getType() == Settings.CHILD_TAG) {
@@ -157,44 +208,47 @@ public class TagPanel extends JPanel {
                     }
                 }
             }
-            else if (t.getType() == Settings.AREA_TAG) {
-                if (areaInAllPictures) {
-                    areaTagPanel.add(new TagTextLabel(t,
-                            areaTagPanel, mainFrame));
-                    validate();
-                }
-            }
-
-            //System.out.println(t.getName() + ": " + t.getType());
         }
 
-        // reset date label
-        // selected pictures array and date string to go in text field
-        ArrayList<Picture> picturesToTag = mainFrame.getSelectedPictures();
+
+        if (areaInAllPictures) {
+            Taggable areaTag = selectedPictures.get(0).getTag().getArea();
+            areaTagPanel.removeAll();
+            areaTagPanel.revalidate();
+            if (areaTag != null) {
+                areaTagPanel.add(new TagTextLabel(areaTag, areaTagPanel, mainFrame));
+                System.out.println("same area in all pics");
+            }
+        }
+        else {
+            areaTagPanel.removeAll();
+            areaTagPanel.validate();
+        }
 
 		/* date */
-        String date = null;
-        // if no pics selected
-        if (picturesToTag.size() == 0) {
-            // TODO: no thumnails selected, either reset texfield or
-            // simply disable them until picture/s selected
-        } else {
-            // get the first picture's date
-            Date date1 = picturesToTag.get(0).getTag().getDate();
-            // for every pic see if the date is the same as the firs one's
-            for (Picture p : picturesToTag) {
-                Date date2 = p.getTag().getDate();
-                if (!Library.getFormattedDate(date1).equals(
-                        Library.getFormattedDate(date2))) {
-                    date = "";
-                    break;
+            String date = null;
+            // if no pics selected
+            if (selectedPictures.size() == 0) {
+                // TODO: no thumnails selected, either reset texfield or
+                // simply disable them until picture/s selected
+            } else {
+                // get the first picture's date
+                Date date1 = selectedPictures.get(0).getTag().getDate();
+                // for every pic see if the date is the same as the firs one's
+                for (Picture p : selectedPictures) {
+                    Date date2 = p.getTag().getDate();
+                    if (!Library.getFormattedDate(date1).equals(
+                            Library.getFormattedDate(date2))) {
+                        date = "";
+                        break;
+                    }
                 }
-            }
-            // if all have same dates put the date in the field
-            if (date == null)
-                date = Library.getFormattedDate(date1);
+                // if all have same dates put the date in the field
+                if (date == null)
+                    date = Library.getFormattedDate(date1);
 
-            dateTagPanel.add(new JLabel(date));
+                dateTagPanel.add(new JLabel(date));
+            }
         }
-    }
+
 }
