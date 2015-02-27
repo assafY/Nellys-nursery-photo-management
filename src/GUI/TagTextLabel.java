@@ -17,21 +17,21 @@ public class TagTextLabel extends JPanel {
 
     private static BufferedImage tagDeleteButton;
 
-    private Taggable child;
+    private Taggable taggableItem;
     private JLabel tagLabel;
     private JLabel deleteButton;
     private JPanel tagPanel;
     private MainFrame mainFrame;
 
-    public TagTextLabel(Taggable c, JPanel tagPanel, MainFrame mainFrame) {
+    public TagTextLabel(Taggable t, JPanel tagPanel, MainFrame mainFrame) {
 
         if (tagDeleteButton == null) {
             loadTagDeleteButton();
         }
 
-        this.child = c;
+        this.taggableItem = t;
 
-        tagLabel = new JLabel(c.getName());
+        tagLabel = new JLabel(t.getName());
         setBorder(BorderFactory.createLineBorder(Color.black));
 
         deleteButton = new JLabel();
@@ -69,9 +69,9 @@ public class TagTextLabel extends JPanel {
                 tagPanel.remove(TagTextLabel.this);
                 tagPanel.revalidate();
                 for (Picture p: mainFrame.getSelectedPictures()) {
-                    if (p.getTag().getChildren().contains(child)) {
-                        p.getTag().removeChild(child);
-                        child.removeTaggedPicture(p);
+                    if (p.getTag().getTaggedComponents().contains(taggableItem)) {
+                        p.getTag().removeTag(taggableItem);
+                        taggableItem.removeTaggedPicture(p);
                         mainFrame.createTagLabels();
                     }
                 }

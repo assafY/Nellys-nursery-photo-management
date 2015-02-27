@@ -1,6 +1,7 @@
 package Data;
 
 import Core.Library;
+import Core.Settings;
 import Core.Taggable;
 
 import java.io.Serializable;
@@ -12,5 +13,10 @@ public class Child extends Taggable implements Serializable {
     public Child(String name) {
         super(name);
         Library.addChild(this);
+    }
+
+    @Override
+    public int getType() {
+        return Settings.CHILD_TAG;
     }
 }
