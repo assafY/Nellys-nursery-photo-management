@@ -6,8 +6,6 @@ import Core.Taggable;
 import Data.*;
 import ch.rakudave.suggest.JSuggestField;
 
-import org.apache.commons.lang3.text.WordUtils;
-
 import Data.Child;
 import Data.Picture;
 
@@ -22,7 +20,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 
 import static java.awt.Color.*;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
@@ -359,6 +356,8 @@ public class MainFrame extends JFrame {
 		this.addKeyListener(tcl);
 
 		searchField.addSelectionListener(l.new SearchListener());
+        tagField.addSelectionListener(l.new TagListener());
+        importButton.addActionListener(l.new ImportButtonListener());
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -372,8 +371,6 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-
-		importButton.addActionListener(l.new ImportButtonListener());
 
 		// change picture thumbnail size when slider is used
 		zoomSlider.addChangeListener(new ChangeListener() {
@@ -441,25 +438,25 @@ public class MainFrame extends JFrame {
 		 * into view and deletes thumbnails exiting view.
 		 */
 		picturePanelScrollPane.getViewport().addChangeListener(
-				new ChangeListener() {
+                new ChangeListener() {
 
-					public void stateChanged(ChangeEvent e) {
-						Rectangle currentView = picturePanel.getVisibleRect();
-						for (PictureLabel currentThumbnail : getThumbsOnDisplay()) {
-							if (currentThumbnail.isHorizontal()) {
-								if (isInView(currentThumbnail, currentView)) {
-									if (currentThumbnail.getIcon() == null) {
-										currentThumbnail
-												.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-														.getValue()]);
-									}
-								} else {
-									currentThumbnail.hideThumbnail();
-								}
-							}
-						}
-					}
-				});
+                    public void stateChanged(ChangeEvent e) {
+                        Rectangle currentView = picturePanel.getVisibleRect();
+                        for (PictureLabel currentThumbnail : getThumbsOnDisplay()) {
+                            if (currentThumbnail.isHorizontal()) {
+                                if (isInView(currentThumbnail, currentView)) {
+                                    if (currentThumbnail.getIcon() == null) {
+                                        currentThumbnail
+                                                .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+                                                        .getValue()]);
+                                    }
+                                } else {
+                                    currentThumbnail.hideThumbnail();
+                                }
+                            }
+                        }
+                    }
+                });
 
 		picturePanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -470,41 +467,13 @@ public class MainFrame extends JFrame {
             }
         });
 
-		tagField.addSelectionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ArrayList<Picture> picturesToTag = getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until picture/s selected
-				} else {
-					for (Taggable t : Library.getTaggableComponentsList()) {
-						if (tagField.getText().toLowerCase()
-								.equals(t.getName().toLowerCase())) {
-                                for (Picture p : getSelectedPictures()) {
-                                    if (!p.getTag().getTaggedComponents().contains(t)) {
-                                        // if this is an area tag only tag if picture has no area tag
-                                        if (!(t.getType() == Settings.AREA_TAG && p.getTag().isAreaSet())) {
-                                            p.getTag().addTag(t);
-                                            t.addTaggedPicture(p);
-                                            createTagLabels();
-                                        }
-                                    }
-                                }
-						}
-					}
-				}
-				tagField.setText("");
-			}
-		});
-
-		searchField.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				super.focusGained(e);
-				searchField.setSuggestData(Library.getTaggableComponentNamesVector());
-			}
-		});
+        searchField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                super.focusGained(e);
+                searchField.setSuggestData(Library.getTaggableComponentNamesVector());
+            }
+        });
 
 		resetButton.addActionListener(new ActionListener() {
 
@@ -576,6 +545,37 @@ public class MainFrame extends JFrame {
 				Library.importPicture(importDialog.getFiles());
 			}
 		}
+
+        /**
+         * method to action the tag field
+         */
+        private class TagListener implements ActionListener {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Picture> picturesToTag = getSelectedPictures();
+                if (picturesToTag.size() == 0) {
+                    // TODO: no thumnails selected, either reset texfield or
+                    // simply disable them until picture/s selected
+                } else {
+                    for (Taggable t : Library.getTaggableComponentsList()) {
+                        if (tagField.getText().toLowerCase()
+                                .equals(t.getName().toLowerCase())) {
+                            for (Picture p : getSelectedPictures()) {
+                                if (!p.getTag().getTaggedComponents().contains(t)) {
+                                    // if this is an area tag only tag if picture has no area tag
+                                    if (!(t.getType() == Settings.AREA_TAG && p.getTag().isAreaSet())) {
+                                        p.getTag().addTag(t);
+                                        t.addTaggedPicture(p);
+                                        createTagLabels();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                tagField.setText("");
+            }
+        }
 
 		/**
 		 * method to action the search

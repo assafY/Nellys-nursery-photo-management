@@ -5,11 +5,16 @@ import Core.Settings;
 import Core.Taggable;
 import Data.Picture;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -215,4 +220,83 @@ public class TagPanel extends JPanel {
         // TODO: make date panel editable if date does not exist or needs to be changed
     }
 
+    /**
+     * tag labels created when tags are displayed in the tag panel
+     */
+    public class TagTextLabel extends JPanel {
+
+        private BufferedImage tagDeleteButton;
+
+        private Taggable taggableItem;
+        private JLabel tagLabel;
+        private JLabel deleteButton;
+        private JPanel tagPanel;
+        private MainFrame mainFrame;
+
+        /**
+         * the constructor loads the image for the delete button, initialises
+         * private fields, and adds the text and button to the label. It calls
+         * the addListener() method which sets the delete button click listener.
+         *
+         * @param t         the tag item to create a label for
+         * @param tagPanel  the tag panel
+         * @param mainFrame the main software window
+         */
+        public TagTextLabel(Taggable t, JPanel tagPanel, MainFrame mainFrame) {
+
+            if (tagDeleteButton == null) {
+                loadTagDeleteButton();
+            }
+
+            this.taggableItem = t;
+
+            tagLabel = new JLabel(t.getName());
+            setBorder(BorderFactory.createLineBorder(Color.black));
+
+            deleteButton = new JLabel();
+            deleteButton.setIcon(new ImageIcon(tagDeleteButton));
+
+            setLayout(new BorderLayout());
+            add(tagLabel, BorderLayout.CENTER);
+            add(deleteButton, BorderLayout.EAST);
+
+            this.tagPanel = tagPanel;
+            this.mainFrame = mainFrame;
+
+            addListener();
+
+        }
+
+        private void loadTagDeleteButton() {
+            try {
+                tagDeleteButton = ImageIO.read(TagTextLabel.class.getResource("/images/delete_button.png"));
+            } catch (IOException e) {
+                //TODO: Handle exception
+            }
+        }
+
+        @Override
+        public int getWidth() {
+            return tagLabel.getWidth() + deleteButton.getWidth();
+        }
+
+        private void addListener() {
+            deleteButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    super.mouseClicked(e);
+                    tagPanel.remove(TagTextLabel.this);
+                    tagPanel.revalidate();
+                    for (Picture p: mainFrame.getSelectedPictures()) {
+                        if (p.getTag().getTaggedComponents().contains(taggableItem)) {
+                            p.getTag().removeTag(taggableItem);
+                            taggableItem.removeTaggedPicture(p);
+                            mainFrame.createTagLabels();
+                        }
+                    }
+                }
+            });
+        }
+    }
 }
+

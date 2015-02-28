@@ -23,33 +23,12 @@ public class Library implements Serializable {
 
     public static Vector<String> getTaggableComponentNamesVector() {
         Vector<String> taggableComponentNames = new Vector<String>();
+        taggableComponentNames.add("View All");
         for (Taggable t : taggableComponents) {
             taggableComponentNames.add(t.getName());
         }
         return taggableComponentNames;
     }
-    
-    /*public static synchronized ArrayList<Taggable> getAreaList() {
-        return areaList;
-    }
-
-    public static Vector<String> getAreaNamesVector() {
-        Vector<String> areaNames = new Vector<String>();
-        for (Taggable t : areaList) {
-            areaNames.add(t.getName());
-        }
-        return areaNames;
-    }*/
-
-    /*public static Vector<String> getAllNamesVector() {
-        Vector<String> allNames = getChildrenNamesVector();
-        allNames.add("All Pictures");
-        //for (int i = 0; i < getAreaNamesVector().size(); ++i) {
-        //    allNames.add(getAreaNamesVector().get(i));
-        //}
-        return allNames;
-
-    }*/
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
         return pictureLibrary;

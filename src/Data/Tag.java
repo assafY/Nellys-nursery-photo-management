@@ -14,6 +14,9 @@ public class Tag implements Serializable {
 	private Date date;
     private boolean areaSet;
 
+    /**
+     * constructor initialises private fields.
+     */
 	public Tag() {
 		taggedComponents = new ArrayList<Taggable>();
 		date = null;
@@ -21,21 +24,30 @@ public class Tag implements Serializable {
 	}
 
 	public void addTag(Taggable taggedComponent) {
-		// , Picture picture
-		taggedComponents.add(taggedComponent);
-        if (taggedComponent.getType() == Settings.AREA_TAG) {
-            areaSet = true;
+		// if child tag does not exist, add to picture metadata
+        if (taggedComponent.getType() == Settings.CHILD_TAG) {
+            if (!taggedComponents.contains(taggedComponent)) {
+                taggedComponents.add(taggedComponent);
+            }
         }
-		// child.addTaggedPicture(picture);
+        else {
+            // if area tag is not already
+            if (!areaSet) {
+                areaSet = true;
+                taggedComponents.add(taggedComponent);
+            }
+            else {
+                taggedComponents.remove(getArea());
+                taggedComponents.add(taggedComponent);
+            }
+        }
 	}
 
 	public void removeTag(Taggable taggedComponent) {
-		// , Picture picture
 		taggedComponents.remove(taggedComponent);
         if (taggedComponent.getType() == Settings.AREA_TAG) {
             areaSet = false;
         }
-		// child.removeTaggedPicture(picture);
 	}
 
     public Taggable getArea() {
@@ -50,17 +62,9 @@ public class Tag implements Serializable {
 
         return null;
     }
-	
-	public void removeAllTags() {
-		taggedComponents.clear();
-	}
 
 	public void setDate(Date date) {
 		this.date = date;
-	}
-
-	public void removeDate() {
-		this.date = null;
 	}
 
 	public ArrayList<Taggable> getTaggedComponents() {
