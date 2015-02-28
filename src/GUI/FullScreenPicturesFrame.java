@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -18,9 +21,13 @@ import javax.swing.JPanel;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
+import mediautil.image.jpeg.LLJTran;
+import mediautil.image.jpeg.LLJTranException;
+
 import org.imgscalr.Scalr;
 
 import Core.Library;
+import Core.RotatingPictureThread;
 /**
  * Creates a FullScreenPictures Inner Frame.
  */
@@ -35,6 +42,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	private JButton previousButton;
 	private JPanel buttonsPanel;
 	private JPanel mainPanel;
+	private int specifyRotation;
 	private int a;
 
 	public FullScreenPicturesFrame(String filePath) {
@@ -131,13 +139,17 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void internalFrameActivated(InternalFrameEvent arg0) {}
 		});
 	}
-
+	
+	
 	/**
 	 * Creates all the Listeners(Rotation and switch between pictures).
 	 */
 	private void createListeners() {
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				specifyRotation = 270;
+				RotatingPictureThread thread = new RotatingPictureThread(filePath, specifyRotation);
+				thread.start();
 				picture = Scalr.rotate(picture, Scalr.Rotation.CW_270, null);
 				resizeFullScreenPicture();
 			}
@@ -146,6 +158,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				specifyRotation = 90;
+				RotatingPictureThread thread = new RotatingPictureThread(filePath, specifyRotation);
+				thread.start();
 				picture = Scalr.rotate(picture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
@@ -188,7 +203,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
             //TOTO: Handle exception
 			e1.printStackTrace();
 		}
-		resizeFullScreenPicture();
+		//resizeFullScreenPicture();
 	}
 	
 	/**
@@ -203,5 +218,4 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		mainPanel.revalidate();
 		mainPanel.repaint();
 	}
-
 }
