@@ -199,15 +199,18 @@ public class TagPanel extends JPanel {
         } else {
             // get the first picture's date
             Date date1 = selectedPictures.get(0).getTag().getDate();
-            // for every pic see if the date is the same as the firs one's
+            // for every pic see if the date is the same as the first one's
             for (Picture p : selectedPictures) {
                 Date date2 = p.getTag().getDate();
+                // if there are any two pictures with different dates
                 if (!Library.getFormattedDate(date1).equals(
                         Library.getFormattedDate(date2))) {
+                    // don't show date
                     date = "";
                     break;
                 }
             }
+            
             // if all have same dates put the date in the field
             if (date == null)
                 date = Library.getFormattedDate(date1);
