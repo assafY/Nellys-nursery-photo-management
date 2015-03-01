@@ -4,11 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -21,13 +20,9 @@ import javax.swing.JPanel;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
-import mediautil.image.jpeg.LLJTran;
-import mediautil.image.jpeg.LLJTranException;
-
 import org.imgscalr.Scalr;
 
 import Core.Library;
-import Core.RotatingPictureThread;
 /**
  * Creates a FullScreenPictures Inner Frame.
  */
@@ -35,20 +30,23 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
 	private String filePath;
-	private BufferedImage picture;
+	private BufferedImage resizedPicture;
+	private BufferedImage actualPicture;
 	private JButton rotateLeftButton;
 	private JButton rotateRightButton;
 	private JButton nextButton;
 	private JButton previousButton;
 	private JPanel buttonsPanel;
 	private JPanel mainPanel;
-	private int specifyRotation;
+	private boolean escPressed;
+	private boolean leftPressed;
+	private boolean rightPressed;
 	private int a;
 
 	public FullScreenPicturesFrame(String filePath) {
 		super("", false, true, false, false);
 		this.filePath = filePath;
-		a = Library.getPictureLibrary().indexOf(picture);
+		a = Library.getPictureLibrary().indexOf(resizedPicture);
 		getPicture();
 		createLabel();
 		createButtons();
@@ -66,15 +64,16 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void getPicture() {
 		try {
-			picture = ImageIO.read(new File(filePath));
+			actualPicture = ImageIO.read(new File(filePath));
+			resizedPicture = actualPicture;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (picture != null) {
-			if (picture.getHeight() > picture.getWidth()) {
-				picture = Scalr.resize(picture, picture.getWidth() / 3);
+		if (resizedPicture != null) {
+			if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
+				resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getWidth() / 3);
 			} else {
-                picture = Scalr.resize(picture, picture.getHeight() / 3);
+                resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getHeight() / 3);
 			}
 		}
 	}
@@ -84,7 +83,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void createLabel() {
 		fullScreenPicture = new JLabel();
-		fullScreenPicture.setIcon(new ImageIcon(picture));
+		fullScreenPicture.setIcon(new ImageIcon(resizedPicture));
 		fullScreenPicture.setHorizontalAlignment(JLabel.CENTER);
 		fullScreenPicture.setVerticalAlignment(JLabel.CENTER);
 	}
@@ -133,7 +132,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void internalFrameDeactivated(InternalFrameEvent arg0) {}
 			public void internalFrameClosing(InternalFrameEvent arg0) {}
 			public void internalFrameClosed(InternalFrameEvent arg0) {
-				picture = null;
+				resizedPicture = null;
+				actualPicture = null;
 				MainFrame.getCenterPanel().add(MainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 			}
 			public void internalFrameActivated(InternalFrameEvent arg0) {}
@@ -145,12 +145,13 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the Listeners(Rotation and switch between pictures).
 	 */
 	private void createListeners() {
+		
+		this.addKeyListener(new KeyListeners());
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				specifyRotation = 270;
-				RotatingPictureThread thread = new RotatingPictureThread(filePath, specifyRotation);
-				thread.start();
-				picture = Scalr.rotate(picture, Scalr.Rotation.CW_270, null);
+				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_270, null);
+				rotateActualPictureFile();
+				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -158,10 +159,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				specifyRotation = 90;
-				RotatingPictureThread thread = new RotatingPictureThread(filePath, specifyRotation);
-				thread.start();
-				picture = Scalr.rotate(picture, Scalr.Rotation.CW_90, null);
+				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_90, null);
+				rotateActualPictureFile();
+				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -198,24 +198,90 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void getPreviousAndNextPicture() {
 		try {
-			picture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
+			resizedPicture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
 		} catch (IOException e1) {
             //TOTO: Handle exception
 			e1.printStackTrace();
 		}
-		//resizeFullScreenPicture();
+		filePath = Library.getPictureLibrary().get(a).getImagePath();
+		try {
+			actualPicture = ImageIO.read(new File(filePath));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		resizeFullScreenPicture();
 	}
 	
 	/**
 	 * Resizes the thumbnails.
 	 */
 	private void resizeFullScreenPicture() {
-		if (picture.getHeight() > picture.getWidth()) {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(picture, 560)));
+		if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
+			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 560)));
 		} else {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(picture, 800)));
+			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 800)));
 		}
 		mainPanel.revalidate();
 		mainPanel.repaint();
+	}
+	
+	/*
+	 * Rotates the actual picture file.
+	 */
+	private void rotateActualPictureFile() {
+		try {
+			ImageIO.write(actualPicture, "jpg", new File(filePath));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	class KeyListeners implements KeyListener{
+
+		public KeyListeners(){
+			super();
+			escPressed = false;
+			leftPressed = false;
+			rightPressed = false;
+
+		}
+		public void keyPressed(KeyEvent e) {
+			if(e.getKeyCode() == 27){
+				escPressed = true;
+				System.out.println("escape");
+			}
+			else if(e.getKeyCode() == 37){
+				leftPressed = true;
+				System.out.println("left");
+			}
+			else if(e.getKeyCode() == 39){
+				rightPressed = true;
+				System.out.println("right");
+			}
+			
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			if(e.getKeyCode() == 27){
+				escPressed = false;
+				System.out.println("escape");
+			}
+			else if(e.getKeyCode() == 37){
+				leftPressed = false;
+				System.out.println("left");
+			}
+			else if(e.getKeyCode() == 39){
+				rightPressed = false;
+				System.out.println("right");
+			}
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e) {
+		}
+		
 	}
 }
