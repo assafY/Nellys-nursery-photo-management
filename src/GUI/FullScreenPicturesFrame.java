@@ -5,18 +5,20 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -38,9 +40,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	private JButton previousButton;
 	private JPanel buttonsPanel;
 	private JPanel mainPanel;
-	private boolean escPressed;
-	private boolean leftPressed;
-	private boolean rightPressed;
 	private int a;
 
 	public FullScreenPicturesFrame(String filePath) {
@@ -135,6 +134,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 				resizedPicture = null;
 				actualPicture = null;
 				MainFrame.getCenterPanel().add(MainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
+				System.out.println("closed");
 			}
 			public void internalFrameActivated(InternalFrameEvent arg0) {}
 		});
@@ -145,8 +145,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the Listeners(Rotation and switch between pictures).
 	 */
 	private void createListeners() {
-		
-		this.addKeyListener(new KeyListeners());
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_270, null);
@@ -165,34 +163,77 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 				resizeFullScreenPicture();
 			}
 		});
+		
 		nextButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!Library.getPictureLibrary().isEmpty()) {
-					if (a >= Library.getPictureLibrary().size() - 1) {
-						a = 0;
-						getPreviousAndNextPicture();
-					} else {
-						a++;
-						getPreviousAndNextPicture();
-					}
-				}
+				moveToNextPicture();
 			}
 		});
 		previousButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!Library.getPictureLibrary().isEmpty()) {
-					if (a <= 0) {
-						a = Library.getPictureLibrary().size() - 1;
-						getPreviousAndNextPicture();
-					} else {
-						a--;
-						getPreviousAndNextPicture();
-					}
-				}
+				moveToPreviousPicture();
 			}
 		});
+		
+		this.getActionMap().put("close", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
+		
+		this.getActionMap().put("next", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				moveToNextPicture();
+			}
+		});
+		
+		this.getActionMap().put("previous", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				moveToPreviousPicture();
+			}
+		});
+        InputMap map = this.getInputMap(WHEN_IN_FOCUSED_WINDOW);
+        KeyStroke escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        KeyStroke nextStroke = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0);
+        KeyStroke previousStroke = KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0);
+        map.put(escapeStroke, "close");
+        map.put(nextStroke, "next");
+        map.put(previousStroke, "previous");
 	}
 	
+	/*
+	 * Moves to next picture.
+	 */
+	private void moveToNextPicture() {
+		if (!Library.getPictureLibrary().isEmpty()) {
+			if (a >= Library.getPictureLibrary().size() - 1) {
+				a = 0;
+				getPreviousAndNextPicture();
+			} else {
+				a++;
+				getPreviousAndNextPicture();
+			}
+		}
+	}
+	
+	/*
+	 * Moves to previous picture.
+	 */
+	private void moveToPreviousPicture() {
+		if (!Library.getPictureLibrary().isEmpty()) {
+			if (a <= 0) {
+				a = Library.getPictureLibrary().size() - 1;
+				getPreviousAndNextPicture();
+			} else {
+				a--;
+				getPreviousAndNextPicture();
+			}
+		}
+	}
 	/**
 	 * Gets the previous and next thumbnails from the picture library.
 	 */
@@ -238,50 +279,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		}
 	}
 	
-	class KeyListeners implements KeyListener{
-
-		public KeyListeners(){
-			super();
-			escPressed = false;
-			leftPressed = false;
-			rightPressed = false;
-
-		}
-		public void keyPressed(KeyEvent e) {
-			if(e.getKeyCode() == 27){
-				escPressed = true;
-				System.out.println("escape");
-			}
-			else if(e.getKeyCode() == 37){
-				leftPressed = true;
-				System.out.println("left");
-			}
-			else if(e.getKeyCode() == 39){
-				rightPressed = true;
-				System.out.println("right");
-			}
-			
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e) {
-			if(e.getKeyCode() == 27){
-				escPressed = false;
-				System.out.println("escape");
-			}
-			else if(e.getKeyCode() == 37){
-				leftPressed = false;
-				System.out.println("left");
-			}
-			else if(e.getKeyCode() == 39){
-				rightPressed = false;
-				System.out.println("right");
-			}
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e) {
-		}
-		
+	/*
+	 * Close the Inner Frame.
+	 */
+	private void close(){
+		this.dispose();
 	}
 }
