@@ -584,7 +584,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (searchField.getText().equals("All Pictures")) {
+				if (searchField.getText().equals("View All")) {
 					picturePanel.removeAll();
 					picturePanel.repaint();
 					removeAllThumbsFromDisplay();
