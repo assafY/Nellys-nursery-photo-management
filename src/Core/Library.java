@@ -14,41 +14,20 @@ import java.util.Vector;
 public class Library implements Serializable {
 
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
-    private static ArrayList<Child> childrenList = new ArrayList<Child>();
-    private static ArrayList<Area> areaList = new ArrayList<Area>();
+    private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
+    //private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
 
-    public static synchronized ArrayList<Child> getChildrenList() {
-        return childrenList;
+    public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
+        return taggableComponents;
     }
 
-    public static Vector<String> getChildrenNamesVector() {
-        Vector<String> childrenNames = new Vector<String>();
-        for (Child c : childrenList) {
-            childrenNames.add(c.getName());
+    public static Vector<String> getTaggableComponentNamesVector() {
+        Vector<String> taggableComponentNames = new Vector<String>();
+        taggableComponentNames.add("View All");
+        for (Taggable t : taggableComponents) {
+            taggableComponentNames.add(t.getName());
         }
-        return childrenNames;
-    }
-    
-    public static synchronized ArrayList<Area> getAreaList() {
-        return areaList;
-    }
-
-    public static Vector<String> getAreaNamesVector() {
-        Vector<String> areaNames = new Vector<String>();
-        for (Area a : areaList) {
-            areaNames.add(a.getName());
-        }
-        return areaNames;
-    }
-
-    public static Vector<String> getAllNamesVector() {
-        Vector<String> allNames = getChildrenNamesVector();
-        allNames.add("All Pictures");
-        for (int i = 0; i < getAreaNamesVector().size(); ++i) {
-            allNames.add(getAreaNamesVector().get(i));
-        }
-        return allNames;
-
+        return taggableComponentNames;
     }
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
@@ -110,19 +89,19 @@ public class Library implements Serializable {
 	}
 
 	public static void addChild(Child child) {
-		childrenList.add(child);
+		taggableComponents.add(child);
 	}
 
 	public static void removeChild(Child child) {
-		childrenList.remove(child);
+		taggableComponents.remove(child);
 	}
 
 	public static void addArea(Area area) {
-		areaList.add(area);
+		taggableComponents.add(area);
 	}
 
 	public static void removeArea(Area area) {
-		areaList.remove(area);
+		taggableComponents.remove(area);
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {

@@ -1,102 +1,102 @@
 package Data;
 
+import Core.Settings;
+import Core.Taggable;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class Tag implements Serializable {
 
-	// there may be more than 3 rooms - let them decide the names
-	// private static String[] ROOMS = {"Main Room", "Baby Room", "Garden"};
 
-	private Area area;
-	private ArrayList<Child> children;
+	private ArrayList<Taggable> taggedComponents;
 	private Date date;
+    private boolean areaSet;
 
-	/* comment section */{
-		// public Tag(ArrayList<Child> children) {
-		// this();
-		// this.children = children;
-		// }
-		// public Tag(Date date) {
-		// this();
-		// this.date = date;
-		// }
-		// public Tag(String room) {
-		// this();
-		// this.room = room;
-		// }
-	}
-
+    /**
+     * constructor initialises private fields.
+     */
 	public Tag() {
-		area = null;
-		children = new ArrayList<Child>();
+		taggedComponents = new ArrayList<Taggable>();
 		date = null;
+        areaSet = false;
 	}
 
-	public void setArea(Area area) {
-		this.area = area;
+	public void addTag(Taggable taggedComponent) {
+		// if child tag does not exist, add to picture metadata
+        if (taggedComponent.getType() == Settings.CHILD_TAG) {
+            if (!taggedComponents.contains(taggedComponent)) {
+                taggedComponents.add(taggedComponent);
+            }
+        }
+        else {
+            // if area tag is not already
+            if (!areaSet) {
+                areaSet = true;
+                taggedComponents.add(taggedComponent);
+            }
+            else {
+                taggedComponents.remove(getArea());
+                taggedComponents.add(taggedComponent);
+            }
+        }
 	}
 
-	public void addChild(Child child) {
-		// , Picture picture
-		children.add(child);
-		// child.addTaggedPicture(picture);
+	public void removeTag(Taggable taggedComponent) {
+		taggedComponents.remove(taggedComponent);
+        if (taggedComponent.getType() == Settings.AREA_TAG) {
+            areaSet = false;
+        }
 	}
 
-	public void removeChild(Child child) {
-		// , Picture picture
-		children.remove(child);
-		// child.removeTaggedPicture(picture);
-	}
-	
-	public void removeAllChildren() {
-		children.clear();
-	}
+    public Taggable getArea() {
+
+        if (areaSet) {
+            for (Taggable t : taggedComponents) {
+                if (t.getType() == Settings.AREA_TAG) {
+                    return t;
+                }
+            }
+        }
+
+        return null;
+    }
 
 	public void setDate(Date date) {
 		this.date = date;
 	}
 
-	public void removeDate() {
-		this.date = null;
-	}
-
-	public Area getArea() {
-		return area;
-	}
-	
-	public void removeArea() {
-		this.area = null;
-	}
-
-	public ArrayList<Child> getChildren() {
-		return children;
+	public ArrayList<Taggable> getTaggedComponents() {
+		return taggedComponents;
 	}
 
 	public Date getDate() {
 		return date;
 	}
 
+    public boolean isAreaSet() {
+        return areaSet;
+    }
+
 	public boolean isFullyTagged() {
-		return (area != null && children.size() > 0 && date != null);
+		return (taggedComponents.size() > 0 && date != null);
 	}
 
 	public boolean isPartiallyTagged() {
-		return (area != null || children.size() > 0 || date != null);
+		return (taggedComponents.size() > 0 || date != null);
 	}
 
 	@Override
 	public String toString() {
 		String tagString = "";
 		tagString += "Date: " + date + "\n";
-		tagString += "Area: " + area.getName() + "\n";
-		tagString += "Children: ";
-		if (children.isEmpty()) {
+		tagString += "Children and Areas: ";
+		if (taggedComponents.isEmpty()) {
 			tagString += "none";
 		} else {
-			for (Child child : children) {
-				tagString += "" + child.getName() + ", ";
+			for (Taggable taggedComponent : taggedComponents) {
+				tagString += "" + taggedComponent.getName() + ", ";
 			}
 			tagString = tagString.substring(0, tagString.length() - 2);
 		}
