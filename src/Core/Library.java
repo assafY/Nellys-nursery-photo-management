@@ -3,12 +3,11 @@ package Core;
 import Data.Area;
 import Data.Child;
 import Data.Picture;
-import GUI.MainFrame;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Vector;
 
 public class Library implements Serializable {
@@ -67,8 +66,36 @@ public class Library implements Serializable {
         }
     }
 
-	public static void importFolder(String folderPath) {
+	public static void importFolder(final File importDirectory) {
 		// TODO for every picture in folder do importPicture()
+        Thread fileHandler = new Thread() {
+            public void run() {
+                ArrayList<File> nestedPictures = new ArrayList<File>();
+                ArrayList<File> nestedFolders = new ArrayList<File>();
+                File[] nestedItems = importDirectory.listFiles();
+
+                for(int j = 0; j < nestedItems.length; ++j){
+                    if(nestedItems[j].isFile()){
+                        nestedPictures.add(nestedItems[j]);
+                    }
+                    else{
+                        nestedFolders.add(nestedItems[j]);
+                    }
+                }
+
+                File[] toProcess = new File[0];
+                System.out.println(nestedPictures.size() + " lqlq");
+                if(nestedPictures.size() > 0){
+                    importPicture(nestedPictures.toArray(toProcess));
+                }
+                if(nestedFolders.size() > 0){
+                    for(File toImport:nestedFolders){
+                        importFolder(toImport);
+                    }
+                }
+            }
+        };
+        fileHandler.start();
 	}
 
 	public static void rotate(ArrayList<Picture> picturesToRotate,

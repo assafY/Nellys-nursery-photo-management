@@ -3,11 +3,14 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
-import Data.*;
 import ch.rakudave.suggest.JSuggestField;
-
+import Data.Area;
 import Data.Child;
 import Data.Picture;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -15,17 +18,18 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
-import static java.awt.Color.*;
+import static java.awt.Color.WHITE;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
-
+	//FOR TEST
+	private static File selectedDirectory;
 	// menu bar component declaration
 	private MenuBar menuBar = new MenuBar();
 	Menu fileMenu;
@@ -1086,13 +1090,32 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
+		new JFXPanel();
+		final CountDownLatch latch = new CountDownLatch(1);
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				DirectoryChooser directoryChooser = new DirectoryChooser();
+				selectedDirectory = directoryChooser.showDialog(new Stage());
+				latch.countDown();
+			}
+		});
+		try {
+			latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		try {
 			UIManager
 					.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 			new MainFrame();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		//IMPORT PARENT DIR
+		Library.importFolder(selectedDirectory);
 	}
 
 }
