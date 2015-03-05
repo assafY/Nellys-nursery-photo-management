@@ -14,6 +14,7 @@ public class Library implements Serializable {
 
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
+    private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
     private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
 
     public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
@@ -29,6 +30,10 @@ public class Library implements Serializable {
             taggableComponentNames.add(t.getName());
         }
         return taggableComponentNames;
+    }
+
+    public static ArrayList<Taggable> getAreaList() {
+        return areaList;
     }
 
     public static Object[] getNurserySites() {
@@ -123,6 +128,9 @@ public class Library implements Serializable {
 
 	public static void addTaggableComponent(Taggable t) {
 		taggableComponents.add(t);
+        if (t.getType() == Settings.AREA_TAG) {
+            areaList.add(t);
+        }
 	}
 
 	public static void removeTaggableComponent(Taggable t) {

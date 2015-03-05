@@ -138,6 +138,8 @@ public class MainFrame extends JFrame {
 		frames.add(this);
 	}
 
+    // for csv file, location and picture library, if any has not
+    // been initialised, prompt the user on startup
     private void startUpChecks() {
         // if the site of the machine was not set, prompt user to set it.
         if (Settings.NURSERY_LOCATION == null) {
@@ -151,7 +153,7 @@ public class MainFrame extends JFrame {
                         JOptionPane.PLAIN_MESSAGE,
                         null,
                         Library.getNurserySites(),
-                        "ham");
+                        "Rosendale");
 
                 if ((selectedSite != null) && (selectedSite.length() > 0)) {
                     Settings.NURSERY_LOCATION = selectedSite;
@@ -198,6 +200,13 @@ public class MainFrame extends JFrame {
         String currentLine = "";
 
         if (Settings.CSV_PATH != null) {
+
+            if (Library.getAreaList().size() == 0) {
+                for (int i = 0; i < Settings.AREA_NAMES.length; ++i) {
+                    new Area(Settings.AREA_NAMES[i]);
+                }
+            }
+
             try {
 
                 br = new BufferedReader(new FileReader(Settings.CSV_PATH));
@@ -224,8 +233,26 @@ public class MainFrame extends JFrame {
                         String wordsInColumn[] = columns[roomNameColumn].split(" ", 2);
                         String siteName = wordsInColumn[0];
 
+                        String childName = columns[firstNameColumn] + " " + columns[lastNameColumn];
+
                         if (siteName.equals(Settings.NURSERY_LOCATION)) {
-                            new Child(columns[firstNameColumn] + " " + columns[lastNameColumn]);
+
+                            boolean childExists = false;
+                            for (Taggable t : Library.getTaggableComponentsList()) {
+                                System.out.println(t.getName());
+                                if (t.getName().equals(childName)) {
+                                    childExists = true;
+                                    break;
+                                }
+                            }
+                            if (!childExists) {
+                                System.out.println(childName);
+                                for (Taggable area : Library.getAreaList()) {
+                                    if (area.getName().startsWith(wordsInColumn[1])) {
+                                        new Child(childName, area);
+                                    }
+                                }
+                            }
                         }
                     }
 
