@@ -4,17 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -28,7 +32,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
 	private String filePath;
-	private BufferedImage picture;
+	private BufferedImage resizedPicture;
+	private BufferedImage actualPicture;
 	private JButton rotateLeftButton;
 	private JButton rotateRightButton;
 	private JButton nextButton;
@@ -40,7 +45,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	public FullScreenPicturesFrame(String filePath) {
 		super("", false, true, false, false);
 		this.filePath = filePath;
-		a = Library.getPictureLibrary().indexOf(picture);
+		a = Library.getPictureLibrary().indexOf(resizedPicture);
 		getPicture();
 		createLabel();
 		createButtons();
@@ -58,15 +63,16 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void getPicture() {
 		try {
-			picture = ImageIO.read(new File(filePath));
+			actualPicture = ImageIO.read(new File(filePath));
+			resizedPicture = actualPicture;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (picture != null) {
-			if (picture.getHeight() > picture.getWidth()) {
-				picture = Scalr.resize(picture, picture.getWidth() / 3);
+		if (resizedPicture != null) {
+			if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
+				resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getWidth() / 3);
 			} else {
-                picture = Scalr.resize(picture, picture.getHeight() / 3);
+                resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getHeight() / 3);
 			}
 		}
 	}
@@ -76,7 +82,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void createLabel() {
 		fullScreenPicture = new JLabel();
-		fullScreenPicture.setIcon(new ImageIcon(picture));
+		fullScreenPicture.setIcon(new ImageIcon(resizedPicture));
 		fullScreenPicture.setHorizontalAlignment(JLabel.CENTER);
 		fullScreenPicture.setVerticalAlignment(JLabel.CENTER);
 	}
@@ -125,20 +131,25 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void internalFrameDeactivated(InternalFrameEvent arg0) {}
 			public void internalFrameClosing(InternalFrameEvent arg0) {}
 			public void internalFrameClosed(InternalFrameEvent arg0) {
-				picture = null;
+				resizedPicture = null;
+				actualPicture = null;
 				MainFrame.getCenterPanel().add(MainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
+				System.out.println("closed");
 			}
 			public void internalFrameActivated(InternalFrameEvent arg0) {}
 		});
 	}
-
+	
+	
 	/**
 	 * Creates all the Listeners(Rotation and switch between pictures).
 	 */
 	private void createListeners() {
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				picture = Scalr.rotate(picture, Scalr.Rotation.CW_270, null);
+				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_270, null);
+				rotateActualPictureFile();
+				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -146,47 +157,99 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				picture = Scalr.rotate(picture, Scalr.Rotation.CW_90, null);
+				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_90, null);
+				rotateActualPictureFile();
+				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
 		});
+		
 		nextButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!Library.getPictureLibrary().isEmpty()) {
-					if (a >= Library.getPictureLibrary().size() - 1) {
-						a = 0;
-						getPreviousAndNextPicture();
-					} else {
-						a++;
-						getPreviousAndNextPicture();
-					}
-				}
+				moveToNextPicture();
 			}
 		});
 		previousButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (!Library.getPictureLibrary().isEmpty()) {
-					if (a <= 0) {
-						a = Library.getPictureLibrary().size() - 1;
-						getPreviousAndNextPicture();
-					} else {
-						a--;
-						getPreviousAndNextPicture();
-					}
-				}
+				moveToPreviousPicture();
 			}
 		});
+		
+		this.getActionMap().put("close", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				close();
+			}
+		});
+		
+		this.getActionMap().put("next", new AbstractAction() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				moveToNextPicture();
+			}
+		});
+		
+		this.getActionMap().put("previous", new AbstractAction() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				moveToPreviousPicture();
+			}
+		});
+        InputMap map = this.getInputMap(WHEN_IN_FOCUSED_WINDOW);
+        KeyStroke escapeStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        KeyStroke nextStroke = KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0);
+        KeyStroke previousStroke = KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0);
+        map.put(escapeStroke, "close");
+        map.put(nextStroke, "next");
+        map.put(previousStroke, "previous");
 	}
 	
+	/*
+	 * Moves to next picture.
+	 */
+	private void moveToNextPicture() {
+		if (!Library.getPictureLibrary().isEmpty()) {
+			if (a >= Library.getPictureLibrary().size() - 1) {
+				a = 0;
+				getPreviousAndNextPicture();
+			} else {
+				a++;
+				getPreviousAndNextPicture();
+			}
+		}
+	}
+	
+	/*
+	 * Moves to previous picture.
+	 */
+	private void moveToPreviousPicture() {
+		if (!Library.getPictureLibrary().isEmpty()) {
+			if (a <= 0) {
+				a = Library.getPictureLibrary().size() - 1;
+				getPreviousAndNextPicture();
+			} else {
+				a--;
+				getPreviousAndNextPicture();
+			}
+		}
+	}
 	/**
 	 * Gets the previous and next thumbnails from the picture library.
 	 */
 	private void getPreviousAndNextPicture() {
 		try {
-			picture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
+			resizedPicture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
 		} catch (IOException e1) {
-            //TOTO: Handle exception
+            //TODO: Handle exception
 			e1.printStackTrace();
+		}
+		filePath = Library.getPictureLibrary().get(a).getImagePath();
+		try {
+			actualPicture = ImageIO.read(new File(filePath));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		resizeFullScreenPicture();
 	}
@@ -195,13 +258,31 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Resizes the thumbnails.
 	 */
 	private void resizeFullScreenPicture() {
-		if (picture.getHeight() > picture.getWidth()) {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(picture, 560)));
+		if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
+			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 560)));
 		} else {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(picture, 800)));
+			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 800)));
 		}
 		mainPanel.revalidate();
 		mainPanel.repaint();
 	}
-
+	
+	/*
+	 * Rotates the actual picture file.
+	 */
+	private void rotateActualPictureFile() {
+		try {
+			ImageIO.write(actualPicture, "jpg", new File(filePath));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Close the Inner Frame.
+	 */
+	private void close(){
+		this.dispose();
+	}
 }
