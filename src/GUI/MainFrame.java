@@ -6,6 +6,7 @@ import Core.Taggable;
 import ch.rakudave.suggest.JSuggestField;
 import Data.Child;
 import Data.Picture;
+import Data.Area;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
@@ -28,8 +29,6 @@ import static java.awt.Color.WHITE;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
-	//FOR TEST
-	private static File selectedDirectory;
 	// menu bar component declaration
 	private MenuBar menuBar = new MenuBar();
 	Menu fileMenu;
@@ -118,14 +117,15 @@ public class MainFrame extends JFrame {
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
 
-        startUpChecks();
-        loadTaggableComponents();
 		createMenuBar();
 		createPanels();
 		addListeners();
-        loadPictures(Settings.PICTURE_HOME_DIR);
+
 		// saveData();
 		// addSavedData();
+        startUpChecks();
+        loadTaggableComponents();
+        loadPictures(Settings.PICTURE_HOME_DIR);
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -179,6 +179,24 @@ public class MainFrame extends JFrame {
         }
 
         if (Settings.PICTURE_HOME_DIR == null) {
+
+            new JFXPanel();
+            final CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    DirectoryChooser directoryChooser = new DirectoryChooser();
+                    directoryChooser.setTitle("Select root directory of all pictures");
+                    Settings.PICTURE_HOME_DIR = directoryChooser.showDialog(new Stage());
+                    latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            /*
             final JFileChooser pictureFolderFileChooser = new JFileChooser();
             pictureFolderFileChooser.setDialogTitle("Select root directory of all pictures");
             pictureFolderFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -190,7 +208,7 @@ public class MainFrame extends JFrame {
             }
             else {
                 JOptionPane.showMessageDialog(this, "You have not set a root picture directory.\n");
-            }
+            }*/
         }
     }
 
@@ -282,7 +300,7 @@ public class MainFrame extends JFrame {
                 if (currentFile.isDirectory()) {
                     loadPictures(currentFile);
                 }
-                else {  
+                else {
                     if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
                             FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
                         currentDirectoryFiles.add(currentFile);
@@ -1231,21 +1249,6 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new JFXPanel();
-		final CountDownLatch latch = new CountDownLatch(1);
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				DirectoryChooser directoryChooser = new DirectoryChooser();
-				selectedDirectory = directoryChooser.showDialog(new Stage());
-				latch.countDown();
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
 		try {
 			UIManager
@@ -1256,7 +1259,7 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 		}
 		//IMPORT PARENT DIR
-		Library.importFolder(selectedDirectory);
+		//Library.importFolder(Settings.PICTURE_HOME_DIR);
 	}
 
 }

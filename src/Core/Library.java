@@ -77,7 +77,7 @@ public class Library implements Serializable {
         }
     }
 
-	public static void importFolder(final File importDirectory) {
+	/*public static void importFolder(final File importDirectory) {
 		// TODO for every picture in folder do importPicture()
         Thread fileHandler = new Thread() {
             public void run() {
@@ -107,7 +107,7 @@ public class Library implements Serializable {
             }
         };
         fileHandler.start();
-	}
+	}*/
 
 	public static void rotate(ArrayList<Picture> picturesToRotate,
 			boolean direction) {
