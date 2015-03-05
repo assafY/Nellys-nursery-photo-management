@@ -1,5 +1,69 @@
 package GUI;
 
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
+import java.awt.Adjustable;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
@@ -7,26 +71,6 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
-
-import static java.awt.Color.WHITE;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -72,35 +116,27 @@ public class MainFrame extends JFrame {
 	private JButton printButton;
 
 	// center component declaration
-	private static GridLayout picturePanelLayout;
-	private static JPanel centerPanel;
-	private static JPanel innerCenterPanel;
-	private static JPanel picturePanel;
-	public static PictureLabel[][] thumbsOnDisplay2DArray;
-	private static JScrollPane picturePanelScrollPane;
+	private JPanel centerPanel;
+	private JPanel innerCenterPanel;
+	private PicturesFrame picturePanel;
+	private JScrollPane picturePanelScrollPane;
 	private JPanel scrollPanel;
-	private static JSlider zoomSlider;
+	private JSlider zoomSlider;
 
 	// selection stuff
-	private PictureLabel mostRecentSelection = null;
 	private boolean shiftIsPressed = false;
 	private boolean controlIsPressed = false;
-
-	private static ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
-	private static ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
 	// east component declaration
 	private JPanel eastPanel;
 	private JPanel tagPanel;
 	private JPanel descriptionPanel;
 	private JPanel donePanel;
-	public static TagPanel storedTagsPanel;
+	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
 	private JButton doneButton;
 	private JButton resetButton;
 
-	private int currentColumnCount = 0;
-	private boolean picturePanelBiggerThanFrame = false;
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
@@ -123,9 +159,9 @@ public class MainFrame extends JFrame {
 
 		// saveData();
 		// addSavedData();
-        startUpChecks();
-        loadTaggableComponents();
-        Library.importFolder(Settings.PICTURE_HOME_DIR);
+		startUpChecks();
+		loadTaggableComponents();
+		Library.importFolder(Settings.PICTURE_HOME_DIR);
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -138,182 +174,180 @@ public class MainFrame extends JFrame {
 		frames.add(this);
 	}
 
-    // for csv file, location and picture library, if any has not
-    // been initialised, prompt the user on startup
-    private void startUpChecks() {
-        // if the site of the machine was not set, prompt user to set it.
-        if (Settings.NURSERY_LOCATION == null) {
+	// for csv file, location and picture library, if any has not
+	// been initialised, prompt the user on startup
+	private void startUpChecks() {
+		// if the site of the machine was not set, prompt user to set it.
+		if (Settings.NURSERY_LOCATION == null) {
 
-            String selectedSite = null;
-            while (selectedSite == null) {
-                selectedSite = (String) JOptionPane.showInputDialog(
-                        this,
-                        "In which nursery site is this computer?",
-                        "Select Site",
-                        JOptionPane.PLAIN_MESSAGE,
-                        null,
-                        Library.getNurserySites(),
-                        "Rosendale");
+			String selectedSite = null;
+			while (selectedSite == null) {
+				selectedSite = (String) JOptionPane.showInputDialog(this,
+						"In which nursery site is this computer?",
+						"Select Site", JOptionPane.PLAIN_MESSAGE, null,
+						Library.getNurserySites(), "Rosendale");
 
-                if ((selectedSite != null) && (selectedSite.length() > 0)) {
-                    Settings.NURSERY_LOCATION = selectedSite;
-                    break;
-                }
-            }
-        }
+				if ((selectedSite != null) && (selectedSite.length() > 0)) {
+					Settings.NURSERY_LOCATION = selectedSite;
+					break;
+				}
+			}
+		}
 
-        if (Settings.CSV_PATH == null) {
-            final JFileChooser csvFileChooser = new JFileChooser();
-            csvFileChooser.setDialogTitle("Select children list CSV file");
-            csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter("CSV File", "csv"));
-            csvFileChooser.setAcceptAllFileFilterUsed(false);
-            int wasFileSelected = csvFileChooser.showOpenDialog(this);
+		if (Settings.CSV_PATH == null) {
+			final JFileChooser csvFileChooser = new JFileChooser();
+			csvFileChooser.setDialogTitle("Select children list CSV file");
+			csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
+					"CSV File", "csv"));
+			csvFileChooser.setAcceptAllFileFilterUsed(false);
+			int wasFileSelected = csvFileChooser.showOpenDialog(this);
 
-            if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
-                Settings.CSV_PATH = csvFileChooser.getSelectedFile().getPath();
-            }
-            else {
-                JOptionPane.showMessageDialog(this, "Without importing a CSV file, it is not possible to tag pictures.\n"
-                                                        + "You can import a CSV from the file menu.");
-            }
-        }
+			if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
+				Settings.CSV_PATH = csvFileChooser.getSelectedFile().getPath();
+			} else {
+				JOptionPane.showMessageDialog(this,
+						"Without importing a CSV file, it is not possible to tag pictures.\n"
+								+ "You can import a CSV from the file menu.");
+			}
+		}
 
-        if (Settings.PICTURE_HOME_DIR == null) {
+		if (Settings.PICTURE_HOME_DIR == null) {
 
-            new JFXPanel();
-            final CountDownLatch latch = new CountDownLatch(1);
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    DirectoryChooser directoryChooser = new DirectoryChooser();
-                    directoryChooser.setTitle("Select root directory of all pictures");
-                    Settings.PICTURE_HOME_DIR = directoryChooser.showDialog(new Stage());
-                    latch.countDown();
-                }
-            });
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            /*
-            final JFileChooser pictureFolderFileChooser = new JFileChooser();
-            pictureFolderFileChooser.setDialogTitle("Select root directory of all pictures");
-            pictureFolderFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            pictureFolderFileChooser.setAcceptAllFileFilterUsed(false);
-            int wasFileSelected = pictureFolderFileChooser.showOpenDialog(this);
+			new JFXPanel();
+			final CountDownLatch latch = new CountDownLatch(1);
+			Platform.runLater(new Runnable() {
+				@Override
+				public void run() {
+					DirectoryChooser directoryChooser = new DirectoryChooser();
+					directoryChooser
+							.setTitle("Select root directory of all pictures");
+					Settings.PICTURE_HOME_DIR = directoryChooser
+							.showDialog(new Stage());
+					latch.countDown();
+				}
+			});
+			try {
+				latch.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			/*
+			 * final JFileChooser pictureFolderFileChooser = new JFileChooser();
+			 * pictureFolderFileChooser
+			 * .setDialogTitle("Select root directory of all pictures");
+			 * pictureFolderFileChooser
+			 * .setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			 * pictureFolderFileChooser.setAcceptAllFileFilterUsed(false); int
+			 * wasFileSelected = pictureFolderFileChooser.showOpenDialog(this);
+			 * 
+			 * if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
+			 * Settings.PICTURE_HOME_DIR =
+			 * pictureFolderFileChooser.getSelectedFile(); } else {
+			 * JOptionPane.showMessageDialog(this,
+			 * "You have not set a root picture directory.\n"); }
+			 */
+		}
+	}
 
-            if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
-                Settings.PICTURE_HOME_DIR = pictureFolderFileChooser.getSelectedFile();
-            }
-            else {
-                JOptionPane.showMessageDialog(this, "You have not set a root picture directory.\n");
-            }*/
-        }
-    }
+	private void loadTaggableComponents() {
 
-    private void loadTaggableComponents() {
+		BufferedReader br = null;
+		String currentLine = "";
 
-        BufferedReader br = null;
-        String currentLine = "";
+		if (Settings.CSV_PATH != null) {
 
-        if (Settings.CSV_PATH != null) {
+			if (Library.getAreaList().size() == 0) {
+				for (int i = 0; i < Settings.AREA_NAMES.length; ++i) {
+					new Area(Settings.AREA_NAMES[i]);
+				}
+			}
 
-            if (Library.getAreaList().size() == 0) {
-                for (int i = 0; i < Settings.AREA_NAMES.length; ++i) {
-                    new Area(Settings.AREA_NAMES[i]);
-                }
-            }
+			try {
 
-            try {
+				br = new BufferedReader(new FileReader(Settings.CSV_PATH));
+				boolean firstLine = true;
+				int firstNameColumn = -1, lastNameColumn = -1, roomNameColumn = -1;
+				while ((currentLine = br.readLine()) != null) {
 
-                br = new BufferedReader(new FileReader(Settings.CSV_PATH));
-                boolean firstLine = true;
-                int firstNameColumn = -1, lastNameColumn = -1, roomNameColumn = -1;
-                while ((currentLine = br.readLine()) != null) {
+					// use comma as separator
+					String[] columns = currentLine.split(",");
 
-                    // use comma as separator
-                    String[] columns = currentLine.split(",");
+					if (firstLine) {
+						firstLine = false;
+						for (int i = 0; i < columns.length; ++i) {
+							if (columns[i].equals("FirstName")) {
+								firstNameColumn = i;
+							} else if (columns[i].equals("Last Name")) {
+								lastNameColumn = i;
+							} else if (columns[i].equals("RoomName")) {
+								roomNameColumn = i;
+							}
+						}
+					} else {
 
-                    if (firstLine) {
-                        firstLine = false;
-                        for (int i = 0; i < columns.length; ++i) {
-                            if (columns[i].equals("FirstName")) {
-                                firstNameColumn = i;
-                            } else if (columns[i].equals("Last Name")) {
-                                lastNameColumn = i;
-                            } else if (columns[i].equals("RoomName")) {
-                                roomNameColumn = i;
-                            }
-                        }
-                    } else {
+						String wordsInColumn[] = columns[roomNameColumn].split(
+								" ", 2);
+						String siteName = wordsInColumn[0];
 
-                        String wordsInColumn[] = columns[roomNameColumn].split(" ", 2);
-                        String siteName = wordsInColumn[0];
+						String childName = columns[firstNameColumn] + " "
+								+ columns[lastNameColumn];
 
-                        String childName = columns[firstNameColumn] + " " + columns[lastNameColumn];
+						if (siteName.equals(Settings.NURSERY_LOCATION)) {
 
-                        if (siteName.equals(Settings.NURSERY_LOCATION)) {
+							boolean childExists = false;
+							for (Taggable t : Library
+									.getTaggableComponentsList()) {
+								System.out.println(t.getName());
+								if (t.getName().equals(childName)) {
+									childExists = true;
+									break;
+								}
+							}
+							if (!childExists) {
+								System.out.println(childName);
+								for (Taggable area : Library.getAreaList()) {
+									if (area.getName().startsWith(
+											wordsInColumn[1])) {
+										new Child(childName, area);
+									}
+								}
+							}
+						}
+					}
 
-                            boolean childExists = false;
-                            for (Taggable t : Library.getTaggableComponentsList()) {
-                                System.out.println(t.getName());
-                                if (t.getName().equals(childName)) {
-                                    childExists = true;
-                                    break;
-                                }
-                            }
-                            if (!childExists) {
-                                System.out.println(childName);
-                                for (Taggable area : Library.getAreaList()) {
-                                    if (area.getName().startsWith(wordsInColumn[1])) {
-                                        new Child(childName, area);
-                                    }
-                                }
-                            }
-                        }
-                    }
+				}
 
-                }
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (br != null) {
+					try {
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
 
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (br != null) {
-                    try {
-                        br.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
-
-    /*private void loadPictures(File currentDir) {
-        if (currentDir != null) {
-            ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
-            for (File currentFile : currentDir.listFiles()) {
-                if (currentFile.isDirectory()) {
-                    loadPictures(currentFile);
-                }
-                else {
-                    if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
-                            FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
-                        currentDirectoryFiles.add(currentFile);
-                    }
-                }
-            }
-            File picturesToImport[] = new File[currentDirectoryFiles.size()];
-            for (int i = 0; i < picturesToImport.length; ++i) {
-                picturesToImport[i] = currentDirectoryFiles.get(i);
-            }
-            Library.importPicture(picturesToImport);
-        }
-    }*/
+	/*
+	 * private void loadPictures(File currentDir) { if (currentDir != null) {
+	 * ArrayList<File> currentDirectoryFiles = new ArrayList<File>(); for (File
+	 * currentFile : currentDir.listFiles()) { if (currentFile.isDirectory()) {
+	 * loadPictures(currentFile); } else { if
+	 * (FilenameUtils.getExtension(currentFile
+	 * .getPath()).equalsIgnoreCase("jpg") ||
+	 * FilenameUtils.getExtension(currentFile
+	 * .getPath()).equalsIgnoreCase("jpeg")) {
+	 * currentDirectoryFiles.add(currentFile); } } } File picturesToImport[] =
+	 * new File[currentDirectoryFiles.size()]; for (int i = 0; i <
+	 * picturesToImport.length; ++i) { picturesToImport[i] =
+	 * currentDirectoryFiles.get(i); } Library.importPicture(picturesToImport);
+	 * } }
+	 */
 
 	private void createMenuBar() {
 
@@ -445,14 +479,12 @@ public class MainFrame extends JFrame {
 		/* private void createCenterPanel() */{
 
 			// center component assignment
-			picturePanelLayout = new GridLayout(0, 1, 2, 2);
-			picturePanel = new JPanel(picturePanelLayout);
-			picturePanel.setBackground(WHITE);
+			picturePanel = new PicturesFrame(this);
 
 			picturePanelScrollPane = new JScrollPane(picturePanel);
 			picturePanelScrollPane
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
-			picturePanelScrollPane.setBackground(WHITE);
+			// picturePanelScrollPane.setBackground(WHITE);
 
 			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
 			scrollPanel = new JPanel();
@@ -479,13 +511,14 @@ public class MainFrame extends JFrame {
 
 			// east component assignment
 
-            /** for testing purposes our names and some mock areas
-             *  are added to the list
-             */
+			/**
+			 * for testing purposes our names and some mock areas are added to
+			 * the list
+			 */
 
 			tagField = new JSuggestField(this,
 					Library.getTaggableComponentNamesVector(false));
-            tagField.setSize(210, 30);
+			tagField.setSize(210, 30);
 
 			storedTagsPanel = new TagPanel(this);
 
@@ -527,8 +560,8 @@ public class MainFrame extends JFrame {
 		this.addKeyListener(tcl);
 
 		searchField.addSelectionListener(l.new SearchListener());
-        tagField.addSelectionListener(l.new TagListener());
-        importButton.addActionListener(l.new ImportButtonListener());
+		tagField.addSelectionListener(l.new TagListener());
+		importButton.addActionListener(l.new ImportButtonListener());
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -548,7 +581,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 
-				final ArrayList<PictureLabel> thumbs = getThumbsOnDisplay();
+				final ArrayList<PictureLabel> thumbs = picturePanel
+						.getThumbsOnDisplay();
 
 				Thread sliderChangeThread = new Thread() {
 					public void run() {
@@ -560,7 +594,8 @@ public class MainFrame extends JFrame {
 												.getValue()]);
 							}
 						} finally {
-							adjustColumnCount();
+							picturePanel.adjustColumnCount(zoomSlider
+									.getValue());
 						}
 					}
 				};
@@ -573,7 +608,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void componentResized(ComponentEvent e) {
 
-				adjustColumnCount();
+				picturePanel.adjustColumnCount(zoomSlider.getValue());
 				// TODO: Fix this method !
 				/*
 				 * int currentPanelSize = (int)
@@ -587,7 +622,7 @@ public class MainFrame extends JFrame {
 				 * 
 				 * 
 				 * } else { picturePanelBiggerThanFrame = false;
-				 * adjustColumnCount(); }
+				 * picturePanel.adjustColumnCount(zoomSlider.getValue()); }
 				 */
 			}
 
@@ -609,34 +644,26 @@ public class MainFrame extends JFrame {
 		 * into view and deletes thumbnails exiting view.
 		 */
 		picturePanelScrollPane.getViewport().addChangeListener(
-                new ChangeListener() {
+				new ChangeListener() {
 
-                    public void stateChanged(ChangeEvent e) {
-                        Rectangle currentView = picturePanel.getVisibleRect();
-                        for (PictureLabel currentThumbnail : getThumbsOnDisplay()) {
-                            if (currentThumbnail.isHorizontal()) {
-                                if (isInView(currentThumbnail, currentView)) {
-                                    if (currentThumbnail.getIcon() == null) {
-                                        currentThumbnail
-                                                .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                                                        .getValue()]);
-                                    }
-                                } else {
-                                    currentThumbnail.hideThumbnail();
-                                }
-                            }
-                        }
-                    }
-                });
-
-		picturePanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-                setFocusable(true);
-                requestFocus();
-            }
-        });
+					public void stateChanged(ChangeEvent e) {
+						Rectangle currentView = picturePanel.getVisibleRect();
+						for (PictureLabel currentThumbnail : picturePanel
+								.getThumbsOnDisplay()) {
+							if (currentThumbnail.isHorizontal()) {
+								if (isInView(currentThumbnail, currentView)) {
+									if (currentThumbnail.getIcon() == null) {
+										currentThumbnail
+												.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+														.getValue()]);
+									}
+								} else {
+									currentThumbnail.hideThumbnail();
+								}
+							}
+						}
+					}
+				});
 
 		resetButton.addActionListener(new ActionListener() {
 
@@ -709,36 +736,40 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-        /**
-         * method to action the tag field
-         */
-        private class TagListener implements ActionListener {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ArrayList<Picture> picturesToTag = getSelectedPictures();
-                if (picturesToTag.size() == 0) {
-                    // TODO: no thumnails selected, either reset texfield or
-                    // simply disable them until picture/s selected
-                } else {
-                    for (Taggable t : Library.getTaggableComponentsList()) {
-                        if (tagField.getText().toLowerCase()
-                                .equals(t.getName().toLowerCase())) {
-                            for (Picture p : getSelectedPictures()) {
-                                if (!p.getTag().getTaggedComponents().contains(t)) {
-                                    // if this is an area tag only tag if picture has no area tag
-                                    if (!(t.getType() == Settings.AREA_TAG && p.getTag().isAreaSet())) {
-                                        p.getTag().addTag(t);
-                                        t.addTaggedPicture(p);
-                                        createTagLabels();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                tagField.setText("");
-            }
-        }
+		/**
+		 * method to action the tag field
+		 */
+		private class TagListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ArrayList<Picture> picturesToTag = picturePanel
+						.getSelectedPictures();
+				if (picturesToTag.size() == 0) {
+					// TODO: no thumnails selected, either reset texfield or
+					// simply disable them until picture/s selected
+				} else {
+					for (Taggable t : Library.getTaggableComponentsList()) {
+						if (tagField.getText().toLowerCase()
+								.equals(t.getName().toLowerCase())) {
+							for (Picture p : picturePanel.getSelectedPictures()) {
+								if (!p.getTag().getTaggedComponents()
+										.contains(t)) {
+									// if this is an area tag only tag if
+									// picture has no area tag
+									if (!(t.getType() == Settings.AREA_TAG && p
+											.getTag().isAreaSet())) {
+										p.getTag().addTag(t);
+										t.addTaggedPicture(p);
+										createTagLabels();
+									}
+								}
+							}
+						}
+					}
+				}
+				tagField.setText("");
+			}
+		}
 
 		/**
 		 * method to action the search
@@ -750,24 +781,28 @@ public class MainFrame extends JFrame {
 				if (searchField.getText().equals("View All")) {
 					picturePanel.removeAll();
 					picturePanel.repaint();
-					removeAllThumbsFromDisplay();
-					addThumbnailsToView(Library.getPictureLibrary());
+					picturePanel.removeAllThumbsFromDisplay();
+					picturePanel.addThumbnailsToView(
+							Library.getPictureLibrary(), zoomSlider.getValue());
 				} else {
-					ArrayList<Taggable> allTaggableComponents = Library.getTaggableComponentsList();
+					ArrayList<Taggable> allTaggableComponents = Library
+							.getTaggableComponentsList();
 
 					// gets text from GUI to a string
 					String searchString = searchField.getText().toLowerCase();
 
 					// loops to the end of tagged children
 					for (int i = 0; i < allTaggableComponents.size(); ++i) {
-						if (searchString.equalsIgnoreCase(allTaggableComponents.get(i)
-								.getName())) {
+						if (searchString.equalsIgnoreCase(allTaggableComponents
+								.get(i).getName())) {
 							picturePanel.removeAll();
 							picturePanel.repaint();
-							removeAllThumbsFromDisplay();
-							addThumbnailsToView(allTaggableComponents.get(i)
-                                    .getTaggedPictures());
-							createThumbnailArray();
+							picturePanel.removeAllThumbsFromDisplay();
+							picturePanel.addThumbnailsToView(
+									allTaggableComponents.get(i)
+											.getTaggedPictures(), zoomSlider
+											.getValue());
+							picturePanel.createThumbnailArray();
 							break;
 						}
 					}
@@ -777,14 +812,6 @@ public class MainFrame extends JFrame {
 		}
 
 		public class ThumbnailClickListener implements KeyListener {
-
-			private int currentRow = 0;
-			private int currentColumn = 0;
-
-			public void setCurrentPosition(int row, int col) {
-				currentRow = row;
-				currentColumn = col;
-			}
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -799,164 +826,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				if (Library.getPictureLibrary().size() > 0) {
-					switch (getSelectedThumbs().size()) {
-					case 0:
-						setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-						getMostRecentSelection().toggleSelection();
-						addSelectedThumb(getMostRecentSelection());
-						break;
-					case 1:
-						switch (e.getKeyCode()) {
-						case KeyEvent.VK_LEFT:
-							moveSingle(0, -1);
-							break;
-						case KeyEvent.VK_RIGHT:
-							moveSingle(0, 1);
-							break;
-						case KeyEvent.VK_UP:
-							moveSingle(-1, 0);
-							break;
-						case KeyEvent.VK_DOWN:
-							moveSingle(1, 0);
-							break;
-						}
-						break;
-					default:
-						switch (e.getKeyCode()) {
-						case KeyEvent.VK_LEFT:
-							moveMultiple(0, -1);
-							break;
-						case KeyEvent.VK_RIGHT:
-							moveMultiple(0, 1);
-							break;
-						case KeyEvent.VK_UP:
-							moveMultiple(-1, 0);
-							break;
-						case KeyEvent.VK_DOWN:
-							moveMultiple(1, 0);
-							break;
-
-						}
-						break;
-
-					}
-					createTagLabels();
-				}
+				picturePanel.keyAction(e, shiftIsPressed);
 			}
-
-			private void moveSingle(int row, int col) {
-				if (row == -1) {
-					if (currentRow > 0) {
-						moveSingleInner(-1, 0);
-					}
-				}
-				if (row == 1) {
-					if (currentRow < thumbsOnDisplay2DArray.length - 1) {
-						moveSingleInner(1, 0);
-					}
-				}
-				if (col == -1) {
-					if (currentColumn > 0) {
-						moveSingleInner(0, -1);
-					}
-				}
-				if (col == 1) {
-					if (currentColumn < thumbsOnDisplay2DArray[currentRow].length - 1) {
-						moveSingleInner(0, 1);
-					}
-				}
-			}
-
-			private void moveSingleInner(int row, int col) {
-				if (thumbsOnDisplay2DArray[currentRow + row][currentColumn
-						+ col] != null) {
-					if (!shiftIsPressed) {
-						getMostRecentSelection().toggleSelection();
-						removeSelectedThumb(getMostRecentSelection());
-					}
-					currentRow += row;
-					currentColumn += col;
-					setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-					getMostRecentSelection().toggleSelection();
-					addSelectedThumb(getMostRecentSelection());
-				}
-			}
-
-			private void moveMultiple(int row, int col) {
-				if (row == -1) {
-					if (currentRow > 0) {
-						moveMultipleInner(-1, 0);
-					} else {
-						if (!shiftIsPressed) {
-							removeAllSelectedThumbs();
-							getMostRecentSelection().toggleSelection();
-							addSelectedThumb(getMostRecentSelection());
-						}
-					}
-				}
-				if (row == 1) {
-					if (currentRow < thumbsOnDisplay2DArray.length - 1) {
-						moveSingleInner(1, 0);
-					} else {
-						if (!shiftIsPressed) {
-							removeAllSelectedThumbs();
-							getMostRecentSelection().toggleSelection();
-							addSelectedThumb(getMostRecentSelection());
-						}
-					}
-				}
-				if (col == -1) {
-					if (currentColumn > 0) {
-						moveMultipleInner(0, -1);
-					} else {
-						if (!shiftIsPressed) {
-							removeAllSelectedThumbs();
-							getMostRecentSelection().toggleSelection();
-							addSelectedThumb(getMostRecentSelection());
-						}
-					}
-				}
-				if (col == 1) {
-					if (currentColumn < thumbsOnDisplay2DArray[currentRow].length - 1) {
-						moveMultipleInner(0, 1);
-					} else {
-						if (!shiftIsPressed) {
-							removeAllSelectedThumbs();
-							getMostRecentSelection().toggleSelection();
-							addSelectedThumb(getMostRecentSelection());
-						}
-					}
-				}
-			}
-
-			private void moveMultipleInner(int row, int col) {
-
-				if (thumbsOnDisplay2DArray[currentRow + row][currentColumn
-						+ col] != null) {
-					currentRow += row;
-					currentColumn += col;
-					setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-					if (!shiftIsPressed) {
-						removeAllSelectedThumbs();
-						getMostRecentSelection().toggleSelection();
-						addSelectedThumb(getMostRecentSelection());
-					} else {
-						if (!getMostRecentSelection().isSelected()) {
-							getMostRecentSelection().toggleSelection();
-							addSelectedThumb(getMostRecentSelection());
-						}
-					}
-				} else {
-					if (!shiftIsPressed) {
-						removeAllSelectedThumbs();
-						getMostRecentSelection().toggleSelection();
-						addSelectedThumb(getMostRecentSelection());
-					}
-				}
-
-			}
-
 		}
 	}
 
@@ -987,21 +858,6 @@ public class MainFrame extends JFrame {
 		return frames;
 	}
 
-	public void refresh() {
-		if (getMostRecentSelection() != null) {
-			for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
-				for (int j = 0; j < thumbsOnDisplay2DArray[i].length; ++j) {
-					if (thumbsOnDisplay2DArray[i][j] != null
-							&& thumbsOnDisplay2DArray[i][j]
-									.equals(getMostRecentSelection())) {
-						tcl.setCurrentPosition(i, j);
-						break;
-					}
-				}
-			}
-		}
-	}
-
 	public boolean isShiftPressed() {
 		return shiftIsPressed;
 	}
@@ -1010,62 +866,9 @@ public class MainFrame extends JFrame {
 		return controlIsPressed;
 	}
 
-	public PictureLabel getMostRecentSelection() {
-		return mostRecentSelection;
-	}
-
-	public void setMostRecentSelection(PictureLabel selection) {
-		mostRecentSelection = selection;
-	}
-
-	public static synchronized ArrayList<PictureLabel> getThumbsOnDisplay() {
-		return thumbsOnDisplay;
-	}
-
-	public synchronized void addThumbToDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.add(thumb);
-	}
-
-	public void removeThumbFromDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.remove(thumb);
-	}
-
-	public void removeAllThumbsFromDisplay() {
-		thumbsOnDisplay = new ArrayList<PictureLabel>();
-	}
-
-	public ArrayList<PictureLabel> getSelectedThumbs() {
-		return selectedThumbs;
-	}
-
-	public ArrayList<Picture> getSelectedPictures() {
-		ArrayList<Picture> selectedPictures = new ArrayList<Picture>();
-		for (PictureLabel p : selectedThumbs) {
-			selectedPictures.add(p.getPicture());
-		}
-		return selectedPictures;
-	}
-
-	public void addSelectedThumb(PictureLabel selectedThumb) {
-		selectedThumbs.add(selectedThumb);
-	}
-
-	public void removeSelectedThumb(PictureLabel selectedThumb) {
-		selectedThumbs.remove(selectedThumb);
-	}
-
-	public void removeAllSelectedThumbs() {
-		for (PictureLabel p : selectedThumbs) {
-			p.toggleSelection();
-		}
-		selectedThumbs.clear();
-	}
-
 	public void createTagLabels() {
-            storedTagsPanel.resetTagLabels();
+		storedTagsPanel.resetTagLabels();
 	}
-
-
 
 	/**
 	 * Automatically saving pictures when the application is closed.
@@ -1126,7 +929,8 @@ public class MainFrame extends JFrame {
 				recreatedPicture.setTag(savedData.get(i).getTag());
 				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
 				savedPictures.add(recreatedPicture);
-				addThumbnailsToView(savedPictures);
+				picturePanel.addThumbnailsToView(savedPictures,
+						zoomSlider.getValue());
 				Library.getPictureLibrary().add(recreatedPicture);
 			}
 			restoredObject.close();
@@ -1136,13 +940,17 @@ public class MainFrame extends JFrame {
 	}
 
 	// returns CenterPanel
-	public static JPanel getCenterPanel() {
+	public JPanel getCenterPanel() {
 		return centerPanel;
 	}
 
 	// returns innerCenterPanel
-	public static JPanel getInnerCenterPanel() {
+	public JPanel getInnerCenterPanel() {
 		return innerCenterPanel;
+	}
+
+	public PicturesFrame getPicturesPanel() {
+		return picturePanel;
 	}
 
 	/* returns true if a pictureLabel is in view in the scroll pane */
@@ -1156,96 +964,32 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	//{
-		/**
-		 * If a new thumbnail is selected and only part of the thumbnail is
-		 * visible in the scrollpane, the scrollbar goes up or down depending on
-		 * direction.
-		 *
-		 */
-		/*
-		 * public static void scrollVertical(String direction) { Rectangle
-		 * currentView = picturePanel.getVisibleRect(); JScrollBar jsb =
-		 * picturePanelPane.getVerticalScrollBar(); if
-		 * (ThumbnailClickListener.getMostRecentSelection() != null) { if
-		 * (tcl.getMostRecentSelection().getVisibleRect().isEmpty()) { if
-		 * (direction == "UP") { jsb.setValue(jsb.getValue() - 1); } else if
-		 * (direction == "DOWN") { jsb.setValue(jsb.getValue() + 1); } } else {
-		 * if (direction == "UP") { jsb.setValue(jsb.getValue() - 150); } else
-		 * if (direction == "DOWN") { jsb.setValue(jsb.getValue() + 150); } } }
-		 * }
-		 */
-	//}
+	// {
+	/**
+	 * If a new thumbnail is selected and only part of the thumbnail is visible
+	 * in the scrollpane, the scrollbar goes up or down depending on direction.
+	 *
+	 */
+	/*
+	 * public static void scrollVertical(String direction) { Rectangle
+	 * currentView = picturePanel.getVisibleRect(); JScrollBar jsb =
+	 * picturePanelPane.getVerticalScrollBar(); if
+	 * (ThumbnailClickListener.picturePanel.getMostRecentSelection() != null) {
+	 * if (tcl.picturePanel.getMostRecentSelection().getVisibleRect().isEmpty())
+	 * { if (direction == "UP") { jsb.setValue(jsb.getValue() - 1); } else if
+	 * (direction == "DOWN") { jsb.setValue(jsb.getValue() + 1); } } else { if
+	 * (direction == "UP") { jsb.setValue(jsb.getValue() - 150); } else if
+	 * (direction == "DOWN") { jsb.setValue(jsb.getValue() + 150); } } } }
+	 */
+	// }
 
 	/**
 	 * Divides the current size of the picture panel by current thumbnail size
 	 * to determine required number of columns in GridLayout.
 	 */
-	private void adjustColumnCount() {
 
-		/*
-		 * if(picturePanelBiggerThanFrame) {
-		 * 
-		 * //picturePanelBiggerThanFrame = false; } else { currentPanelSize =
-		 * (int) Math.round(picturePanel.getSize().getWidth()); }
-		 */
-
-		int newColumnCount;
-		int currentPanelSize = ((int) Math.round(MainFrame.this.getSize()
-				.getWidth())) - 460;
-
-		newColumnCount = currentPanelSize
-				/ Settings.THUMBNAIL_SIZES[zoomSlider.getValue()];
-
-		if (picturePanelLayout.getColumns() != newColumnCount
-				&& newColumnCount != 0) {
-			picturePanelLayout.setColumns(newColumnCount);
-
-			picturePanelLayout.setHgap(2);
-			picturePanelLayout.setVgap(2);
-
-			picturePanel.revalidate();
-			picturePanel.repaint();
-			createThumbnailArray();
-		}
-	}
-
-	/**
-	 * Creates a 2D array of currently shown thumbnails. used in the key
-	 * listener for selection using keyboard
-	 */
-	private void createThumbnailArray() {
-		int columnCount = picturePanelLayout.getColumns();
-		int rowCount = getThumbsOnDisplay().size() / columnCount;
-		if (getThumbsOnDisplay().size() % columnCount != 0) {
-			++rowCount;
-		}
-		System.out.println(rowCount);
-		int thumbnailCounter = 0;
-
-		thumbsOnDisplay2DArray = new PictureLabel[rowCount][columnCount];
-		for (int i = 0; i < rowCount; ++i) {
-			for (int j = 0; j < columnCount; ++j) {
-				if (thumbnailCounter != getThumbsOnDisplay().size()) {
-					thumbsOnDisplay2DArray[i][j] = getThumbsOnDisplay().get(
-							thumbnailCounter++);
-				}
-			}
-		}
-		refresh();
-	}
-
-	public void addThumbnailsToView(ArrayList<Picture> picturesToDisplay) {
-
-		for (int i = 0; i < picturesToDisplay.size(); ++i) {
-			PictureLabel currentThumb = new PictureLabel(
-					picturesToDisplay.get(i), this);
-			addThumbToDisplay(currentThumb);
-			picturePanel.add(currentThumb);
-			currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-					.getValue()]);
-		}
-		createThumbnailArray();
+	public int getZoomValue() {
+		return zoomSlider.getValue();
 	}
 
 	public static void main(String[] args) {
@@ -1258,8 +1002,8 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		//IMPORT PARENT DIR
-		//Library.importFolder(Settings.PICTURE_HOME_DIR);
+		// IMPORT PARENT DIR
+		// Library.importFolder(Settings.PICTURE_HOME_DIR);
 	}
 
 }
