@@ -241,7 +241,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		try {
 			resizedPicture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
 		} catch (IOException e1) {
-            //TOTO: Handle exception
+            //TODO: Handle exception
 			e1.printStackTrace();
 		}
 		filePath = Library.getPictureLibrary().get(a).getImagePath();
