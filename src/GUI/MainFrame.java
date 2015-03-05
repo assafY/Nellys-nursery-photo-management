@@ -3,22 +3,22 @@ package GUI;
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
-import ch.rakudave.suggest.JSuggestField;
+import Data.Area;
 import Data.Child;
 import Data.Picture;
-import Data.Area;
+import ch.rakudave.suggest.JSuggestField;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.apache.commons.io.FilenameUtils;
+
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -125,7 +125,7 @@ public class MainFrame extends JFrame {
 		// addSavedData();
         startUpChecks();
         loadTaggableComponents();
-        loadPictures(Settings.PICTURE_HOME_DIR);
+        Library.importFolder(Settings.PICTURE_HOME_DIR);
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -293,7 +293,7 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void loadPictures(File currentDir) {
+    /*private void loadPictures(File currentDir) {
         if (currentDir != null) {
             ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
             for (File currentFile : currentDir.listFiles()) {
@@ -313,7 +313,7 @@ public class MainFrame extends JFrame {
             }
             Library.importPicture(picturesToImport);
         }
-    }
+    }*/
 
 	private void createMenuBar() {
 
@@ -705,7 +705,7 @@ public class MainFrame extends JFrame {
 					requestFocus();
 				}
 				// import pictures into library
-				//Library.importPicture(importDialog.getFiles());
+				Library.importPicture(importDialog.getFiles());
 			}
 		}
 
@@ -1018,7 +1018,7 @@ public class MainFrame extends JFrame {
 		mostRecentSelection = selection;
 	}
 
-	public synchronized ArrayList<PictureLabel> getThumbsOnDisplay() {
+	public static synchronized ArrayList<PictureLabel> getThumbsOnDisplay() {
 		return thumbsOnDisplay;
 	}
 

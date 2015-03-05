@@ -1,30 +1,19 @@
 package GUI;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
+import Core.Library;
+import org.imgscalr.Scalr;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
-
-import org.imgscalr.Scalr;
-
-import Core.Library;
 /**
  * Creates a FullScreenPictures Inner Frame.
  */
@@ -45,7 +34,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	public FullScreenPicturesFrame(String filePath) {
 		super("", false, true, false, false);
 		this.filePath = filePath;
-		a = Library.getPictureLibrary().indexOf(resizedPicture);
+		a = MainFrame.getThumbsOnDisplay().indexOf(resizedPicture);
 		getPicture();
 		createLabel();
 		createButtons();
@@ -125,18 +114,30 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void onClose() {
 		this.addInternalFrameListener(new InternalFrameListener() {
-			public void internalFrameOpened(InternalFrameEvent arg0) {}
-			public void internalFrameIconified(InternalFrameEvent arg0) {}
-			public void internalFrameDeiconified(InternalFrameEvent arg0) {}
-			public void internalFrameDeactivated(InternalFrameEvent arg0) {}
-			public void internalFrameClosing(InternalFrameEvent arg0) {}
+			public void internalFrameOpened(InternalFrameEvent arg0) {
+			}
+
+			public void internalFrameIconified(InternalFrameEvent arg0) {
+			}
+
+			public void internalFrameDeiconified(InternalFrameEvent arg0) {
+			}
+
+			public void internalFrameDeactivated(InternalFrameEvent arg0) {
+			}
+
+			public void internalFrameClosing(InternalFrameEvent arg0) {
+			}
+
 			public void internalFrameClosed(InternalFrameEvent arg0) {
 				resizedPicture = null;
 				actualPicture = null;
 				MainFrame.getCenterPanel().add(MainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				System.out.println("closed");
 			}
-			public void internalFrameActivated(InternalFrameEvent arg0) {}
+
+			public void internalFrameActivated(InternalFrameEvent arg0) {
+			}
 		});
 	}
 	
@@ -209,8 +210,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Moves to next picture.
 	 */
 	private void moveToNextPicture() {
-		if (!Library.getPictureLibrary().isEmpty()) {
-			if (a >= Library.getPictureLibrary().size() - 1) {
+		if (!MainFrame.getThumbsOnDisplay().isEmpty()) {
+			if (a >= MainFrame.getThumbsOnDisplay().size() - 1) {
 				a = 0;
 				getPreviousAndNextPicture();
 			} else {
@@ -224,9 +225,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Moves to previous picture.
 	 */
 	private void moveToPreviousPicture() {
-		if (!Library.getPictureLibrary().isEmpty()) {
+		if (!MainFrame.getThumbsOnDisplay().isEmpty()) {
 			if (a <= 0) {
-				a = Library.getPictureLibrary().size() - 1;
+				a = MainFrame.getThumbsOnDisplay().size() - 1;
 				getPreviousAndNextPicture();
 			} else {
 				a--;
@@ -244,7 +245,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
             //TODO: Handle exception
 			e1.printStackTrace();
 		}
-		filePath = Library.getPictureLibrary().get(a).getImagePath();
+		filePath = MainFrame.getThumbsOnDisplay().get(a).getPicture().getImagePath();
 		try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {
