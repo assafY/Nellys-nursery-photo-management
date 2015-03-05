@@ -4,20 +4,21 @@ import Core.Library;
 import Core.Settings;
 import Core.Taggable;
 import ch.rakudave.suggest.JSuggestField;
-import Data.Area;
 import Data.Child;
 import Data.Picture;
+import Data.Area;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
+import org.apache.commons.io.FilenameUtils;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -28,8 +29,6 @@ import static java.awt.Color.WHITE;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
-	//FOR TEST
-	private static File selectedDirectory;
 	// menu bar component declaration
 	private MenuBar menuBar = new MenuBar();
 	Menu fileMenu;
@@ -121,8 +120,12 @@ public class MainFrame extends JFrame {
 		createMenuBar();
 		createPanels();
 		addListeners();
+
 		// saveData();
 		// addSavedData();
+        startUpChecks();
+        loadTaggableComponents();
+        loadPictures(Settings.PICTURE_HOME_DIR);
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -134,6 +137,183 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		frames.add(this);
 	}
+
+    // for csv file, location and picture library, if any has not
+    // been initialised, prompt the user on startup
+    private void startUpChecks() {
+        // if the site of the machine was not set, prompt user to set it.
+        if (Settings.NURSERY_LOCATION == null) {
+
+            String selectedSite = null;
+            while (selectedSite == null) {
+                selectedSite = (String) JOptionPane.showInputDialog(
+                        this,
+                        "In which nursery site is this computer?",
+                        "Select Site",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        Library.getNurserySites(),
+                        "Rosendale");
+
+                if ((selectedSite != null) && (selectedSite.length() > 0)) {
+                    Settings.NURSERY_LOCATION = selectedSite;
+                    break;
+                }
+            }
+        }
+
+        if (Settings.CSV_PATH == null) {
+            final JFileChooser csvFileChooser = new JFileChooser();
+            csvFileChooser.setDialogTitle("Select children list CSV file");
+            csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter("CSV File", "csv"));
+            csvFileChooser.setAcceptAllFileFilterUsed(false);
+            int wasFileSelected = csvFileChooser.showOpenDialog(this);
+
+            if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
+                Settings.CSV_PATH = csvFileChooser.getSelectedFile().getPath();
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "Without importing a CSV file, it is not possible to tag pictures.\n"
+                                                        + "You can import a CSV from the file menu.");
+            }
+        }
+
+        if (Settings.PICTURE_HOME_DIR == null) {
+
+            new JFXPanel();
+            final CountDownLatch latch = new CountDownLatch(1);
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    DirectoryChooser directoryChooser = new DirectoryChooser();
+                    directoryChooser.setTitle("Select root directory of all pictures");
+                    Settings.PICTURE_HOME_DIR = directoryChooser.showDialog(new Stage());
+                    latch.countDown();
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            /*
+            final JFileChooser pictureFolderFileChooser = new JFileChooser();
+            pictureFolderFileChooser.setDialogTitle("Select root directory of all pictures");
+            pictureFolderFileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            pictureFolderFileChooser.setAcceptAllFileFilterUsed(false);
+            int wasFileSelected = pictureFolderFileChooser.showOpenDialog(this);
+
+            if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
+                Settings.PICTURE_HOME_DIR = pictureFolderFileChooser.getSelectedFile();
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "You have not set a root picture directory.\n");
+            }*/
+        }
+    }
+
+    private void loadTaggableComponents() {
+
+        BufferedReader br = null;
+        String currentLine = "";
+
+        if (Settings.CSV_PATH != null) {
+
+            if (Library.getAreaList().size() == 0) {
+                for (int i = 0; i < Settings.AREA_NAMES.length; ++i) {
+                    new Area(Settings.AREA_NAMES[i]);
+                }
+            }
+
+            try {
+
+                br = new BufferedReader(new FileReader(Settings.CSV_PATH));
+                boolean firstLine = true;
+                int firstNameColumn = -1, lastNameColumn = -1, roomNameColumn = -1;
+                while ((currentLine = br.readLine()) != null) {
+
+                    // use comma as separator
+                    String[] columns = currentLine.split(",");
+
+                    if (firstLine) {
+                        firstLine = false;
+                        for (int i = 0; i < columns.length; ++i) {
+                            if (columns[i].equals("FirstName")) {
+                                firstNameColumn = i;
+                            } else if (columns[i].equals("Last Name")) {
+                                lastNameColumn = i;
+                            } else if (columns[i].equals("RoomName")) {
+                                roomNameColumn = i;
+                            }
+                        }
+                    } else {
+
+                        String wordsInColumn[] = columns[roomNameColumn].split(" ", 2);
+                        String siteName = wordsInColumn[0];
+
+                        String childName = columns[firstNameColumn] + " " + columns[lastNameColumn];
+
+                        if (siteName.equals(Settings.NURSERY_LOCATION)) {
+
+                            boolean childExists = false;
+                            for (Taggable t : Library.getTaggableComponentsList()) {
+                                System.out.println(t.getName());
+                                if (t.getName().equals(childName)) {
+                                    childExists = true;
+                                    break;
+                                }
+                            }
+                            if (!childExists) {
+                                System.out.println(childName);
+                                for (Taggable area : Library.getAreaList()) {
+                                    if (area.getName().startsWith(wordsInColumn[1])) {
+                                        new Child(childName, area);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (br != null) {
+                    try {
+                        br.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private void loadPictures(File currentDir) {
+        if (currentDir != null) {
+            ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
+            for (File currentFile : currentDir.listFiles()) {
+                if (currentFile.isDirectory()) {
+                    loadPictures(currentFile);
+                }
+                else {
+                    if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
+                            FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
+                        currentDirectoryFiles.add(currentFile);
+                    }
+                }
+            }
+            File picturesToImport[] = new File[currentDirectoryFiles.size()];
+            for (int i = 0; i < picturesToImport.length; ++i) {
+                picturesToImport[i] = currentDirectoryFiles.get(i);
+            }
+            Library.importPicture(picturesToImport);
+        }
+    }
 
 	private void createMenuBar() {
 
@@ -186,7 +366,7 @@ public class MainFrame extends JFrame {
 			northPanel = new JPanel(new GridLayout(1, 2));
 			searchPanel = new JPanel();
 			searchField = new JSuggestField(MainFrame.this,
-					Library.getTaggableComponentNamesVector());
+					Library.getTaggableComponentNamesVector(true));
 			searchField.setPreferredSize(new Dimension(210, 30));
 			taggedCheckBox = new JCheckBox("Tagged");
 			unTaggedCheckBox = new JCheckBox("Untagged");
@@ -303,21 +483,8 @@ public class MainFrame extends JFrame {
              *  are added to the list
              */
 
-            new Child("Assaf Yossifoff");
-            new Child("Dimitar Markovski");
-            new Child("Johnny Zephir");
-            new Child("John Waghorn");
-            new Child("Valentina Popova");
-            new Child("Ivaylo Kirilov");
-            new Child("Andrei Juganaru");
-            new Child("Polly Apostolova");
-
-            new Area("Study Hub");
-            new Area("New Lab");
-            new Area("K0.17");
-
 			tagField = new JSuggestField(this,
-					Library.getTaggableComponentNamesVector());
+					Library.getTaggableComponentNamesVector(false));
             tagField.setSize(210, 30);
 
 			storedTagsPanel = new TagPanel(this);
@@ -471,14 +638,6 @@ public class MainFrame extends JFrame {
             }
         });
 
-        searchField.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                super.focusGained(e);
-                searchField.setSuggestData(Library.getTaggableComponentNamesVector());
-            }
-        });
-
 		resetButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -546,7 +705,7 @@ public class MainFrame extends JFrame {
 					requestFocus();
 				}
 				// import pictures into library
-				Library.importPicture(importDialog.getFiles());
+				//Library.importPicture(importDialog.getFiles());
 			}
 		}
 
@@ -1090,21 +1249,6 @@ public class MainFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		new JFXPanel();
-		final CountDownLatch latch = new CountDownLatch(1);
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				DirectoryChooser directoryChooser = new DirectoryChooser();
-				selectedDirectory = directoryChooser.showDialog(new Stage());
-				latch.countDown();
-			}
-		});
-		try {
-			latch.await();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 
 		try {
 			UIManager
@@ -1115,7 +1259,7 @@ public class MainFrame extends JFrame {
 			e.printStackTrace();
 		}
 		//IMPORT PARENT DIR
-		Library.importFolder(selectedDirectory);
+		//Library.importFolder(Settings.PICTURE_HOME_DIR);
 	}
 
 }

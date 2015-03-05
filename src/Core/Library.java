@@ -14,19 +14,30 @@ public class Library implements Serializable {
 
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
-    //private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
+    private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
+    private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
 
     public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
         return taggableComponents;
     }
 
-    public static Vector<String> getTaggableComponentNamesVector() {
+    public static Vector<String> getTaggableComponentNamesVector(boolean forSearchField) {
         Vector<String> taggableComponentNames = new Vector<String>();
-        taggableComponentNames.add("View All");
+        if (forSearchField) {
+            taggableComponentNames.add("View All");
+        }
         for (Taggable t : taggableComponents) {
             taggableComponentNames.add(t.getName());
         }
         return taggableComponentNames;
+    }
+
+    public static ArrayList<Taggable> getAreaList() {
+        return areaList;
+    }
+
+    public static Object[] getNurserySites() {
+        return nurserySites;
     }
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
@@ -66,7 +77,7 @@ public class Library implements Serializable {
         }
     }
 
-	public static void importFolder(final File importDirectory) {
+	/*public static void importFolder(final File importDirectory) {
 		// TODO for every picture in folder do importPicture()
         Thread fileHandler = new Thread() {
             public void run() {
@@ -96,7 +107,7 @@ public class Library implements Serializable {
             }
         };
         fileHandler.start();
-	}
+	}*/
 
 	public static void rotate(ArrayList<Picture> picturesToRotate,
 			boolean direction) {
@@ -115,20 +126,15 @@ public class Library implements Serializable {
 		// TODO
 	}
 
-	public static void addChild(Child child) {
-		taggableComponents.add(child);
+	public static void addTaggableComponent(Taggable t) {
+		taggableComponents.add(t);
+        if (t.getType() == Settings.AREA_TAG) {
+            areaList.add(t);
+        }
 	}
 
-	public static void removeChild(Child child) {
-		taggableComponents.remove(child);
-	}
-
-	public static void addArea(Area area) {
-		taggableComponents.add(area);
-	}
-
-	public static void removeArea(Area area) {
-		taggableComponents.remove(area);
+	public static void removeTaggableComponent(Taggable t) {
+		taggableComponents.remove(t);
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
