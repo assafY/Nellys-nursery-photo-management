@@ -705,7 +705,7 @@ public class MainFrame extends JFrame {
 					requestFocus();
 				}
 				// import pictures into library
-				Library.importPicture(importDialog.getFiles());
+				//Library.importPicture(importDialog.getFiles());
 			}
 		}
 

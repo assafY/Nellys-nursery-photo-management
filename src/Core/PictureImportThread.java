@@ -28,7 +28,7 @@ public class PictureImportThread extends Thread {
                 }
                 System.out.println(exists);
                 // if it doesn't exist in library
-                if (!exists) {
+                if (!exists ) {
                     // add picture to library
                     Picture currentPicture = new Picture(
                             importedPictures[i]);

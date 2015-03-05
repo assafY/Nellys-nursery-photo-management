@@ -1,6 +1,7 @@
 package Core;
 
 import Data.Picture;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.Serializable;
@@ -83,12 +84,13 @@ public class Library implements Serializable {
                 ArrayList<File> nestedFolders = new ArrayList<File>();
                 File[] nestedItems = importDirectory.listFiles();
 
-                for(int j = 0; j < nestedItems.length; ++j){
-                    if(nestedItems[j].isFile()){
-                        nestedPictures.add(nestedItems[j]);
+                for(File file:nestedItems){
+                    if(file.isFile() && (FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpg") ||
+                            FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpeg"))){
+                        nestedPictures.add(file);
                     }
-                    else{
-                        nestedFolders.add(nestedItems[j]);
+                    else if(file.isDirectory()){
+                        nestedFolders.add(file);
                     }
                 }
 
