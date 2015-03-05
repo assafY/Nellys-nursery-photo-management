@@ -8,7 +8,7 @@ public class Area extends Taggable{
 
     public Area(String name) {
         super(name);
-        Library.addArea(this);
+        Library.addTaggableComponent(this);
 
     }
 

@@ -12,7 +12,7 @@ public class Child extends Taggable implements Serializable {
 
     public Child(String name) {
         super(name);
-        Library.addChild(this);
+        Library.addTaggableComponent(this);
     }
 
     @Override
