@@ -44,7 +44,7 @@ public class PictureImportThread extends Thread {
                 public void run() {
                     System.out.println("Import Complete.");
                     for (MainFrame mainFrame : MainFrame.getMainFrames()) {
-                        mainFrame.addThumbnailsToView(picturesToDisplay);
+                    mainFrame.getPicturesPanel().addThumbnailsToView(picturesToDisplay, mainFrame.getZoomValue());
                     }
                     for (int i = 0; i < picturesToDisplay.size(); ++i) {
                         Library.addPictureToLibrary(picturesToDisplay.get(i));
