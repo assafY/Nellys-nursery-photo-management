@@ -3,7 +3,12 @@ package GUI;
 import Core.Library;
 import org.imgscalr.Scalr;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
@@ -14,6 +19,8 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+
 /**
  * Creates a FullScreenPictures Inner Frame.
  */
@@ -34,8 +41,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	public FullScreenPicturesFrame(String filePath) {
 		super("", false, true, false, false);
 		this.filePath = filePath;
-		a = MainFrame.getThumbsOnDisplay().indexOf(resizedPicture);
+		//a = MainFrame.getThumbsOnDisplay().indexOf(resizedPicture);
+
 		getPicture();
+        getThePictureIndex();
 		createLabel();
 		createButtons();
 		createButtonsPanel();
@@ -65,6 +74,14 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			}
 		}
 	}
+
+    private void getThePictureIndex() {
+        for(int i = 0; i < MainFrame.getThumbsOnDisplay().size(); i++) {
+            if((MainFrame.getThumbsOnDisplay().get(i).getPicture().getImagePath()).equals(filePath)){
+                a = i;
+            }
+        }
+    }
 	
 	/**
 	 * Creates the Label on which the picture is displayed.
@@ -149,8 +166,12 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_270, null);
-				rotateActualPictureFile();
-				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
+                try {
+                    rotateActualPictureFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -159,8 +180,12 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_90, null);
-				rotateActualPictureFile();
-				resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
+                try {
+                    rotateActualPictureFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -271,13 +296,22 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	/*
 	 * Rotates the actual picture file.
 	 */
-	private void rotateActualPictureFile() {
-		try {
-			ImageIO.write(actualPicture, "jpg", new File(filePath));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void rotateActualPictureFile() throws IOException {
+        ImageInputStream input = ImageIO.createImageInputStream(new File(filePath));
+        Iterator writersBySuffix = ImageIO.getImageWritersBySuffix("jpeg");
+        if(!writersBySuffix.hasNext()){
+            throw new IllegalStateException("No writers");
+        }
+
+        ImageWriter writer = (ImageWriter) writersBySuffix.next();
+        ImageWriteParam imageWriteParam = writer.getDefaultWriteParam();
+        imageWriteParam.setCompressionMode(ImageWriteParam.MODE_COPY_FROM_METADATA);
+        //  imageWriteParam.setCompressionQuality(1);
+        ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(filePath));
+        writer.setOutput(imageOutputStream);
+        writer.write(null, new IIOImage(actualPicture, null, null), imageWriteParam);
+        imageOutputStream.close();
+        writer.dispose();
 	}
 	
 	/*
