@@ -255,7 +255,7 @@ public class MainFrame extends JFrame {
                 if (currentFile.isDirectory()) {
                     loadPictures(currentFile);
                 }
-                else {
+                else {  
                     if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
                             FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
                         currentDirectoryFiles.add(currentFile);
