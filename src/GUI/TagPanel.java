@@ -99,7 +99,7 @@ public class TagPanel extends JPanel {
         // array list to keep all children tagged in a selected
         // thumbnail or thumbnails
         ArrayList<Taggable> taggedComponents = new ArrayList<Taggable>();
-        ArrayList<Picture> selectedPictures = mainFrame.getSelectedPictures();
+        ArrayList<Picture> selectedPictures = mainFrame.getPicturesPanel().getSelectedPictures();
 
         tagCounter = 1;
         boolean areaInAllPictures = true;
@@ -290,7 +290,7 @@ public class TagPanel extends JPanel {
                     super.mouseClicked(e);
                     tagPanel.remove(TagTextLabel.this);
                     tagPanel.revalidate();
-                    for (Picture p: mainFrame.getSelectedPictures()) {
+                    for (Picture p: mainFrame.getPicturesPanel().getSelectedPictures()) {
                         if (p.getTag().getTaggedComponents().contains(taggableItem)) {
                             p.getTag().removeTag(taggableItem);
                             taggableItem.removeTaggedPicture(p);

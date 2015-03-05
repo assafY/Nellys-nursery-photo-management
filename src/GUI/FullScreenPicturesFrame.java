@@ -30,11 +30,13 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	private JPanel buttonsPanel;
 	private JPanel mainPanel;
 	private int a;
+	private MainFrame mainFrame;
 
-	public FullScreenPicturesFrame(String filePath) {
+	public FullScreenPicturesFrame(String filePath, MainFrame mainFrame) {
 		super("", false, true, false, false);
+		this.mainFrame = mainFrame;
 		this.filePath = filePath;
-		a = MainFrame.getThumbsOnDisplay().indexOf(resizedPicture);
+		a = mainFrame.getPicturesPanel().getThumbsOnDisplay().indexOf(resizedPicture);
 		getPicture();
 		createLabel();
 		createButtons();
@@ -132,7 +134,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void internalFrameClosed(InternalFrameEvent arg0) {
 				resizedPicture = null;
 				actualPicture = null;
-				MainFrame.getCenterPanel().add(MainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
+				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				System.out.println("closed");
 			}
 
@@ -210,8 +212,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Moves to next picture.
 	 */
 	private void moveToNextPicture() {
-		if (!MainFrame.getThumbsOnDisplay().isEmpty()) {
-			if (a >= MainFrame.getThumbsOnDisplay().size() - 1) {
+		if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().isEmpty()) {
+			if (a >= mainFrame.getPicturesPanel().getThumbsOnDisplay().size() - 1) {
 				a = 0;
 				getPreviousAndNextPicture();
 			} else {
@@ -225,9 +227,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Moves to previous picture.
 	 */
 	private void moveToPreviousPicture() {
-		if (!MainFrame.getThumbsOnDisplay().isEmpty()) {
+		if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().isEmpty()) {
 			if (a <= 0) {
-				a = MainFrame.getThumbsOnDisplay().size() - 1;
+				a = mainFrame.getPicturesPanel().getThumbsOnDisplay().size() - 1;
 				getPreviousAndNextPicture();
 			} else {
 				a--;
@@ -245,7 +247,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
             //TODO: Handle exception
 			e1.printStackTrace();
 		}
-		filePath = MainFrame.getThumbsOnDisplay().get(a).getPicture().getImagePath();
+		filePath = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getPicture().getImagePath();
 		try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {

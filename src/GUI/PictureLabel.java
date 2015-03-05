@@ -29,12 +29,12 @@ public class PictureLabel extends JLabel {
     private Image image;
     private boolean horizontal = true;
     private FullScreenPicturesFrame frame;
-    private MainFrame mainFrame;
+    private PicturesFrame picturePanel;
 
-    public PictureLabel(Picture picture, MainFrame mainFrame) {
+    public PictureLabel(Picture picture, PicturesFrame mainFrame) {
         this.picture = picture;
         isSelected = false;
-        this.mainFrame = mainFrame;
+        this.picturePanel = mainFrame;
         this.addMouseListener(new ThumbnailMouseListener());
     }
 
@@ -139,33 +139,33 @@ public class PictureLabel extends JLabel {
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
 
-                if (!mainFrame.isShiftPressed()) {
-                    mainFrame.removeAllSelectedThumbs();
+                if (!picturePanel.isShiftPressed()) {
+                    picturePanel.removeAllSelectedThumbs();
                 }
 
                 if (isSelected) {
-                    mainFrame.removeSelectedThumb(PictureLabel.this);
-                    mainFrame.setMostRecentSelection(null);
-                    mainFrame.refresh();
-                    mainFrame.createTagLabels();
-                    if (!mainFrame.isShiftPressed()) {
+                    picturePanel.removeSelectedThumb(PictureLabel.this);
+                    picturePanel.setMostRecentSelection(null);
+                    picturePanel.refresh();
+                    picturePanel.createTagLabels();
+                    if (!picturePanel.isShiftPressed()) {
                         toggleSelection();
                     }
                 }
                 else {
-                    mainFrame.addSelectedThumb(PictureLabel.this);
-                    mainFrame.setMostRecentSelection(PictureLabel.this);
-                    mainFrame.refresh();
-                    mainFrame.createTagLabels();
+                    picturePanel.addSelectedThumb(PictureLabel.this);
+                    picturePanel.setMostRecentSelection(PictureLabel.this);
+                    picturePanel.refresh();
+                    picturePanel.createTagLabels();
                 }
                 toggleSelection();
             }
             else if (clickCount == 2) {
-            	frame = new FullScreenPicturesFrame(picture.getImagePath());
-				MainFrame.getCenterPanel().removeAll();
-				MainFrame.getCenterPanel().add(frame,BorderLayout.CENTER);
-				MainFrame.getCenterPanel().revalidate();
-				MainFrame.getCenterPanel().repaint();
+            	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());
+				picturePanel.getCenterPanel().removeAll();
+				picturePanel.getCenterPanel().add(frame,BorderLayout.CENTER);
+				picturePanel.getCenterPanel().revalidate();
+				picturePanel.getCenterPanel().repaint();
             }
         }
 
