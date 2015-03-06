@@ -43,7 +43,30 @@ public class Library implements Serializable {
         return pictureLibrary;
     }
 
+    /*public static void loadPictures(File currentDir) {
+        if (currentDir != null) {
+            ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
+            for (File currentFile : currentDir.listFiles()) {
+                if (currentFile.isDirectory()) {
+                loadPictures(currentFile);
+                }
+                else {
+                    if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
+                            FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
+                        currentDirectoryFiles.add(currentFile);
+                    }
+                }
+            }
+            File picturesToImport[] = new File[currentDirectoryFiles.size()];
+            for (int i = 0; i < picturesToImport.length; ++i) {
+                picturesToImport[i] = currentDirectoryFiles.get(i);
+            }
+            Library.importPicture(picturesToImport);
+        }
+    }*/
+
     public static void importPicture(final File[] importedPictures) {
+
         //specify no. of threads not including thread for leftover pictures
         int noOfThreads = 10;
         //size of array
@@ -78,35 +101,31 @@ public class Library implements Serializable {
 
 	public static void importFolder(final File importDirectory) {
 		// TODO for every picture in folder do importPicture()
-        Thread fileHandler = new Thread() {
-            public void run() {
-                ArrayList<File> nestedPictures = new ArrayList<File>();
-                ArrayList<File> nestedFolders = new ArrayList<File>();
-                File[] nestedItems = importDirectory.listFiles();
+        ArrayList<File> nestedPictures = new ArrayList<File>();
+        ArrayList<File> nestedFolders = new ArrayList<File>();
+        File[] nestedItems = importDirectory.listFiles();
 
-                for(File file:nestedItems){
-                    if(file.isFile() && (FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpg") ||
-                            FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpeg"))){
-                        nestedPictures.add(file);
-                    }
-                    else if(file.isDirectory()){
-                        nestedFolders.add(file);
-                    }
-                }
-
-                File[] toProcess = new File[0];
-                System.out.println(nestedPictures.size() + " lqlq");
-                if(nestedPictures.size() > 0){
-                    importPicture(nestedPictures.toArray(toProcess));
-                }
-                if(nestedFolders.size() > 0){
-                    for(File toImport:nestedFolders){
-                        importFolder(toImport);
-                    }
-                }
+        for(File file:nestedItems) {
+            if(file.isFile() && (FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpg") ||
+                    FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpeg"))){
+                nestedPictures.add(file);
             }
-        };
-        fileHandler.start();
+            else if(file.isDirectory()){
+                nestedFolders.add(file);
+            }
+        }
+
+        File[] toProcess = new File[0];
+        System.out.println(nestedPictures.size() + " lqlq");
+        if(nestedPictures.size() > 0){
+            importPicture(nestedPictures.toArray(toProcess));
+        }
+        if(nestedFolders.size() > 0){
+            for(File toImport:nestedFolders){
+                importFolder(toImport);
+            }
+        }
+
 	}
 
 	public static void rotate(ArrayList<Picture> picturesToRotate,

@@ -153,15 +153,15 @@ public class MainFrame extends JFrame {
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
 
+        // addSavedData();
+        startUpChecks();
+        loadTaggableComponents();
 		createMenuBar();
 		createPanels();
 		addListeners();
-
-		// saveData();
-		// addSavedData();
-		startUpChecks();
-		loadTaggableComponents();
-		Library.importFolder(Settings.PICTURE_HOME_DIR);
+        if (Settings.PICTURE_HOME_DIR != null) {
+            Library.importFolder(Settings.PICTURE_HOME_DIR);
+        }
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -231,21 +231,6 @@ public class MainFrame extends JFrame {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			/*
-			 * final JFileChooser pictureFolderFileChooser = new JFileChooser();
-			 * pictureFolderFileChooser
-			 * .setDialogTitle("Select root directory of all pictures");
-			 * pictureFolderFileChooser
-			 * .setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			 * pictureFolderFileChooser.setAcceptAllFileFilterUsed(false); int
-			 * wasFileSelected = pictureFolderFileChooser.showOpenDialog(this);
-			 * 
-			 * if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
-			 * Settings.PICTURE_HOME_DIR =
-			 * pictureFolderFileChooser.getSelectedFile(); } else {
-			 * JOptionPane.showMessageDialog(this,
-			 * "You have not set a root picture directory.\n"); }
-			 */
 		}
 	}
 
@@ -304,7 +289,7 @@ public class MainFrame extends JFrame {
 								}
 							}
 							if (!childExists) {
-								System.out.println(childName);
+
 								for (Taggable area : Library.getAreaList()) {
 									if (area.getName().startsWith(
 											wordsInColumn[1])) {
@@ -333,21 +318,9 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	/*
-	 * private void loadPictures(File currentDir) { if (currentDir != null) {
-	 * ArrayList<File> currentDirectoryFiles = new ArrayList<File>(); for (File
-	 * currentFile : currentDir.listFiles()) { if (currentFile.isDirectory()) {
-	 * loadPictures(currentFile); } else { if
-	 * (FilenameUtils.getExtension(currentFile
-	 * .getPath()).equalsIgnoreCase("jpg") ||
-	 * FilenameUtils.getExtension(currentFile
-	 * .getPath()).equalsIgnoreCase("jpeg")) {
-	 * currentDirectoryFiles.add(currentFile); } } } File picturesToImport[] =
-	 * new File[currentDirectoryFiles.size()]; for (int i = 0; i <
-	 * picturesToImport.length; ++i) { picturesToImport[i] =
-	 * currentDirectoryFiles.get(i); } Library.importPicture(picturesToImport);
-	 * } }
-	 */
+
+
+
 
 	private void createMenuBar() {
 
