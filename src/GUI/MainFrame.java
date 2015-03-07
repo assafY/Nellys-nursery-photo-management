@@ -758,7 +758,6 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				if (searchField.getText().equals("View All")) {
-                    searchLabelPanel.removeAll();
                     currentSearchTags.clear();
                     refreshSearch();
 				} else {
@@ -773,13 +772,20 @@ public class MainFrame extends JFrame {
                         if (searchString.equalsIgnoreCase(allTaggableComponents
                                 .get(i).getName())) {
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
-                                addSearchTag(allTaggableComponents.get(i));
-                                searchLabelPanel.add(new TagPanel.TagTextLabel(true, allTaggableComponents.get(i), searchLabelPanel, MainFrame.this));
-                                refreshSearch();
-                                validate();
+                                if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+                                    for (Taggable t: currentSearchTags) {
+                                        if (t.getType() == Settings.AREA_TAG) {
+                                            allTaggableComponents.remove(i);
+                                        }
+                                    }
+                                }
+                                    addSearchTag(allTaggableComponents.get(i));
+
                             }
                         }
                     }
+
+                    refreshSearch();
 				}
 			}
 		}
@@ -806,25 +812,38 @@ public class MainFrame extends JFrame {
 
     public void refreshSearch() {
         ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
+        searchLabelPanel.removeAll();
         searchLabelPanel.repaint();
 
         if (currentSearchTags.size() == 0) {
             allPictureSet = Library.getPictureLibrary();
         }
         else if (currentSearchTags.size() > 1) {
-            for (int i = 0; i < currentSearchTags.size() - 1; ++i) {
-                ArrayList<Picture> currentPictureSet = currentSearchTags.get(i).getTaggedPictures();
-                for (Picture p : currentPictureSet) {
-                    if (currentSearchTags.get(i + 1).getTaggedPictures().contains(p)) {
-                        allPictureSet.add(p);
+            ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+            boolean firstIteration = true;
+            for (int i = 0; i < currentSearchTags.size(); ++i) {
+                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
+                allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+            }
+            for (Picture p: allPictureListsList.get(0)) {
+                boolean pictureInAllLists = true;
+                for (int i = 1; i < allPictureListsList.size(); ++i) {
+                    if (!allPictureListsList.get(i).contains(p)) {
+                        pictureInAllLists = false;
+                        break;
                     }
+                }
+                if (pictureInAllLists && !allPictureSet.contains(p)) {
+                    allPictureSet.add(p);
                 }
             }
         }
         else {
             allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+            searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
         }
 
+        searchLabelPanel.revalidate();
         picturePanel.removeAll();
         picturePanel.repaint();
         picturePanel.removeAllThumbsFromDisplay();
@@ -932,8 +951,7 @@ public class MainFrame extends JFrame {
 		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
 		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
 		try {
-			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject
-					.readObject();
+			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
 			for (int i = 0; i < savedData.size(); i++) {
 				Picture recreatedPicture = new Picture(new File(savedData
 						.get(i).getImagePath()));
@@ -1013,8 +1031,6 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// IMPORT PARENT DIR
-		// Library.importFolder(Settings.PICTURE_HOME_DIR);
 	}
 
 }

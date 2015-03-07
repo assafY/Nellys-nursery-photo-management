@@ -116,7 +116,7 @@ public class Library implements Serializable {
         ArrayList<File> nestedPictures = new ArrayList<File>();
         File[] nestedItems = importDirectory.listFiles();
 
-        for(File file:nestedItems) {
+        for(File file: nestedItems) {
             if(file.isFile() && (FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpg") ||
                     FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpeg"))){
                 nestedPictures.add(file);
