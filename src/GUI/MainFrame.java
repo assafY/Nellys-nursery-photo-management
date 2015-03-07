@@ -535,8 +535,8 @@ public class MainFrame extends JFrame {
 		tcl = l.new ThumbnailClickListener();
 
 		// add key listener for thumbnail selection using keyboard
-		this.addKeyListener(l.new KeysListener());
-		this.addKeyListener(tcl);
+		picturePanel.addKeyListener(l.new KeysListener());
+		picturePanel.addKeyListener(tcl);
 
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());

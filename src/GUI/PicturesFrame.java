@@ -37,6 +37,7 @@ public class PicturesFrame extends JPanel {
 		picturePanelLayout = new GridLayout(0, 1, 2, 2);
 		this.setLayout(picturePanelLayout);
 		this.setBackground(WHITE);
+        addListeners();
 	}
 
 	private void addListeners() {
