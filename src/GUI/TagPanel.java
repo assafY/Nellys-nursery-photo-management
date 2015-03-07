@@ -164,13 +164,13 @@ public class TagPanel extends JPanel {
                 if (childInAllPictures) {
                     if (tagCounter % 2 == 1) {
                         currentTagPanel = new JPanel();
-                        currentTagPanel.add(new TagTextLabel(t,
+                        currentTagPanel.add(new TagTextLabel(false, t,
                                 currentTagPanel, mainFrame));
                         childTagPanel.add(currentTagPanel);
                         validate();
                         ++tagCounter;
                     } else {
-                        currentTagPanel.add(new TagTextLabel(t,
+                        currentTagPanel.add(new TagTextLabel(false, t,
                                 currentTagPanel, mainFrame));
                         validate();
                         ++tagCounter;
@@ -186,7 +186,7 @@ public class TagPanel extends JPanel {
             areaTagPanel.revalidate();
             if (areaTag != null) {
                 // add tag label to area panel
-                areaTagPanel.add(new TagTextLabel(areaTag, areaTagPanel, mainFrame));
+                areaTagPanel.add(new TagTextLabel(false, areaTag, areaTagPanel, mainFrame));
             }
         }
 
@@ -226,9 +226,10 @@ public class TagPanel extends JPanel {
     /**
      * tag labels created when tags are displayed in the tag panel
      */
-    public class TagTextLabel extends JPanel {
+    public static class TagTextLabel extends JPanel {
 
         private BufferedImage tagDeleteButton;
+        private boolean searchLabel;
 
         private Taggable taggableItem;
         private JLabel tagLabel;
@@ -245,12 +246,13 @@ public class TagPanel extends JPanel {
          * @param tagPanel  the tag panel
          * @param mainFrame the main software window
          */
-        public TagTextLabel(Taggable t, JPanel tagPanel, MainFrame mainFrame) {
+        public TagTextLabel(boolean isSearchLabel, Taggable t, JPanel tagPanel, MainFrame mainFrame) {
 
             if (tagDeleteButton == null) {
                 loadTagDeleteButton();
             }
 
+            this.searchLabel = isSearchLabel;
             this.taggableItem = t;
 
             tagLabel = new JLabel(t.getName());
@@ -290,11 +292,17 @@ public class TagPanel extends JPanel {
                     super.mouseClicked(e);
                     tagPanel.remove(TagTextLabel.this);
                     tagPanel.revalidate();
-                    for (Picture p: mainFrame.getPicturesPanel().getSelectedPictures()) {
-                        if (p.getTag().getTaggedComponents().contains(taggableItem)) {
-                            p.getTag().removeTag(taggableItem);
-                            taggableItem.removeTaggedPicture(p);
-                            mainFrame.createTagLabels();
+                    if (searchLabel) {
+                        mainFrame.removeSearchTag(taggableItem);
+                        mainFrame.refreshSearch();
+                    }
+                    else {
+                        for (Picture p : mainFrame.getPicturesPanel().getSelectedPictures()) {
+                            if (p.getTag().getTaggedComponents().contains(taggableItem)) {
+                                p.getTag().removeTag(taggableItem);
+                                taggableItem.removeTaggedPicture(p);
+                                mainFrame.createTagLabels();
+                            }
                         }
                     }
                 }
