@@ -810,6 +810,12 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+    /**
+     * Search label panel is cleared of all components and is
+     * reset using the list of current chosen tags to search by.
+     * Finally the thumbnail display is reset to include pictures
+     * which are tagged with all tags chosen in search.
+     */
     public void refreshSearch() {
         ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
         searchLabelPanel.removeAll();
@@ -820,7 +826,6 @@ public class MainFrame extends JFrame {
         }
         else if (currentSearchTags.size() > 1) {
             ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
-            boolean firstIteration = true;
             for (int i = 0; i < currentSearchTags.size(); ++i) {
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
                 allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
