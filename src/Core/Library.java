@@ -65,6 +65,11 @@ public class Library implements Serializable {
         }
     }*/
 
+    /**
+     *
+     *
+     * @param importedPictures File array for all pictures being imported in this batch
+     */
     public static void importPicture(final File[] importedPictures) {
 
         //specify no. of threads not including thread for leftover pictures
@@ -99,19 +104,25 @@ public class Library implements Serializable {
         }
     }
 
+    /**
+     * Recursive method looking at all files inside a folder. Any
+     * folders found call the method on themselves. All files found are added
+     * to a list. After all folders are opened the list of all files is sent to importPicture().
+     *
+     * @param importDirectory root directory to be imported
+     */
 	public static void importFolder(final File importDirectory) {
 		// TODO for every picture in folder do importPicture()
         ArrayList<File> nestedPictures = new ArrayList<File>();
-        ArrayList<File> nestedFolders = new ArrayList<File>();
         File[] nestedItems = importDirectory.listFiles();
 
-        for(File file:nestedItems) {
+        for(File file: nestedItems) {
             if(file.isFile() && (FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpg") ||
                     FilenameUtils.getExtension(file.getPath()).equalsIgnoreCase("jpeg"))){
                 nestedPictures.add(file);
             }
             else if(file.isDirectory()){
-                nestedFolders.add(file);
+                importFolder(file);
             }
         }
 
@@ -119,11 +130,6 @@ public class Library implements Serializable {
         System.out.println(nestedPictures.size() + " lqlq");
         if(nestedPictures.size() > 0){
             importPicture(nestedPictures.toArray(toProcess));
-        }
-        if(nestedFolders.size() > 0){
-            for(File toImport:nestedFolders){
-                importFolder(toImport);
-            }
         }
 
 	}

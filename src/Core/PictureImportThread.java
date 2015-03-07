@@ -15,6 +15,10 @@ public class PictureImportThread extends Thread {
     }
     public void run(){
         try {
+            while (Settings.IMPORT_THREAD_COUNT > 10) {
+                sleep(500);
+            }
+            ++Settings.IMPORT_THREAD_COUNT;
             // for evey file path sent from importing in GUI
             for (int i = 0; i < importedPictures.length; ++i) {
 
@@ -26,7 +30,6 @@ public class PictureImportThread extends Thread {
                         exists = true;
                     }
                 }
-                System.out.println(exists);
                 // if it doesn't exist in library
                 if (!exists ) {
                     // add picture to library
@@ -38,6 +41,8 @@ public class PictureImportThread extends Thread {
                 }
 
             }
+        } catch (InterruptedException e) {
+
         } finally {
             Runnable displayPictures = new Runnable() {
 
@@ -49,6 +54,7 @@ public class PictureImportThread extends Thread {
                     for (int i = 0; i < picturesToDisplay.size(); ++i) {
                         Library.addPictureToLibrary(picturesToDisplay.get(i));
                     }
+                    --Settings.IMPORT_THREAD_COUNT;
                 }
             };
             SwingUtilities.invokeLater(displayPictures);

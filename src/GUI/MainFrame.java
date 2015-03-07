@@ -97,7 +97,9 @@ public class MainFrame extends JFrame {
 	// north component declaration
 	private JPanel northPanel;
 	private JPanel searchPanel;
+    private JPanel searchLabelPanel;
 	private JSuggestField searchField;
+    private ArrayList<Taggable> currentSearchTags;
 	private JCheckBox taggedCheckBox;
 	private JCheckBox unTaggedCheckBox;
 	private JCheckBox incompleteCheckBox;
@@ -370,8 +372,11 @@ public class MainFrame extends JFrame {
 		/* private void createNorthPanel() */{
 
 			// north panel component assignment
-			northPanel = new JPanel(new GridLayout(1, 2));
+			northPanel = new JPanel(new BorderLayout());
 			searchPanel = new JPanel();
+            searchLabelPanel = new JPanel();
+            searchLabelPanel.setName("Search");
+            currentSearchTags = new ArrayList<Taggable>();
 			searchField = new JSuggestField(MainFrame.this,
 					Library.getTaggableComponentNamesVector(true));
 			searchField.setPreferredSize(new Dimension(210, 30));
@@ -398,8 +403,9 @@ public class MainFrame extends JFrame {
 			sortByPanel.add(allCheckBox);
 
 			mainPanel.add(northPanel, BorderLayout.NORTH);
-			northPanel.add(searchPanel);
-			northPanel.add(sortByPanel);
+			northPanel.add(searchPanel, BorderLayout.WEST);
+			northPanel.add(sortByPanel, BorderLayout.EAST);
+            northPanel.add(searchLabelPanel, BorderLayout.CENTER);
 
 			TitledBorder titledBorder = new TitledBorder("Search: ");
 			EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
@@ -529,8 +535,8 @@ public class MainFrame extends JFrame {
 		tcl = l.new ThumbnailClickListener();
 
 		// add key listener for thumbnail selection using keyboard
-		this.addKeyListener(l.new KeysListener());
-		this.addKeyListener(tcl);
+		picturePanel.addKeyListener(l.new KeysListener());
+		picturePanel.addKeyListener(tcl);
 
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
@@ -752,34 +758,34 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 
 				if (searchField.getText().equals("View All")) {
-					picturePanel.removeAll();
-					picturePanel.repaint();
-					picturePanel.removeAllThumbsFromDisplay();
-					picturePanel.addThumbnailsToView(
-							Library.getPictureLibrary(), zoomSlider.getValue());
+                    currentSearchTags.clear();
+                    refreshSearch();
 				} else {
-					ArrayList<Taggable> allTaggableComponents = Library
-							.getTaggableComponentsList();
+                    ArrayList<Taggable> allTaggableComponents = Library
+                            .getTaggableComponentsList();
 
-					// gets text from GUI to a string
-					String searchString = searchField.getText().toLowerCase();
+                    // gets text from GUI to a string
+                    String searchString = searchField.getText().toLowerCase();
 
-					// loops to the end of tagged children
-					for (int i = 0; i < allTaggableComponents.size(); ++i) {
-						if (searchString.equalsIgnoreCase(allTaggableComponents
-								.get(i).getName())) {
-							picturePanel.removeAll();
-							picturePanel.repaint();
-							picturePanel.removeAllThumbsFromDisplay();
-							picturePanel.addThumbnailsToView(
-									allTaggableComponents.get(i)
-											.getTaggedPictures(), zoomSlider
-											.getValue());
-							picturePanel.createThumbnailArray();
-							break;
-						}
-					}
+                    // loops to the end of tagged children
+                    for (int i = 0; i < allTaggableComponents.size(); ++i) {
+                        if (searchString.equalsIgnoreCase(allTaggableComponents
+                                .get(i).getName())) {
+                            if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
+                                if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+                                    for (Taggable t: currentSearchTags) {
+                                        if (t.getType() == Settings.AREA_TAG) {
+                                            allTaggableComponents.remove(i);
+                                        }
+                                    }
+                                }
+                                    addSearchTag(allTaggableComponents.get(i));
 
+                            }
+                        }
+                    }
+
+                    refreshSearch();
 				}
 			}
 		}
@@ -804,6 +810,47 @@ public class MainFrame extends JFrame {
 		}
 	}
 
+    public void refreshSearch() {
+        ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
+        searchLabelPanel.removeAll();
+        searchLabelPanel.repaint();
+
+        if (currentSearchTags.size() == 0) {
+            allPictureSet = Library.getPictureLibrary();
+        }
+        else if (currentSearchTags.size() > 1) {
+            ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+            boolean firstIteration = true;
+            for (int i = 0; i < currentSearchTags.size(); ++i) {
+                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
+                allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+            }
+            for (Picture p: allPictureListsList.get(0)) {
+                boolean pictureInAllLists = true;
+                for (int i = 1; i < allPictureListsList.size(); ++i) {
+                    if (!allPictureListsList.get(i).contains(p)) {
+                        pictureInAllLists = false;
+                        break;
+                    }
+                }
+                if (pictureInAllLists && !allPictureSet.contains(p)) {
+                    allPictureSet.add(p);
+                }
+            }
+        }
+        else {
+            allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+            searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
+        }
+
+        searchLabelPanel.revalidate();
+        picturePanel.removeAll();
+        picturePanel.repaint();
+        picturePanel.removeAllThumbsFromDisplay();
+        picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
+        picturePanel.createThumbnailArray();
+    }
+
 	/**
 	 * Call this method when the display needs to be updated
 	 */
@@ -821,6 +868,16 @@ public class MainFrame extends JFrame {
 		// TODO maybe have multiple methods for pics, tags etc that run in
 		// separate threads
 	}
+
+    public void addSearchTag(Taggable t) {
+        if (!currentSearchTags.contains(t)) {
+            currentSearchTags.add(t);
+        }
+    }
+
+    public void removeSearchTag(Taggable t) {
+            currentSearchTags.remove(t);
+    }
 
 	/**
 	 * Gets the MainFrame objects. In general a list with one window - the app
@@ -894,8 +951,7 @@ public class MainFrame extends JFrame {
 		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
 		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
 		try {
-			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject
-					.readObject();
+			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
 			for (int i = 0; i < savedData.size(); i++) {
 				Picture recreatedPicture = new Picture(new File(savedData
 						.get(i).getImagePath()));
@@ -975,8 +1031,6 @@ public class MainFrame extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// IMPORT PARENT DIR
-		// Library.importFolder(Settings.PICTURE_HOME_DIR);
 	}
 
 }
