@@ -89,7 +89,7 @@ public class Tag implements Serializable {
     }
 
 	public boolean isUntagged() {
-		return (!isAreaSet() && taggedComponents.size() <= 1);
+		return (taggedComponents.size() == 0);
 	}
 
 	@Override

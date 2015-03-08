@@ -791,12 +791,14 @@ public class MainFrame extends JFrame {
 
                     refreshSearch();
 				}
+                storedTagsPanel.removeTagLabels();
 			}
 		}
 
         private class RadioButtonListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
+                storedTagsPanel.removeTagLabels();
                 ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
                 if (e.getActionCommand() == "TAGGED") {
                     for (Picture p: Library.getPictureLibrary()) {
