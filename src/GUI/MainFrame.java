@@ -374,12 +374,17 @@ public class MainFrame extends JFrame {
 
             taggedRadioButton.setMnemonic(KeyEvent.VK_T);
             taggedRadioButton.setSelected(false);
-			untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
+            taggedRadioButton.setActionCommand("TAGGED");
+            untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
 			untaggedRadioButton.setSelected(false);
+            untaggedRadioButton.setActionCommand("UNTAGGED");
 			incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
 			incompleteRadioButton.setSelected(false);
+            incompleteRadioButton.setActionCommand("INCOMPLETE");
 			allRadioButton.setMnemonic(KeyEvent.VK_A);
 			allRadioButton.setSelected(true);
+            allRadioButton.setActionCommand("ALL");
+
 			searchPanel.add(sortByLabel);
 			searchPanel.add(searchField);
             radioButtonGroup.add(taggedRadioButton);
@@ -530,6 +535,11 @@ public class MainFrame extends JFrame {
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
 		importButton.addActionListener(l.new ImportButtonListener());
+
+        taggedRadioButton.addActionListener(l.new RadioButtonListener());
+        untaggedRadioButton.addActionListener(l.new RadioButtonListener());
+        incompleteRadioButton.addActionListener(l.new RadioButtonListener());
+        allRadioButton.addActionListener(l.new RadioButtonListener());
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -783,6 +793,42 @@ public class MainFrame extends JFrame {
 				}
 			}
 		}
+
+        private class RadioButtonListener implements ActionListener {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                if (e.getActionCommand() == "TAGGED") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (p.getTag().isFullyTagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "UNTAGGED") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (p.getTag().isUntagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "INCOMPLETE") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (!p.getTag().isFullyTagged() && !p.getTag().isUntagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "ALL") {
+                    picturesToDisplay = Library.getPictureLibrary();
+                }
+
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+                picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
+            }
+        }
 
 		public class ThumbnailClickListener implements KeyListener {
 

@@ -80,11 +80,11 @@ public class Tag implements Serializable {
     }
 
 	public boolean isFullyTagged() {
-		return (taggedComponents.size() > 0 && date != null);
+		return (isAreaSet() && taggedComponents.size() > 1 && date != null);
 	}
 
-	public boolean isPartiallyTagged() {
-		return (taggedComponents.size() > 0 || date != null);
+	public boolean isUntagged() {
+		return (!isAreaSet() && taggedComponents.size() <= 1);
 	}
 
 	@Override
