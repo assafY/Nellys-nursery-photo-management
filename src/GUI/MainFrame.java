@@ -734,17 +734,19 @@ public class MainFrame extends JFrame {
 										.contains(t)) {
 									// if this is an area tag only tag if
 									// picture has no area tag
-									if (!(t.getType() == Settings.AREA_TAG && p
+									if ((t.getType() == Settings.AREA_TAG && p
 											.getTag().isAreaSet())) {
-										p.getTag().addTag(t);
-										t.addTaggedPicture(p);
-										createTagLabels();
+                                        p.getTag().getArea().removeTaggedPicture(p);
+                                        p.getTag().removeTag(p.getTag().getArea());
 									}
+                                    p.getTag().addTag(t);
+                                    t.addTaggedPicture(p);
 								}
 							}
 						}
 					}
 				}
+                createTagLabels();
 				tagField.setText("");
 			}
 		}
@@ -792,6 +794,7 @@ public class MainFrame extends JFrame {
                     refreshSearch();
 				}
                 storedTagsPanel.removeTagLabels();
+                searchField.setText("");
 			}
 		}
 
@@ -799,6 +802,8 @@ public class MainFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 storedTagsPanel.removeTagLabels();
+                currentSearchTags.clear();
+                refreshSearch();
                 ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
                 if (e.getActionCommand() == "TAGGED") {
                     for (Picture p: Library.getPictureLibrary()) {
@@ -894,6 +899,7 @@ public class MainFrame extends JFrame {
         picturePanel.removeAll();
         picturePanel.repaint();
         picturePanel.removeAllThumbsFromDisplay();
+        radioButtonGroup.setSelected(allRadioButton.getModel(), true);
         picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
         picturePanel.createThumbnailArray();
     }
