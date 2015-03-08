@@ -773,13 +773,18 @@ public class MainFrame extends JFrame {
                                 .get(i).getName())) {
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
                                 if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+                                    Taggable toRemove = null;
                                     for (Taggable t: currentSearchTags) {
                                         if (t.getType() == Settings.AREA_TAG) {
-                                            allTaggableComponents.remove(i);
+                                            toRemove = t;
+                                            break;
                                         }
                                     }
+                                    if (toRemove != null) {
+                                        currentSearchTags.remove(toRemove);
+                                    }
                                 }
-                                    addSearchTag(allTaggableComponents.get(i));
+                                addSearchTag(allTaggableComponents.get(i));
 
                             }
                         }
