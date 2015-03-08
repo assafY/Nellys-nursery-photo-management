@@ -8,7 +8,6 @@ import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Menu;
 import java.awt.MenuBar;
@@ -20,8 +19,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
@@ -42,21 +39,7 @@ import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -100,10 +83,11 @@ public class MainFrame extends JFrame {
     private JPanel searchLabelPanel;
 	private JSuggestField searchField;
     private ArrayList<Taggable> currentSearchTags;
-	private JCheckBox taggedCheckBox;
-	private JCheckBox unTaggedCheckBox;
-	private JCheckBox incompleteCheckBox;
-	private JCheckBox allCheckBox;
+	private JRadioButton taggedRadioButton;
+	private JRadioButton untaggedRadioButton;
+	private JRadioButton incompleteRadioButton;
+	private JRadioButton allRadioButton;
+    private ButtonGroup radioButtonGroup;
 	private JPanel sortByPanel;
 	private JLabel sortByLabel;
 
@@ -380,27 +364,37 @@ public class MainFrame extends JFrame {
 			searchField = new JSuggestField(MainFrame.this,
 					Library.getTaggableComponentNamesVector(true));
 			searchField.setPreferredSize(new Dimension(210, 30));
-			taggedCheckBox = new JCheckBox("Tagged");
-			unTaggedCheckBox = new JCheckBox("Untagged");
-			incompleteCheckBox = new JCheckBox("Incomplete");
-			allCheckBox = new JCheckBox("All");
+			taggedRadioButton = new JRadioButton("Tagged");
+			untaggedRadioButton = new JRadioButton("Untagged");
+			incompleteRadioButton = new JRadioButton("Incomplete");
+			allRadioButton = new JRadioButton("All");
+            radioButtonGroup = new ButtonGroup();
 			sortByPanel = new JPanel();
 			sortByLabel = new JLabel("Filter: ");
 
-			taggedCheckBox.setMnemonic(KeyEvent.VK_T);
-			taggedCheckBox.setSelected(false);
-			unTaggedCheckBox.setMnemonic(KeyEvent.VK_T);
-			unTaggedCheckBox.setSelected(false);
-			incompleteCheckBox.setMnemonic(KeyEvent.VK_T);
-			incompleteCheckBox.setSelected(false);
-			allCheckBox.setMnemonic(KeyEvent.VK_T);
-			allCheckBox.setSelected(true);
+            taggedRadioButton.setMnemonic(KeyEvent.VK_T);
+            taggedRadioButton.setSelected(false);
+            taggedRadioButton.setActionCommand("TAGGED");
+            untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
+			untaggedRadioButton.setSelected(false);
+            untaggedRadioButton.setActionCommand("UNTAGGED");
+			incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
+			incompleteRadioButton.setSelected(false);
+            incompleteRadioButton.setActionCommand("INCOMPLETE");
+			allRadioButton.setMnemonic(KeyEvent.VK_A);
+			allRadioButton.setSelected(true);
+            allRadioButton.setActionCommand("ALL");
+
 			searchPanel.add(sortByLabel);
 			searchPanel.add(searchField);
-			sortByPanel.add(taggedCheckBox);
-			sortByPanel.add(unTaggedCheckBox);
-			sortByPanel.add(incompleteCheckBox);
-			sortByPanel.add(allCheckBox);
+            radioButtonGroup.add(taggedRadioButton);
+            radioButtonGroup.add(untaggedRadioButton);
+            radioButtonGroup.add(incompleteRadioButton);
+            radioButtonGroup.add(allRadioButton);
+            sortByPanel.add(taggedRadioButton);
+            sortByPanel.add(untaggedRadioButton);
+            sortByPanel.add(incompleteRadioButton);
+            sortByPanel.add(allRadioButton);
 
 			mainPanel.add(northPanel, BorderLayout.NORTH);
 			northPanel.add(searchPanel, BorderLayout.WEST);
@@ -541,6 +535,11 @@ public class MainFrame extends JFrame {
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
 		importButton.addActionListener(l.new ImportButtonListener());
+
+        taggedRadioButton.addActionListener(l.new RadioButtonListener());
+        untaggedRadioButton.addActionListener(l.new RadioButtonListener());
+        incompleteRadioButton.addActionListener(l.new RadioButtonListener());
+        allRadioButton.addActionListener(l.new RadioButtonListener());
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -735,17 +734,19 @@ public class MainFrame extends JFrame {
 										.contains(t)) {
 									// if this is an area tag only tag if
 									// picture has no area tag
-									if (!(t.getType() == Settings.AREA_TAG && p
+									if ((t.getType() == Settings.AREA_TAG && p
 											.getTag().isAreaSet())) {
-										p.getTag().addTag(t);
-										t.addTaggedPicture(p);
-										createTagLabels();
+                                        p.getTag().getArea().removeTaggedPicture(p);
+                                        p.getTag().removeTag(p.getTag().getArea());
 									}
+                                    p.getTag().addTag(t);
+                                    t.addTaggedPicture(p);
 								}
 							}
 						}
 					}
 				}
+                createTagLabels();
 				tagField.setText("");
 			}
 		}
@@ -756,6 +757,8 @@ public class MainFrame extends JFrame {
 		private class SearchListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+
+                radioButtonGroup.setSelected(allRadioButton.getModel(), true);
 
 				if (searchField.getText().equals("View All")) {
                     currentSearchTags.clear();
@@ -792,8 +795,49 @@ public class MainFrame extends JFrame {
 
                     refreshSearch();
 				}
+                storedTagsPanel.removeTagLabels();
+                searchField.setText("");
 			}
 		}
+
+        private class RadioButtonListener implements ActionListener {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                storedTagsPanel.removeTagLabels();
+                currentSearchTags.clear();
+                refreshSearch();
+                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                if (e.getActionCommand() == "TAGGED") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (p.getTag().isFullyTagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "UNTAGGED") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (p.getTag().isUntagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "INCOMPLETE") {
+                    for (Picture p: Library.getPictureLibrary()) {
+                        if (p.getTag().isPartiallyTagged()) {
+                            picturesToDisplay.add(p);
+                        }
+                    }
+                }
+                else if (e.getActionCommand() == "ALL") {
+                    picturesToDisplay = Library.getPictureLibrary();
+                }
+
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+                picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
+            }
+        }
 
 		public class ThumbnailClickListener implements KeyListener {
 

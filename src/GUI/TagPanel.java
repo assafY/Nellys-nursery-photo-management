@@ -82,6 +82,15 @@ public class TagPanel extends JPanel {
         dateTagPanel.setBorder(dateCompoundBorder);
     }
 
+    public void removeTagLabels() {
+        childTagPanel.removeAll();
+        childTagPanel.repaint();
+        areaTagPanel.removeAll();
+        areaTagPanel.repaint();
+        dateTagPanel.removeAll();
+        dateTagPanel.repaint();
+    }
+
     /**
      * This method creates tag labels when a components are tagged in a
      * selected thumbnail. It redraws all labels for a picture every time a
