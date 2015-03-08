@@ -758,6 +758,8 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+                radioButtonGroup.setSelected(allRadioButton.getModel(), true);
+
 				if (searchField.getText().equals("View All")) {
                     currentSearchTags.clear();
                     refreshSearch();
@@ -899,7 +901,6 @@ public class MainFrame extends JFrame {
         picturePanel.removeAll();
         picturePanel.repaint();
         picturePanel.removeAllThumbsFromDisplay();
-        radioButtonGroup.setSelected(allRadioButton.getModel(), true);
         picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
         picturePanel.createThumbnailArray();
     }
