@@ -814,7 +814,7 @@ public class MainFrame extends JFrame {
                 }
                 else if (e.getActionCommand() == "INCOMPLETE") {
                     for (Picture p: Library.getPictureLibrary()) {
-                        if (!p.getTag().isFullyTagged() && !p.getTag().isUntagged()) {
+                        if (p.getTag().isPartiallyTagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
