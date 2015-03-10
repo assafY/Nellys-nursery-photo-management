@@ -917,7 +917,7 @@ public class MainFrame extends JFrame {
                 picturePanel.removeAll();
                 picturePanel.repaint();
                 picturePanel.removeAllThumbsFromDisplay();
-                picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
+                //picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
             }
         }
         
@@ -1069,11 +1069,10 @@ public class MainFrame extends JFrame {
         }
 
         searchLabelPanel.revalidate();
-        picturePanel.removeAll();
-        picturePanel.repaint();
-        picturePanel.removeAllThumbsFromDisplay();
-        picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
-        picturePanel.createThumbnailArray();
+
+        Library.importPicture(allPictureSet);
+        //picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
+        //picturePanel.createThumbnailArray();
     }
 
 	/**

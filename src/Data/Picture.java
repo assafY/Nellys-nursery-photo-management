@@ -21,7 +21,6 @@ public class Picture implements Serializable{
 
     private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
-    private transient BufferedImage thumbnail;
     private File imageFile;
     private transient Object imageKey;
 
@@ -30,24 +29,10 @@ public class Picture implements Serializable{
         this.imageFile = pictureFile;
         metadata = new Tag();
 
-        createThumbnail();
         getDateAndKey();
     }
 
-    private void createThumbnail() {
-        thumbnail = null;
 
-        try {
-            thumbnail = ImageIO.read(imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (thumbnail != null) {
-            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[1]);
-
-        }
-    }
 
     //TODO what if there is no date and key? boolean maybe?
     private void getDateAndKey() {
@@ -78,13 +63,6 @@ public class Picture implements Serializable{
         }
     }
 
-    // prints the number of bytes taken by a thumbnail
-    private void checkSizeOnDisk() {
-        DataBuffer buff = thumbnail.getRaster().getDataBuffer();
-        int bytes = buff.getSize() * DataBuffer.getDataTypeSize(buff.getDataType()) / 8;
-        System.out.println(bytes);
-    }
-
     public Object getImageKey() {
         return imageKey;
     }
@@ -93,9 +71,6 @@ public class Picture implements Serializable{
     }
     public File getImageFile() {
         return imageFile;
-    }
-    public BufferedImage getThumbnail() {
-        return thumbnail;
     }
     public Tag getTag() {
     	return metadata;

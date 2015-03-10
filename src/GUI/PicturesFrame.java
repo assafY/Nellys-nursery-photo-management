@@ -177,16 +177,13 @@ public class PicturesFrame extends JPanel {
 		}
 	}
 
-	public void addThumbnailsToView(ArrayList<Picture> picturesToDisplay,
+	public void addThumbnailsToView(ArrayList<PictureLabel> picturesToDisplay,
 			int zoomSize) {
 
-		for (int i = 0; i < picturesToDisplay.size(); ++i) {
-			PictureLabel currentThumb = new PictureLabel(
-					picturesToDisplay.get(i), this);
-			addThumbToDisplay(currentThumb);
-			this.add(currentThumb);
-			currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
-		}
+            for (PictureLabel currentThumb: picturesToDisplay) {
+                this.add(currentThumb);
+                currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
+            }
 		createThumbnailArray();
 	}
 
