@@ -74,52 +74,56 @@ public class Library implements Serializable {
      */
     public static void importPicture(ArrayList<Picture> importedPictures) {
 
-        //specify no. of threads not including thread for leftover pictures
-        int noOfThreads = 10;
-        //size of array
-        int importSize = importedPictures.size();
-        //leftover calculated by size of array % no. of threads
-        int leftover = 0;
+        MainFrame.getMainFrames().get(0).getPicturesPanel().removeAll();
 
-        while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
-            ++leftover;
-            --importSize;
-        }
-        //if there are more pictures than threads to import pictures
-        if (importedPictures.size() > noOfThreads) {
-            //find out how many pictures will go in each thread and import
-            int chunkSize = importSize / noOfThreads;
-            for (int i = 0; i < importSize; i += chunkSize) {
+        if (importedPictures.size() > 0) {
+            //specify no. of threads not including thread for leftover pictures
+            int noOfThreads = 10;
+            //size of array
+            int importSize = importedPictures.size();
+            //leftover calculated by size of array % no. of threads
+            int leftover = 0;
+
+            while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
+                ++leftover;
+                --importSize;
+            }
+            //if there are more pictures than threads to import pictures
+            if (importedPictures.size() > noOfThreads) {
+                //find out how many pictures will go in each thread and import
+                int chunkSize = importSize / noOfThreads;
+                for (int i = 0; i < importSize; i += chunkSize) {
+                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
+                    for (int j = i; j < i + chunkSize; ++j) {
+                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(j), MainFrame.getMainFrames().get(0).getPicturesPanel());
+                        thumbsToImport.add(currentThumb);
+                        MainFrame.getMainFrames().get(0).getPicturesPanel().addThumbToDisplay(currentThumb);
+                    }
+                    //new ThumbnailImportThread(thumbsToImport).start();
+
+                }
+                //import leftover pictures
+                if (leftover > 0) {
+                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
+                    for (int i = 0; i < leftover; ++i) {
+                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(importSize - i - 1), MainFrame.getMainFrames().get(0).getPicturesPanel());
+                        thumbsToImport.add(currentThumb);
+                        MainFrame.getMainFrames().get(0).getPicturesPanel().addThumbToDisplay(currentThumb);
+                    }
+
+                    //new ThumbnailImportThread(thumbsToImport).start();
+                }
+            }
+            //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
+            else {
                 ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                for (int j = i; j < i + chunkSize; ++j) {
-                    PictureLabel currentThumb = new PictureLabel(importedPictures.get(j), MainFrame.getMainFrames().get(0).getPicturesPanel());
+                for (Picture currentPic : importedPictures) {
+                    PictureLabel currentThumb = new PictureLabel(currentPic, MainFrame.getMainFrames().get(0).getPicturesPanel());
                     thumbsToImport.add(currentThumb);
                     MainFrame.getMainFrames().get(0).getPicturesPanel().addThumbToDisplay(currentThumb);
                 }
                 //new ThumbnailImportThread(thumbsToImport).start();
-
             }
-            //import leftover pictures
-            if (leftover > 0) {
-                ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                for (int i = 0; i < leftover; ++i) {
-                    PictureLabel currentThumb = new PictureLabel(importedPictures.get(importSize - i - 1), MainFrame.getMainFrames().get(0).getPicturesPanel());
-                    thumbsToImport.add(currentThumb);
-                    MainFrame.getMainFrames().get(0).getPicturesPanel().addThumbToDisplay(currentThumb);
-                }
-
-                //new ThumbnailImportThread(thumbsToImport).start();
-            }
-        }
-        //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
-        else {
-            ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-            for (Picture currentPic: importedPictures) {
-                PictureLabel currentThumb = new PictureLabel(currentPic, MainFrame.getMainFrames().get(0).getPicturesPanel());
-                thumbsToImport.add(currentThumb);
-                MainFrame.getMainFrames().get(0).getPicturesPanel().addThumbToDisplay(currentThumb);
-            }
-            //new ThumbnailImportThread(thumbsToImport).start();
         }
 
     }

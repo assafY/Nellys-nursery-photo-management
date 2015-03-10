@@ -98,6 +98,14 @@ public class PicturesFrame extends JPanel {
 		return thumbsOnDisplay;
 	}
 
+    public synchronized ArrayList<Picture> getPicturesOnDisplay() {
+        ArrayList<Picture> allPicturesOnDisplay = new ArrayList<Picture>();
+        for (PictureLabel p: thumbsOnDisplay) {
+            allPicturesOnDisplay.add(p.getPicture());
+        }
+        return allPicturesOnDisplay;
+    }
+
 	public synchronized void addThumbToDisplay(PictureLabel thumb) {
 		thumbsOnDisplay.add(thumb);
 	}

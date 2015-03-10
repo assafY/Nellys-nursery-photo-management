@@ -1059,7 +1059,16 @@ public class MainFrame extends JFrame {
                     }
                 }
                 if (pictureInAllLists && !allPictureSet.contains(p)) {
-                    allPictureSet.add(p);
+                    if (picturePanel.getPicturesOnDisplay().contains(p)) {
+                        for (PictureLabel pl: picturePanel.getThumbsOnDisplay()) {
+                            if (pl.getPicture().equals(p)) {
+                                pl.showThumbnail(getZoomValue());
+                            }
+                        }
+                    }
+                    else {
+                        allPictureSet.add(p);
+                    }
                 }
             }
         }
