@@ -39,13 +39,34 @@ import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import Core.Library;
 import Core.Settings;
@@ -94,12 +115,17 @@ public class MainFrame extends JFrame {
 	// west component declaration
 	private JPanel westPanel;
 	private JPanel buttonPanel;
+	private JPanel fileTreePanel;
+	private JPanel virtualTreePanel;
 	private JButton importButton;
 	private JButton exportButton;
 	private JButton backupButton;
 	private JButton rotateButton;
 	private JButton deleteButton;
 	private JButton printButton;
+	private JTabbedPane tabbedPane;
+	private JTree fileSystemTree;
+	private JScrollPane fileSystemTreeScrollPane;
 
 	// center component declaration
 	private JPanel centerPanel;
@@ -413,6 +439,11 @@ public class MainFrame extends JFrame {
 
 			// west component assignment
 			westPanel = new JPanel(new BorderLayout());
+			fileTreePanel = new JPanel(new BorderLayout());
+			fileTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			virtualTreePanel = new JPanel();
+			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			importButton = new JButton("Import");
 			exportButton = new JButton("Export");
@@ -420,28 +451,45 @@ public class MainFrame extends JFrame {
 			rotateButton = new JButton("Rotate");
 			deleteButton = new JButton("Delete");
 			printButton = new JButton("Print");
-
+			
+			fileSystemTree = new JTree(new SystemTreeModel(new File("C://")));
+			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
+			
+			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
+			tabbedPane.addTab("File Tree", fileTreePanel);
+			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
+			
 			mainPanel.add(westPanel, BorderLayout.WEST);
-			westPanel.add(buttonPanel, BorderLayout.NORTH);
+			westPanel.add(tabbedPane, BorderLayout.CENTER);
+			westPanel.add(buttonPanel, BorderLayout.SOUTH);
 			buttonPanel.setLayout(new GridBagLayout());
 
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
-			c.insets = new Insets(4, 4, 4, 4);
+			c.insets = new Insets(2, 2, 2, 2);
 			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(importButton, c);
-			c.gridy = 1;
+			c.gridx = 1;
+			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
-			c.gridy = 2;
+			c.gridx = 2;
+			c.gridy = 0;
 			buttonPanel.add(backupButton, c);
-			c.gridy = 3;
+			c.gridwidth = 3;
+			c.gridx = 0;
+			c.gridy = 1;
 			buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
-			c.gridy = 6;
+			c.gridwidth = 1;
+			c.gridx = 0;
+			c.gridy = 2;
 			buttonPanel.add(rotateButton, c);
-			c.gridy = 9;
+			c.gridx = 1;
+			c.gridy = 2;
 			buttonPanel.add(deleteButton, c);
-			c.gridy = 10;
+			c.gridx = 2;
+			c.gridy = 2;
 			buttonPanel.add(printButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
@@ -838,7 +886,7 @@ public class MainFrame extends JFrame {
                 picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
             }
         }
-
+        
 		public class ThumbnailClickListener implements KeyListener {
 
 			@Override
@@ -857,6 +905,79 @@ public class MainFrame extends JFrame {
 				picturePanel.keyAction(e, shiftIsPressed);
 			}
 		}
+	}
+	
+	/*
+	 * Creates the File Tree Model
+	 */
+	private class SystemTreeModel implements TreeModel {
+
+		private File rootFile;
+
+		public SystemTreeModel(File rootFile) {
+			this.rootFile = rootFile;
+		}
+
+		@Override
+		public void addTreeModelListener(TreeModelListener arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public Object getChild(Object parent, int index) {
+			if (index < 0 || index > getChildCount(parent)) {
+				return null;
+			}
+			File folder = (File) parent;
+			String[] childrenFiles = folder.list();
+			return new File(folder, childrenFiles[index]);
+
+		}
+
+		@Override
+		public int getChildCount(Object parent) {
+			File folder = (File) parent;
+			if (folder.isDirectory()) {
+				try {
+					String[] filesInFolder = folder.list();
+					return filesInFolder.length;
+				} catch (NullPointerException e) {
+					return 0;
+				}
+			} else {
+				return 0;
+			}
+		}
+
+		@Override
+		public int getIndexOfChild(Object arg0, Object arg1) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public Object getRoot() {
+			return rootFile;
+		}
+
+		@Override
+		public boolean isLeaf(Object node) {
+			return false;
+		}
+
+		@Override
+		public void removeTreeModelListener(TreeModelListener arg0) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void valueForPathChanged(TreePath arg0, Object arg1) {
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 
     /**
