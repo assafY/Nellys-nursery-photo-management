@@ -5,7 +5,6 @@ import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -623,20 +622,8 @@ public class MainFrame extends JFrame {
 		searchField.setFocusTraversalKeysEnabled(false);
 		tagField.addKeyListener(l.new keyStrokes());
 		tagField.setFocusTraversalKeysEnabled(false);
-
-		//Key Stroke Listeners
-		picturePanel.addKeyListener(l.new keyStrokes());
-		picturePanel.setFocusTraversalKeysEnabled(false);
-		searchField.addKeyListener(l.new keyStrokes());
-		searchField.setFocusTraversalKeysEnabled(false);
-		tagField.addKeyListener(l.new keyStrokes());
-		tagField.setFocusTraversalKeysEnabled(false);
-		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
-		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
-		//fileTreePanel.addKeyListener((l.new keyStrokes()));
-		//fileTreePanel.setFocusTraversalKeysEnabled(false);
-		fileSystemTree.addKeyListener((l.new keyStrokes()));
-		fileSystemTree.setFocusTraversalKeysEnabled(false);
+		//fileSystemTree.addKeyListener((l.new keyStrokes()));
+		//fileSystemTree.setFocusTraversalKeysEnabled(false);
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
