@@ -943,7 +943,12 @@ public class MainFrame extends JFrame {
                     return file.isDirectory();
                 }
             });
-            return files != null ? files : new File[] {};
+            if (files != null) {
+                return files;
+            }
+            else {
+                return new File[]{};
+            }
         }
 
         @Override
@@ -965,69 +970,6 @@ public class MainFrame extends JFrame {
             }
             return -1;
         }
-/*
-		@Override
-		public Object getChild(Object parent, int index) {
-
-            /*if (index < 0 || index > getChildCount(parent)) {
-                return null;
-            }
-            File folder = (File) parent;
-            String[] childrenFiles = folder.list();
-            return new File(folder, childrenFiles[index]);
-
-            if (index < 0 || index > getChildCount(parent)) {
-                return null;
-            }
-
-            File folder = (File) parent;
-            File[] childrenFiles = folder.listFiles();
-
-            for (int i = index; i <= getChildCount(parent); ++i) {
-
-                if (!isLeaf(childrenFiles[i])) {
-                    return childrenFiles[i];
-                }
-            }
-            return -1;
-		}
-
-		@Override
-		public int getChildCount(Object parent) {
-			File folder = (File) parent;
-			if (folder.isDirectory()) {
-				try {
-					File[] filesInFolder = folder.listFiles();
-                    int directoryCount = filesInFolder.length;
-                    for (File f: filesInFolder) {
-                        if (!f.isDirectory()) {
-                            --directoryCount;
-                            System.out.println(f + " is not a directory");
-                        }
-                        else {
-                            System.out.println(f + " IS a directory");
-                        }
-                    }
-					return directoryCount;
-				} catch (NullPointerException e) {
-					return 0;
-				}
-			} else {
-				return 0;
-			}
-            File f = (File) parent;
-            if (!f.isDirectory()) {
-                return 0;
-            } else {
-                return f.list().length;
-            }
-		}
-
-		@Override
-		public int getIndexOfChild(Object arg0, Object arg1) {
-			// TODO Auto-generated method stub
-			return 0;
-		}*/
 
 		@Override
 		public Object getRoot() {
