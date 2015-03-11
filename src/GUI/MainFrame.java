@@ -27,11 +27,19 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import Core.Library;
+import Core.Settings;
+import Core.Taggable;
+import Data.Area;
+import Data.Child;
+import Data.Picture;
+import ch.rakudave.suggest.JSuggestField;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -50,6 +58,8 @@ import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -57,16 +67,20 @@ import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.*;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
-import Core.Library;
-import Core.Settings;
-import Core.Taggable;
-import Data.Area;
-import Data.Child;
-import Data.Picture;
-import ch.rakudave.suggest.JSuggestField;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -638,6 +652,14 @@ public class MainFrame extends JFrame {
 
             }
         });
+		//Key Stroke Listeners
+		picturePanel.addKeyListener(l.new keyStrokes());
+		picturePanel.setFocusTraversalKeysEnabled(false);
+		searchField.addKeyListener(l.new keyStrokes());
+		searchField.setFocusTraversalKeysEnabled(false);
+		tagField.addKeyListener(l.new keyStrokes());
+		tagField.setFocusTraversalKeysEnabled(false);
+
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -803,6 +825,95 @@ public class MainFrame extends JFrame {
 
 			}
 
+		}
+
+		public class keyStrokes implements  KeyListener {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_TAB) {
+
+
+					if (picturePanel.hasFocus()) {
+						tagField.requestFocus();
+					}
+
+					if (searchField.hasFocus()) {
+
+						picturePanel.requestFocus();
+					}
+
+					if (tagField.hasFocus()) {
+						searchField.requestFocus();
+					}
+				}
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
+					tagField.requestFocus();
+				}
+				//TODO: Fix print shortcut, find graphic workaround
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+
+					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+					PrinterJob printJob = PrinterJob.getPrinterJob();
+					printJob.setPrintable(new Printable() {
+						public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+							if (pageIndex != 0) {
+								return NO_SUCH_PAGE;
+							}
+
+							//Image sourceImage;
+							//sourceImage = new ImageIcon(getMostRecentSelection().getGraphicsConfiguration());
+
+							//graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+
+
+							return PAGE_EXISTS;
+						}
+					});
+
+					if (printJob.printDialog(aset))
+						try {
+							printJob.print(aset);
+						} catch (PrinterException e1) {
+							e1.printStackTrace();
+						}
+				}
+
+			}
+
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+		}
+
+
+
+			private class ImportButtonListener implements ActionListener {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// open system file manager to ask user for pictures to import
+				FileDialog importDialog = new FileDialog(MainFrame.this,
+						"Choose picture(s) to import", FileDialog.LOAD);
+				importDialog.setFile("*.jpg");
+				importDialog.setMultipleMode(true);
+				importDialog.setVisible(true);
+				if (Library.getPictureLibrary().size() == 0) {
+					setFocusable(true);
+					requestFocus();
+				}
+				// import pictures into library
+				//Library.importPicture(importDialog.getFiles());
+			}
 		}
 
 		/**
