@@ -170,6 +170,10 @@ public class Library implements Serializable {
 	{
 		pictureLibrary = null;
 	}
+	
+	public static void deleteTaggableComponentsList() {
+		taggableComponents = null;
+	}
 
 	public static Date getDate(String s) {
 		int date = Integer.parseInt(s.substring(0, 2));

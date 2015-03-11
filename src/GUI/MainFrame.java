@@ -152,25 +152,22 @@ public class MainFrame extends JFrame {
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
-	private File[] savedFiles;
 
 	/**
 	 * Constructor for the application
-	 * 
-	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
-	public MainFrame() throws IOException, ClassNotFoundException {
+	public MainFrame()  {
 
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
-
-        // addSavedData();
+		
+		addSavedData();
         startUpChecks();
         loadTaggableComponents();
 		createMenuBar();
 		createPanels();
 		addListeners();
+		saveData();
         if (Settings.PICTURE_HOME_DIR != null) {
             Library.importFolder(Settings.PICTURE_HOME_DIR);
         }
@@ -185,6 +182,18 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		frames.add(this);
 	}
+	
+	/*
+	 * Automatically adds the saved picture library ArrayList, the taggable components ArrayList, the Nursery Location and
+	 * the Pictures home directory to the application.
+	 */
+	private void addSavedData() {
+		getSavedPictureLibrary();
+		getSavedTaggableComponents();
+		getSavedNurseryLocation();
+		getSavedPicturesHomeDIR();
+	}
+
 
 	// for csv file, location and picture library, if any has not
 	// been initialised, prompt the user on startup
@@ -1074,9 +1083,10 @@ public class MainFrame extends JFrame {
 	public void createTagLabels() {
 		storedTagsPanel.resetTagLabels();
 	}
-
+	
 	/**
-	 * Automatically saving pictures when the application is closed.
+	 * Automatically saves the picture library ArrayList, the taggable components ArrayList, the Nursery Location and
+	 * the Pictures home directory, when the application is closed.
 	 */
 	private void saveData() {
 		this.addWindowListener(new WindowListener() {
@@ -1093,20 +1103,10 @@ public class MainFrame extends JFrame {
 			}
 
 			public void windowClosing(WindowEvent e) {
-				try {
-					FileOutputStream savedFile = new FileOutputStream(
-							"savedLibrary.ser");
-					ObjectOutputStream savedObject = new ObjectOutputStream(
-							savedFile);
-					savedObject.writeObject(Library.getPictureLibrary());
-					savedObject.close();
-					System.out.println("Saved");
-				} catch (FileNotFoundException ex1) {
-					ex1.printStackTrace();
-				} catch (IOException ex2) {
-					ex2.printStackTrace();
-				}
-				Library.deletePictureLibrary();
+				savePictureLibrary();
+				saveAllTaggableComponents();
+				saveNurseryLocation();
+				savePicturesHomeDIR();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -1115,32 +1115,6 @@ public class MainFrame extends JFrame {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
-	}
-
-	/*
-	 * Automatically adding pictures that have been imported and saved before
-	 * thus a *.ser file is created. The latter was also pushed into the
-	 * 'Displaying and saving images' branch
-	 */
-	private void addSavedData() throws IOException, ClassNotFoundException {
-		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
-		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
-		try {
-			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
-			for (int i = 0; i < savedData.size(); i++) {
-				Picture recreatedPicture = new Picture(new File(savedData
-						.get(i).getImagePath()));
-				recreatedPicture.setTag(savedData.get(i).getTag());
-				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
-				savedPictures.add(recreatedPicture);
-				picturePanel.addThumbnailsToView(savedPictures,
-						zoomSlider.getValue());
-				Library.getPictureLibrary().add(recreatedPicture);
-			}
-			restoredObject.close();
-		} catch (EOFException exception) {
-			exception.printStackTrace();
-		}
 	}
 
 	// returns CenterPanel
@@ -1194,6 +1168,162 @@ public class MainFrame extends JFrame {
 
 	public int getZoomValue() {
 		return zoomSlider.getValue();
+	}
+	
+	/*
+	 * Saves the pictureLibrary ArrayList.
+	 */
+	private void savePictureLibrary() {
+		try {
+			FileOutputStream savedPictureLibraryFile = new FileOutputStream(
+					"savedPictureLibrary.ser");
+			ObjectOutputStream savedPictureLibraryObject = new ObjectOutputStream(
+					savedPictureLibraryFile);
+			savedPictureLibraryObject.writeObject(Library.getPictureLibrary());
+			savedPictureLibraryObject.close();
+			System.out.println("Picture Library Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Library.deletePictureLibrary();
+	}
+	
+	/*
+	 * Saves the taggable components ArrayList.
+	 */
+	private void saveAllTaggableComponents() {
+		try{
+			FileOutputStream savedAllTaggableComponentSFile = new FileOutputStream(
+					"savedAllTaggableComponents.ser");
+			ObjectOutputStream savedAllTaggableComponentsObject = new ObjectOutputStream(
+					savedAllTaggableComponentSFile);
+			savedAllTaggableComponentsObject.writeObject(Library.getTaggableComponentsList());
+			savedAllTaggableComponentsObject.close();
+			System.out.println("All Taggable Components Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Library.deleteTaggableComponentsList();	
+	}
+	
+	/*
+	 * Saves the NurseryLocation.
+	 */
+	private void saveNurseryLocation() {
+		try{
+			FileOutputStream savedNurseryLocation = new FileOutputStream("savedNurseryLocation.ser");
+			ObjectOutputStream savedNurseryLocationObject = new ObjectOutputStream(savedNurseryLocation);
+			savedNurseryLocationObject.writeObject(Settings.NURSERY_LOCATION);
+			savedNurseryLocationObject.close();
+			System.out.println("Nursery Location Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Saves the pictures Home Directory.
+	 */
+	private void savePicturesHomeDIR() {
+		try{
+			FileOutputStream savedPicturesHomeDIR = new FileOutputStream("savedPicturesHomeDIR.ser");
+			ObjectOutputStream savedPicturesHomeDIRObject = new ObjectOutputStream(savedPicturesHomeDIR);
+			savedPicturesHomeDIRObject.writeObject(Settings.PICTURE_HOME_DIR);
+			savedPicturesHomeDIRObject.close();
+			System.out.println("Pictures Home Directory Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+	}
+	
+	/*
+	 * Returns the saved Picture Library ArrayList.
+	 */
+	private void getSavedPictureLibrary() {
+		try {
+			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
+			ObjectInputStream restoredPictureLibraryObject = new ObjectInputStream(savedPictureLibraryFile);
+			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
+			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
+				Picture recreatedPicture = new Picture(new File(savedPictureLibraryData.get(i).getImagePath()));
+				recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
+				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
+				savedPictures.add(recreatedPicture);
+				Library.getPictureLibrary().add(recreatedPicture);
+			}
+			restoredPictureLibraryObject.close();
+		} catch (EOFException exception) {
+			exception.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedPictureLibrary.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved taggable components ArrayList.
+	 */
+	private void getSavedTaggableComponents() {
+		try{
+			FileInputStream savedTaggableComponents = new FileInputStream("savedAllTaggableComponents.ser");
+			ObjectInputStream restoredTaggableComponentsObject = new ObjectInputStream(savedTaggableComponents);
+			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject.readObject();
+			for(int i = 0; i < savedTaggableComponentsData.size(); i++) {
+				Library.getTaggableComponentsList().add(savedTaggableComponentsData.get(i));
+			}
+			restoredTaggableComponentsObject.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedAllTaggableComponents.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved Nursery Location.
+	 */
+	private void getSavedNurseryLocation() {
+		try{
+			FileInputStream savedNurseryName = new FileInputStream("savedNurseryLocation.ser");
+			ObjectInputStream restoredNurseryName = new ObjectInputStream(savedNurseryName);
+			Settings.NURSERY_LOCATION = (String)restoredNurseryName.readObject();
+			restoredNurseryName.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedNurseryLocation.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved Pictures Home Directory.
+	 */
+	private void getSavedPicturesHomeDIR() {
+		try{
+			FileInputStream savedPicturesHomeDIR = new FileInputStream("savedPicturesHomeDIR.ser");
+			ObjectInputStream restoredPicturesHomeDIR = new ObjectInputStream(savedPicturesHomeDIR);
+			Settings.PICTURE_HOME_DIR = (File)restoredPicturesHomeDIR.readObject();
+			restoredPicturesHomeDIR.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedPicturesHomeDIR.ser not found!");
+		}
 	}
 
 	public static void main(String[] args) {
