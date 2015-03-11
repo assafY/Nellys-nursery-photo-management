@@ -109,7 +109,7 @@ public class Library implements Serializable {
                                     allThumbsToDisplay.add(currentThumb);
                                     //picturesPanel.addThumbToDisplay(currentThumb);
                                 }
-                                //new ThumbnailImportThread(thumbsToImport).start();
+                                new ThumbnailImportThread(thumbsToImport).start();
                             }
                             //import leftover pictures
                             if (leftover > 0) {
@@ -120,13 +120,13 @@ public class Library implements Serializable {
                                     allThumbsToDisplay.add(currentThumb);
                                     //picturesPanel.addThumbToDisplay(currentThumb);
                                 }
-                                /*ThumbnailImportThread leftoverThread = new ThumbnailImportThread(thumbsToImport);
+                                ThumbnailImportThread leftoverThread = new ThumbnailImportThread(thumbsToImport);
                                 leftoverThread.start();
                                 try {
                                     leftoverThread.join();
                                 } catch (InterruptedException e) {
 
-                                }*/
+                                }
                             }
                         }
                         //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
@@ -138,14 +138,14 @@ public class Library implements Serializable {
                                 allThumbsToDisplay.add(currentThumb);
 
                             }
-                            /*ThumbnailImportThread singleThread = new ThumbnailImportThread(thumbsToImport);
+                            ThumbnailImportThread singleThread = new ThumbnailImportThread(thumbsToImport);
                             singleThread.start();
                             try {
                                 System.out.println("last thread");
                                 singleThread.join();
                             } catch (InterruptedException e) {
 
-                            }*/
+                            }
                         }
                     }
 
