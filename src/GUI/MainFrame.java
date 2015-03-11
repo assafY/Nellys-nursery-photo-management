@@ -21,16 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -39,13 +30,36 @@ import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import Core.Library;
 import Core.Settings;
@@ -54,6 +68,8 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -94,12 +110,17 @@ public class MainFrame extends JFrame {
 	// west component declaration
 	private JPanel westPanel;
 	private JPanel buttonPanel;
+	private JPanel fileTreePanel;
+	private JPanel virtualTreePanel;
 	private JButton importButton;
 	private JButton exportButton;
 	private JButton backupButton;
 	private JButton rotateButton;
 	private JButton deleteButton;
 	private JButton printButton;
+	private JTabbedPane tabbedPane;
+	private JTree fileSystemTree;
+	private JScrollPane fileSystemTreeScrollPane;
 
 	// center component declaration
 	private JPanel centerPanel;
@@ -126,25 +147,22 @@ public class MainFrame extends JFrame {
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
-	private File[] savedFiles;
 
 	/**
 	 * Constructor for the application
-	 * 
-	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
-	public MainFrame() throws IOException, ClassNotFoundException {
+	public MainFrame()  {
 
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
-
-        // addSavedData();
+		
+		addSavedData();
         startUpChecks();
         loadTaggableComponents();
 		createMenuBar();
 		createPanels();
 		addListeners();
+		saveData();
         if (Settings.PICTURE_HOME_DIR != null) {
             Library.importFolder(Settings.PICTURE_HOME_DIR);
         }
@@ -159,6 +177,18 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		frames.add(this);
 	}
+	
+	/*
+	 * Automatically adds the saved picture library ArrayList, the taggable components ArrayList, the Nursery Location and
+	 * the Pictures home directory to the application.
+	 */
+	private void addSavedData() {
+		getSavedPictureLibrary();
+		getSavedTaggableComponents();
+		getSavedNurseryLocation();
+		getSavedPicturesHomeDIR();
+	}
+
 
 	// for csv file, location and picture library, if any has not
 	// been initialised, prompt the user on startup
@@ -180,7 +210,7 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		if (Settings.CSV_PATH == null) {
+		if (Library.getTaggableComponentsList().size() == 0 && Settings.CSV_PATH == null) {
 			final JFileChooser csvFileChooser = new JFileChooser();
 			csvFileChooser.setDialogTitle("Select children list CSV file");
 			csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
@@ -413,6 +443,11 @@ public class MainFrame extends JFrame {
 
 			// west component assignment
 			westPanel = new JPanel(new BorderLayout());
+			fileTreePanel = new JPanel(new BorderLayout());
+			fileTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			
+			virtualTreePanel = new JPanel();
+			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			importButton = new JButton("Import");
 			exportButton = new JButton("Export");
@@ -421,27 +456,49 @@ public class MainFrame extends JFrame {
 			deleteButton = new JButton("Delete");
 			printButton = new JButton("Print");
 
+            if (Settings.PICTURE_HOME_DIR != null) {
+                fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
+            }
+            else {
+                fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
+            }
+			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
+			
+			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
+			tabbedPane.addTab("File Tree", fileTreePanel);
+			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
+			
 			mainPanel.add(westPanel, BorderLayout.WEST);
-			westPanel.add(buttonPanel, BorderLayout.NORTH);
+			westPanel.add(tabbedPane, BorderLayout.CENTER);
+			westPanel.add(buttonPanel, BorderLayout.SOUTH);
 			buttonPanel.setLayout(new GridBagLayout());
 
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
-			c.insets = new Insets(4, 4, 4, 4);
+			c.insets = new Insets(2, 2, 2, 2);
 			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(importButton, c);
-			c.gridy = 1;
+			c.gridx = 1;
+			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
-			c.gridy = 2;
+			c.gridx = 2;
+			c.gridy = 0;
 			buttonPanel.add(backupButton, c);
-			c.gridy = 3;
+			c.gridwidth = 3;
+			c.gridx = 0;
+			c.gridy = 1;
 			buttonPanel.add(new JSeparator(SwingConstants.HORIZONTAL), c);
-			c.gridy = 6;
+			c.gridwidth = 1;
+			c.gridx = 0;
+			c.gridy = 2;
 			buttonPanel.add(rotateButton, c);
-			c.gridy = 9;
+			c.gridx = 1;
+			c.gridy = 2;
 			buttonPanel.add(deleteButton, c);
-			c.gridy = 10;
+			c.gridx = 2;
+			c.gridy = 2;
 			buttonPanel.add(printButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
@@ -838,7 +895,7 @@ public class MainFrame extends JFrame {
                 picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
             }
         }
-
+        
 		public class ThumbnailClickListener implements KeyListener {
 
 			@Override
@@ -857,6 +914,95 @@ public class MainFrame extends JFrame {
 				picturePanel.keyAction(e, shiftIsPressed);
 			}
 		}
+	}
+	
+	/*
+	 * Creates the File Tree Model
+	 */
+	private class SystemTreeModel implements TreeModel {
+
+		private File rootFile;
+        private ArrayList<TreeModelListener> listeners;
+
+		public SystemTreeModel(File rootFile) {
+			this.rootFile = rootFile;
+            listeners = new ArrayList<TreeModelListener>();
+		}
+
+		@Override
+		public void addTreeModelListener(TreeModelListener l) {
+            if (l != null && !listeners.contains(l)) {
+                listeners.add(l);
+            }
+		}
+
+        private File[] getFiles(File parent) {
+            File[] files = parent.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            });
+            if (files != null) {
+                return files;
+            }
+            else {
+                return new File[]{};
+            }
+        }
+
+        @Override
+        public int getChildCount(Object parent) {
+            return getFiles((File) parent).length;
+        }
+
+        @Override
+        public Object getChild(Object parent, int index) {
+            return getFiles((File) parent)[index];
+        }
+
+        @Override
+        public int getIndexOfChild(Object parent, Object child) {
+            File[] files = getFiles((File) parent);
+            for (int idx = 0; idx < files.length; idx++) {
+                if (files[idx].equals(child))
+                    return idx;
+            }
+            return -1;
+        }
+
+		@Override
+		public Object getRoot() {
+			return rootFile;
+		}
+
+		@Override
+		public boolean isLeaf(Object node) {
+            File f = (File) node;
+            return !f.isDirectory();
+		}
+
+		@Override
+		public void removeTreeModelListener(TreeModelListener l) {
+            if (l != null) {
+                listeners.remove(l);
+            }
+
+		}
+
+		@Override
+		public void valueForPathChanged(TreePath arg0, Object arg1) {
+			// TODO Auto-generated method stub
+
+		}
+
+        public void fireTreeStructureChanged(TreeModelEvent e) {
+            for (TreeModelListener l: listeners) {
+                l.treeStructureChanged(e);
+            }
+        }
+
+
 	}
 
     /**
@@ -953,9 +1099,10 @@ public class MainFrame extends JFrame {
 	public void createTagLabels() {
 		storedTagsPanel.resetTagLabels();
 	}
-
+	
 	/**
-	 * Automatically saving pictures when the application is closed.
+	 * Automatically saves the picture library ArrayList, the taggable components ArrayList, the Nursery Location and
+	 * the Pictures home directory, when the application is closed.
 	 */
 	private void saveData() {
 		this.addWindowListener(new WindowListener() {
@@ -972,20 +1119,10 @@ public class MainFrame extends JFrame {
 			}
 
 			public void windowClosing(WindowEvent e) {
-				try {
-					FileOutputStream savedFile = new FileOutputStream(
-							"savedLibrary.ser");
-					ObjectOutputStream savedObject = new ObjectOutputStream(
-							savedFile);
-					savedObject.writeObject(Library.getPictureLibrary());
-					savedObject.close();
-					System.out.println("Saved");
-				} catch (FileNotFoundException ex1) {
-					ex1.printStackTrace();
-				} catch (IOException ex2) {
-					ex2.printStackTrace();
-				}
-				Library.deletePictureLibrary();
+				savePictureLibrary();
+				saveAllTaggableComponents();
+				saveNurseryLocation();
+				savePicturesHomeDIR();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -994,32 +1131,6 @@ public class MainFrame extends JFrame {
 			public void windowActivated(WindowEvent e) {
 			}
 		});
-	}
-
-	/*
-	 * Automatically adding pictures that have been imported and saved before
-	 * thus a *.ser file is created. The latter was also pushed into the
-	 * 'Displaying and saving images' branch
-	 */
-	private void addSavedData() throws IOException, ClassNotFoundException {
-		FileInputStream savedFile = new FileInputStream("savedLibrary.ser");
-		ObjectInputStream restoredObject = new ObjectInputStream(savedFile);
-		try {
-			ArrayList<Picture> savedData = (ArrayList<Picture>) restoredObject.readObject();
-			for (int i = 0; i < savedData.size(); i++) {
-				Picture recreatedPicture = new Picture(new File(savedData
-						.get(i).getImagePath()));
-				recreatedPicture.setTag(savedData.get(i).getTag());
-				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
-				savedPictures.add(recreatedPicture);
-				picturePanel.addThumbnailsToView(savedPictures,
-						zoomSlider.getValue());
-				Library.getPictureLibrary().add(recreatedPicture);
-			}
-			restoredObject.close();
-		} catch (EOFException exception) {
-			exception.printStackTrace();
-		}
 	}
 
 	// returns CenterPanel
@@ -1073,6 +1184,164 @@ public class MainFrame extends JFrame {
 
 	public int getZoomValue() {
 		return zoomSlider.getValue();
+	}
+
+	/*
+	 * Saves the pictureLibrary ArrayList.
+	 */
+	private void savePictureLibrary() {
+		try {
+			FileOutputStream savedPictureLibraryFile = new FileOutputStream(
+					"savedPictureLibrary.ser");
+            FSTObjectOutput savedPictureLibraryObject = new FSTObjectOutput(
+					savedPictureLibraryFile);
+			savedPictureLibraryObject.writeObject(Library.getPictureLibrary());
+			savedPictureLibraryObject.close();
+			System.out.println("Picture Library Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Library.deletePictureLibrary();
+	}
+	
+	/*
+	 * Saves the taggable components ArrayList.
+	 */
+	private void saveAllTaggableComponents() {
+		try{
+			FileOutputStream savedAllTaggableComponentSFile = new FileOutputStream(
+					"savedAllTaggableComponents.ser");
+			ObjectOutputStream savedAllTaggableComponentsObject = new ObjectOutputStream(
+					savedAllTaggableComponentSFile);
+			savedAllTaggableComponentsObject.writeObject(Library.getTaggableComponentsList());
+			savedAllTaggableComponentsObject.close();
+			System.out.println("All Taggable Components Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Library.deleteTaggableComponentsList();	
+	}
+	
+	/*
+	 * Saves the NurseryLocation.
+	 */
+	private void saveNurseryLocation() {
+		try{
+			FileOutputStream savedNurseryLocation = new FileOutputStream("savedNurseryLocation.ser");
+			ObjectOutputStream savedNurseryLocationObject = new ObjectOutputStream(savedNurseryLocation);
+			savedNurseryLocationObject.writeObject(Settings.NURSERY_LOCATION);
+			savedNurseryLocationObject.close();
+			System.out.println("Nursery Location Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Settings.NURSERY_LOCATION = "";
+	}
+	
+	/*
+	 * Saves the pictures Home Directory.
+	 */
+	private void savePicturesHomeDIR() {
+		try{
+			FileOutputStream savedPicturesHomeDIR = new FileOutputStream("savedPicturesHomeDIR.ser");
+			ObjectOutputStream savedPicturesHomeDIRObject = new ObjectOutputStream(savedPicturesHomeDIR);
+			savedPicturesHomeDIRObject.writeObject(Settings.PICTURE_HOME_DIR);
+			savedPicturesHomeDIRObject.close();
+			System.out.println("Pictures Home Directory Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Settings.PICTURE_HOME_DIR = null;
+	}
+	
+	/*
+	 * Returns the saved Picture Library ArrayList.
+	 */
+	private void getSavedPictureLibrary() {
+		try {
+			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
+            FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
+			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
+			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
+				Picture recreatedPicture = new Picture(new File(savedPictureLibraryData.get(i).getImagePath()));
+				recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
+				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
+				savedPictures.add(recreatedPicture);
+				Library.getPictureLibrary().add(recreatedPicture);
+			}
+			restoredPictureLibraryObject.close();
+		} catch (EOFException exception) {
+			exception.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedPictureLibrary.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved taggable components ArrayList.
+	 */
+	private void getSavedTaggableComponents() {
+		try{
+			FileInputStream savedTaggableComponents = new FileInputStream("savedAllTaggableComponents.ser");
+			ObjectInputStream restoredTaggableComponentsObject = new ObjectInputStream(savedTaggableComponents);
+			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject.readObject();
+			for(int i = 0; i < savedTaggableComponentsData.size(); i++) {
+				Library.getTaggableComponentsList().add(savedTaggableComponentsData.get(i));
+			}
+			restoredTaggableComponentsObject.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedAllTaggableComponents.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved Nursery Location.
+	 */
+	private void getSavedNurseryLocation() {
+		try{
+			FileInputStream savedNurseryName = new FileInputStream("savedNurseryLocation.ser");
+			ObjectInputStream restoredNurseryName = new ObjectInputStream(savedNurseryName);
+			Settings.NURSERY_LOCATION = (String)restoredNurseryName.readObject();
+			restoredNurseryName.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedNurseryLocation.ser not found!");
+		}
+	}
+	
+	/*
+	 * Returns the saved Pictures Home Directory.
+	 */
+	private void getSavedPicturesHomeDIR() {
+		try{
+			FileInputStream savedPicturesHomeDIR = new FileInputStream("savedPicturesHomeDIR.ser");
+			ObjectInputStream restoredPicturesHomeDIR = new ObjectInputStream(savedPicturesHomeDIR);
+			Settings.PICTURE_HOME_DIR = (File)restoredPicturesHomeDIR.readObject();
+			restoredPicturesHomeDIR.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		}  catch (IOException ex1) {
+			System.out.println("File savedPicturesHomeDIR.ser not found!");
+		}
 	}
 
 	public static void main(String[] args) {

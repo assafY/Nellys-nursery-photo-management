@@ -299,7 +299,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Rotates the actual picture file.
 	 */
 	private void rotateActualPictureFile() throws IOException {
-        ImageInputStream input = ImageIO.createImageInputStream(new File(filePath));
         Iterator writersBySuffix = ImageIO.getImageWritersBySuffix("jpeg");
         if(!writersBySuffix.hasNext()){
             throw new IllegalStateException("No writers");
@@ -308,7 +307,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         ImageWriter writer = (ImageWriter) writersBySuffix.next();
         ImageWriteParam imageWriteParam = writer.getDefaultWriteParam();
         imageWriteParam.setCompressionMode(ImageWriteParam.MODE_COPY_FROM_METADATA);
-        //  imageWriteParam.setCompressionQuality(1);
         ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(filePath));
         writer.setOutput(imageOutputStream);
         writer.write(null, new IIOImage(actualPicture, null, null), imageWriteParam);

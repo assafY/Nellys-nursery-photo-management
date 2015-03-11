@@ -1,11 +1,17 @@
 package Core;
 
 import Data.Picture;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Taggable {
+public abstract class Taggable implements Serializable {
 
-    private String name;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -149605517619597727L;
+	private String name;
     private ArrayList<Picture> taggedPictures;
 
     public Taggable(String name) {

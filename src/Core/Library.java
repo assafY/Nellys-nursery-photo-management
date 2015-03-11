@@ -1,6 +1,7 @@
 package Core;
 
 import Data.Picture;
+import GUI.MainFrame;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -169,6 +170,10 @@ public class Library implements Serializable {
 	public static void deletePictureLibrary()
 	{
 		pictureLibrary = null;
+	}
+	
+	public static void deleteTaggableComponentsList() {
+		taggableComponents = null;
 	}
 
 	public static Date getDate(String s) {

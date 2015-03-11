@@ -23,7 +23,7 @@ public class Picture implements Serializable{
     private Tag metadata;
     private transient BufferedImage thumbnail;
     private File imageFile;
-    private Object imageKey;
+    private transient Object imageKey;
 
     public Picture(File pictureFile) {
 
