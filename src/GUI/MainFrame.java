@@ -76,9 +76,6 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -652,6 +649,7 @@ public class MainFrame extends JFrame {
 
             }
         });
+
 		//Key Stroke Listeners
 		picturePanel.addKeyListener(l.new keyStrokes());
 		picturePanel.setFocusTraversalKeysEnabled(false);
@@ -893,27 +891,6 @@ public class MainFrame extends JFrame {
 
 			}
 
-		}
-
-
-
-			private class ImportButtonListener implements ActionListener {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// open system file manager to ask user for pictures to import
-				FileDialog importDialog = new FileDialog(MainFrame.this,
-						"Choose picture(s) to import", FileDialog.LOAD);
-				importDialog.setFile("*.jpg");
-				importDialog.setMultipleMode(true);
-				importDialog.setVisible(true);
-				if (Library.getPictureLibrary().size() == 0) {
-					setFocusable(true);
-					requestFocus();
-				}
-				// import pictures into library
-				//Library.importPicture(importDialog.getFiles());
-			}
 		}
 
 		/**
