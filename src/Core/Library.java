@@ -82,6 +82,7 @@ public class Library implements Serializable {
         // thumbnails are added to it by all threads
         final ArrayList<PictureLabel> allThumbsToDisplay = new ArrayList<PictureLabel>();
         picturesPanel.removeAll();
+        picturesPanel.removeAllThumbsFromDisplay();
                 try {
                     if (importedPictures.size() > 0) {
 

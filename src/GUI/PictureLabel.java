@@ -62,43 +62,48 @@ public class PictureLabel extends JLabel {
     }
 
     public void showThumbnail(int size) {
-        currentSize = size;
-        if(thumbnail.getHeight() > thumbnail.getWidth()) {
-            horizontal = false;
-            if (currentSize == 109) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 27)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,23,0,0));
-            } else if (currentSize == 119) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 30)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,26,0,0));
-            } else if (currentSize == 132) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 33)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,29,0,0));
-            } else if (currentSize == 148) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 37)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,32,0,0));
-            } else if (currentSize == 169) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 42)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,35,0,0));
-            } else if (currentSize == 196) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 49)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,41,0,0));
-            } else if (currentSize == 233) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 58)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,49,0,0));
-            } else if (currentSize == 288) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 72)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
-            } else if (currentSize == 377) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 94)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,78,0,0));
-            } else if (currentSize == 545) {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 136)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,114,0,0));
+        if (thumbnail != null) {
+            currentSize = size;
+            if (thumbnail.getHeight() > thumbnail.getWidth()) {
+                horizontal = false;
+                if (currentSize == 109) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 27)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 23, 0, 0));
+                } else if (currentSize == 119) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 30)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 26, 0, 0));
+                } else if (currentSize == 132) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 33)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 29, 0, 0));
+                } else if (currentSize == 148) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 37)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 0));
+                } else if (currentSize == 169) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 42)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 35, 0, 0));
+                } else if (currentSize == 196) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 49)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 41, 0, 0));
+                } else if (currentSize == 233) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 58)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
+                } else if (currentSize == 288) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 72)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
+                } else if (currentSize == 377) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 94)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
+                } else if (currentSize == 545) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 136)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
+                }
+            } else {
+                horizontal = true;
+                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
             }
-        } else {
-            horizontal = true;
-            setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
+        }
+        else {
+            System.out.println("Thumbnail not created for " + getPicture().getImagePath());
         }
     }
 
