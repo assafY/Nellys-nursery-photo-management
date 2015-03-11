@@ -1,6 +1,7 @@
 package Core;
 
 import Data.Picture;
+import GUI.MainFrame;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;

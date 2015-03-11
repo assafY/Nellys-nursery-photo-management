@@ -21,16 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -62,8 +53,10 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -75,6 +68,8 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -215,7 +210,7 @@ public class MainFrame extends JFrame {
 			}
 		}
 
-		if (Settings.CSV_PATH == null) {
+		if (Library.getTaggableComponentsList().size() == 0 && Settings.CSV_PATH == null) {
 			final JFileChooser csvFileChooser = new JFileChooser();
 			csvFileChooser.setDialogTitle("Select children list CSV file");
 			csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
@@ -460,8 +455,13 @@ public class MainFrame extends JFrame {
 			rotateButton = new JButton("Rotate");
 			deleteButton = new JButton("Delete");
 			printButton = new JButton("Print");
-			
-			fileSystemTree = new JTree(new SystemTreeModel(new File("C://")));
+
+            if (Settings.PICTURE_HOME_DIR != null) {
+                fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
+            }
+            else {
+                fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
+            }
 			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
@@ -922,26 +922,74 @@ public class MainFrame extends JFrame {
 	private class SystemTreeModel implements TreeModel {
 
 		private File rootFile;
+        private ArrayList<TreeModelListener> listeners;
 
 		public SystemTreeModel(File rootFile) {
 			this.rootFile = rootFile;
+            listeners = new ArrayList<TreeModelListener>();
 		}
 
 		@Override
-		public void addTreeModelListener(TreeModelListener arg0) {
-			// TODO Auto-generated method stub
-
+		public void addTreeModelListener(TreeModelListener l) {
+            if (l != null && !listeners.contains(l)) {
+                listeners.add(l);
+            }
 		}
 
+        private File[] getFiles(File parent) {
+            File[] files = parent.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File file) {
+                    return file.isDirectory();
+                }
+            });
+            return files != null ? files : new File[] {};
+        }
+
+        @Override
+        public int getChildCount(Object parent) {
+            return getFiles((File) parent).length;
+        }
+
+        @Override
+        public Object getChild(Object parent, int index) {
+            return getFiles((File) parent)[index];
+        }
+
+        @Override
+        public int getIndexOfChild(Object parent, Object child) {
+            File[] files = getFiles((File) parent);
+            for (int idx = 0; idx < files.length; idx++) {
+                if (files[idx].equals(child))
+                    return idx;
+            }
+            return -1;
+        }
+/*
 		@Override
 		public Object getChild(Object parent, int index) {
-			if (index < 0 || index > getChildCount(parent)) {
-				return null;
-			}
-			File folder = (File) parent;
-			String[] childrenFiles = folder.list();
-			return new File(folder, childrenFiles[index]);
 
+            /*if (index < 0 || index > getChildCount(parent)) {
+                return null;
+            }
+            File folder = (File) parent;
+            String[] childrenFiles = folder.list();
+            return new File(folder, childrenFiles[index]);
+
+            if (index < 0 || index > getChildCount(parent)) {
+                return null;
+            }
+
+            File folder = (File) parent;
+            File[] childrenFiles = folder.listFiles();
+
+            for (int i = index; i <= getChildCount(parent); ++i) {
+
+                if (!isLeaf(childrenFiles[i])) {
+                    return childrenFiles[i];
+                }
+            }
+            return -1;
 		}
 
 		@Override
@@ -949,21 +997,37 @@ public class MainFrame extends JFrame {
 			File folder = (File) parent;
 			if (folder.isDirectory()) {
 				try {
-					String[] filesInFolder = folder.list();
-					return filesInFolder.length;
+					File[] filesInFolder = folder.listFiles();
+                    int directoryCount = filesInFolder.length;
+                    for (File f: filesInFolder) {
+                        if (!f.isDirectory()) {
+                            --directoryCount;
+                            System.out.println(f + " is not a directory");
+                        }
+                        else {
+                            System.out.println(f + " IS a directory");
+                        }
+                    }
+					return directoryCount;
 				} catch (NullPointerException e) {
 					return 0;
 				}
 			} else {
 				return 0;
 			}
+            File f = (File) parent;
+            if (!f.isDirectory()) {
+                return 0;
+            } else {
+                return f.list().length;
+            }
 		}
 
 		@Override
 		public int getIndexOfChild(Object arg0, Object arg1) {
 			// TODO Auto-generated method stub
 			return 0;
-		}
+		}*/
 
 		@Override
 		public Object getRoot() {
@@ -972,12 +1036,15 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public boolean isLeaf(Object node) {
-			return false;
+            File f = (File) node;
+            return !f.isDirectory();
 		}
 
 		@Override
-		public void removeTreeModelListener(TreeModelListener arg0) {
-			// TODO Auto-generated method stub
+		public void removeTreeModelListener(TreeModelListener l) {
+            if (l != null) {
+                listeners.remove(l);
+            }
 
 		}
 
@@ -986,6 +1053,13 @@ public class MainFrame extends JFrame {
 			// TODO Auto-generated method stub
 
 		}
+
+        public void fireTreeStructureChanged(TreeModelEvent e) {
+            for (TreeModelListener l: listeners) {
+                l.treeStructureChanged(e);
+            }
+        }
+
 
 	}
 
@@ -1169,7 +1243,7 @@ public class MainFrame extends JFrame {
 	public int getZoomValue() {
 		return zoomSlider.getValue();
 	}
-	
+
 	/*
 	 * Saves the pictureLibrary ArrayList.
 	 */
@@ -1177,7 +1251,7 @@ public class MainFrame extends JFrame {
 		try {
 			FileOutputStream savedPictureLibraryFile = new FileOutputStream(
 					"savedPictureLibrary.ser");
-			ObjectOutputStream savedPictureLibraryObject = new ObjectOutputStream(
+            FSTObjectOutput savedPictureLibraryObject = new FSTObjectOutput(
 					savedPictureLibraryFile);
 			savedPictureLibraryObject.writeObject(Library.getPictureLibrary());
 			savedPictureLibraryObject.close();
@@ -1252,7 +1326,7 @@ public class MainFrame extends JFrame {
 	private void getSavedPictureLibrary() {
 		try {
 			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
-			ObjectInputStream restoredPictureLibraryObject = new ObjectInputStream(savedPictureLibraryFile);
+            FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
 			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
 				Picture recreatedPicture = new Picture(new File(savedPictureLibraryData.get(i).getImagePath()));
