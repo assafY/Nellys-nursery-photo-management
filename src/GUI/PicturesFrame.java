@@ -190,9 +190,10 @@ public class PicturesFrame extends JPanel {
 
             for (PictureLabel currentThumb: picturesToDisplay) {
                 this.add(currentThumb);
+                addThumbToDisplay(currentThumb);
                 currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
             }
-		createThumbnailArray();
+
 	}
 
 	public void keyAction(KeyEvent e, boolean shiftIsPressed) {

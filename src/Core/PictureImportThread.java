@@ -7,8 +7,10 @@ import java.io.File;
 import java.util.ArrayList;
 
 public class PictureImportThread extends Thread {
+
     File[] importedPictures;
     ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+
     public PictureImportThread(File[] importedPictures){
         this.importedPictures = importedPictures;
     }

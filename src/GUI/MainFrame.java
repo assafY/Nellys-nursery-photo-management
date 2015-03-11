@@ -1033,8 +1033,8 @@ public class MainFrame extends JFrame {
     /**
      * Search label panel is cleared of all components and is
      * reset using the list of current chosen tags to search by.
-     * Finally the thumbnail display is reset to include pictures
-     * which are tagged with all tags chosen in search.
+     * Finally the thumbnail display is reset to show pictures
+     * which are tagged with all tags chosen in the search.
      */
     public void refreshSearch() {
         ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
@@ -1050,25 +1050,30 @@ public class MainFrame extends JFrame {
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
                 allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
             }
+            // for every picture in the first picture list
             for (Picture p: allPictureListsList.get(0)) {
                 boolean pictureInAllLists = true;
+                // for every other picture list
                 for (int i = 1; i < allPictureListsList.size(); ++i) {
+                    // if a picture does not appear then the picture is not in intersection of all lists
                     if (!allPictureListsList.get(i).contains(p)) {
                         pictureInAllLists = false;
                         break;
                     }
                 }
+                // if the picture is tagged with all search tags
+                // and the new picture set does not already contain it
                 if (pictureInAllLists && !allPictureSet.contains(p)) {
-                    if (picturePanel.getPicturesOnDisplay().contains(p)) {
+                    /*if (picturePanel.getPicturesOnDisplay().contains(p)) {
                         for (PictureLabel pl: picturePanel.getThumbsOnDisplay()) {
                             if (pl.getPicture().equals(p)) {
                                 pl.showThumbnail(getZoomValue());
                             }
                         }
-                    }
-                    else {
+                    }*/
+                    //else {
                         allPictureSet.add(p);
-                    }
+                    //}
                 }
             }
         }
@@ -1080,8 +1085,6 @@ public class MainFrame extends JFrame {
         searchLabelPanel.revalidate();
 
         Library.importPicture(allPictureSet);
-        //picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
-        //picturePanel.createThumbnailArray();
     }
 
 	/**
