@@ -1225,6 +1225,7 @@ public class MainFrame extends JFrame {
 		} catch (IOException ex2) {
 			ex2.printStackTrace();
 		}
+		Settings.NURSERY_LOCATION = "";
 	}
 	
 	/*
@@ -1242,6 +1243,7 @@ public class MainFrame extends JFrame {
 		} catch (IOException ex2) {
 			ex2.printStackTrace();
 		}
+		Settings.PICTURE_HOME_DIR = null;
 	}
 	
 	/*
