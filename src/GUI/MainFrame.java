@@ -18,6 +18,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
+import com.sun.xml.internal.ws.api.config.management.policy.ManagementAssertion;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
@@ -178,6 +179,7 @@ public class MainFrame extends JFrame {
 		getSavedTaggableComponents();
 		getSavedNurseryLocation();
 		getSavedPicturesHomeDIR();
+        getSavedLastVisitedDIR();
 	}
 
 
@@ -455,6 +457,10 @@ public class MainFrame extends JFrame {
                 fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
             }
 			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            fileSystemTree.setExpandsSelectedPaths(true);
+            if (Settings.LAST_VISITED_PATH != null) {
+                fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
+            }
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
@@ -741,11 +747,14 @@ public class MainFrame extends JFrame {
 
         fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
+
+                Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
+                Settings.LAST_VISITED_DIR = (File)
+                        fileSystemTree.getLastSelectedPathComponent();
+
                 picturePanel.removeAll();
                 picturePanel.repaint();
                 picturePanel.removeAllThumbsFromDisplay();
-                Settings.LAST_VISITED_DIR = (File)
-                        fileSystemTree.getLastSelectedPathComponent();
 
                 if (Settings.LAST_VISITED_DIR == null) {
                     return;
@@ -1189,6 +1198,7 @@ public class MainFrame extends JFrame {
 				saveAllTaggableComponents();
 				saveNurseryLocation();
 				savePicturesHomeDIR();
+                saveLastVisitedDIR();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -1330,6 +1340,24 @@ public class MainFrame extends JFrame {
 		}
 		Settings.PICTURE_HOME_DIR = null;
 	}
+
+    /*
+	 * Saves the last visited Directory.
+	 */
+    private void saveLastVisitedDIR() {
+        try{
+            FileOutputStream savedLastVisitedDIR = new FileOutputStream("savedLastVisitedDIR.ser");
+            FSTObjectOutput savedLastVisitedDIRObject = new FSTObjectOutput(savedLastVisitedDIR);
+            savedLastVisitedDIRObject.writeObject(Settings.LAST_VISITED_PATH);
+            savedLastVisitedDIRObject.close();
+            System.out.println("Last Visited Directory Saved");
+        } catch (FileNotFoundException ex1) {
+            ex1.printStackTrace();
+        } catch (IOException ex2) {
+            ex2.printStackTrace();
+        }
+        Settings.LAST_VISITED_PATH = null;
+    }
 	
 	/*
 	 * Returns the saved Picture Library ArrayList.
@@ -1412,6 +1440,24 @@ public class MainFrame extends JFrame {
 			System.out.println("File savedPicturesHomeDIR.ser not found!");
 		}
 	}
+
+    /*
+	 * Returns the saved last visited directory.
+	 */
+    private void getSavedLastVisitedDIR() {
+        try{
+            FileInputStream savedLastVisitedDIR = new FileInputStream("savedLastVisitedDIR.ser");
+            FSTObjectInput restoredLastVisitedDIR = new FSTObjectInput(savedLastVisitedDIR);
+            Settings.LAST_VISITED_PATH = (TreePath) restoredLastVisitedDIR.readObject();
+            restoredLastVisitedDIR.close();
+        } catch (EOFException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex2) {
+            ex2.printStackTrace();
+        }  catch (IOException ex1) {
+            System.out.println("File savedLastVisitedDIR.ser not found!");
+        }
+    }
 
 	public static void main(String[] args) {
 

@@ -1,5 +1,6 @@
 package Core;
 
+import javax.swing.tree.TreePath;
 import java.io.File;
 
 public class Settings {
@@ -13,6 +14,7 @@ public class Settings {
     public static String CSV_PATH;
     public static File PICTURE_HOME_DIR;
     public static File LAST_VISITED_DIR;
+    public static TreePath LAST_VISITED_PATH;
     public static boolean IMPORT_IN_PROGRESS = false;
     public static boolean IMPORT_INTERRUPTED = false;
 
