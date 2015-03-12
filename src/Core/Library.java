@@ -8,13 +8,12 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Vector;
+import java.util.*;
 
 public class Library implements Serializable {
 
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
+    private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
     private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
@@ -45,6 +44,10 @@ public class Library implements Serializable {
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
         return pictureLibrary;
+    }
+
+    public static Map<File, ArrayList<Picture>> getDirectoryPictureMap() {
+        return directoryPictureMap;
     }
 
     /**

@@ -16,6 +16,7 @@ import java.awt.Rectangle;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import com.sun.xml.internal.ws.api.config.management.policy.ManagementAssertion;
@@ -759,6 +760,7 @@ public class MainFrame extends JFrame {
                 if (Settings.LAST_VISITED_DIR == null) {
                     return;
                 }
+
                 Settings.IMPORT_INTERRUPTED = true;
                 while (Settings.IMPORT_THREAD_COUNT > 0) {}
                 ArrayList<Picture> picturesToDisplay = dirToPictureList(Settings.LAST_VISITED_DIR);
