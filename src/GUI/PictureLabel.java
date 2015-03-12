@@ -32,6 +32,7 @@ public class PictureLabel extends JLabel {
         isSelected = false;
         this.picturePanel = mainFrame;
         this.addMouseListener(new ThumbnailMouseListener());
+        this.setAlignmentX(JLabel.CENTER);
     }
 
     public void createThumbnail() {
@@ -49,7 +50,7 @@ public class PictureLabel extends JLabel {
                 }
 
                 if (thumbnail != null) {
-                    thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[1]);
+                    thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[3]);
 
                 }
             //}
