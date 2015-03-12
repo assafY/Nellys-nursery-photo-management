@@ -1,10 +1,8 @@
 package GUI;
 
-import Core.Library;
 import Core.Settings;
 import Data.Picture;
 import org.imgscalr.Scalr;
-import sun.applet.Main;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,10 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class PictureLabel extends JLabel {
 
@@ -40,7 +35,7 @@ public class PictureLabel extends JLabel {
     }
 
     public void createThumbnail() {
-        thumbnail = null;
+        Settings.LOADED_THUMBNAILS_COUNT++;
 /*        for (PictureLabel p: picturePanel.getThumbsOnDisplay()) {
             System.out.println(p.getPicture().getImagePath());
             if (p.getPicture().equals(picture)) {
@@ -137,6 +132,11 @@ public class PictureLabel extends JLabel {
 
     public BufferedImage getThumbnail() {
         return thumbnail;
+    }
+
+    public void deleteThumbnail() {
+        thumbnail = null;
+        Settings.LOADED_THUMBNAILS_COUNT--;
     }
 
     @Override

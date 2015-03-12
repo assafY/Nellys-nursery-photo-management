@@ -181,6 +181,7 @@ public class MainFrame extends JFrame {
 		getSavedNurseryLocation();
 		getSavedPicturesHomeDIR();
         getSavedLastVisitedDIR();
+        getSavedDirectoryFileMap();
 	}
 
 
@@ -752,6 +753,7 @@ public class MainFrame extends JFrame {
                 Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
                 Settings.LAST_VISITED_DIR = (File)
                         fileSystemTree.getLastSelectedPathComponent();
+                System.out.println(((File) fileSystemTree.getLastSelectedPathComponent()).getPath() + "yes indeed");
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
@@ -763,7 +765,7 @@ public class MainFrame extends JFrame {
 
                 Settings.IMPORT_INTERRUPTED = true;
                 while (Settings.IMPORT_THREAD_COUNT > 0) {}
-                ArrayList<Picture> picturesToDisplay = dirToPictureList(Settings.LAST_VISITED_DIR);
+                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
                 Library.importPicture(picturesToDisplay);
 
             }
@@ -968,6 +970,17 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
+
+    private ArrayList<Picture> getAllSubPictures(File currentFolder) {
+        ArrayList<Picture> allSubPictures = new ArrayList<Picture>();
+        for (File f: currentFolder.listFiles()) {
+            if (f.isDirectory()) {
+                allSubPictures.addAll(getAllSubPictures(f));
+            }
+        }
+        allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
+        return allSubPictures;
+    }
 	
 	/*
 	 * Creates the File Tree Model
@@ -1058,16 +1071,6 @@ public class MainFrame extends JFrame {
 
 	}
 
-    private ArrayList<Picture> dirToPictureList(File dir) {
-        ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-        for (Picture p: Library.getPictureLibrary()) {
-            if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                picturesToDisplay.add(p);
-            }
-        }
-        return picturesToDisplay;
-    }
-
     /**
      * Search label panel is cleared of all components and is
      * reset using the list of current chosen tags to search by.
@@ -1083,7 +1086,7 @@ public class MainFrame extends JFrame {
         picturePanel.revalidate();
 
         if (currentSearchTags.size() == 0) {
-            allPictureSet = dirToPictureList(Settings.LAST_VISITED_DIR);
+            allPictureSet = Library.getDirectoryPictureMap().get(Settings.LAST_VISITED_DIR);
         }
         else if (currentSearchTags.size() > 1) {
             ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
@@ -1201,6 +1204,7 @@ public class MainFrame extends JFrame {
 				saveNurseryLocation();
 				savePicturesHomeDIR();
                 saveLastVisitedDIR();
+                saveDirectoryFileMap();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -1360,6 +1364,24 @@ public class MainFrame extends JFrame {
         }
         Settings.LAST_VISITED_PATH = null;
     }
+
+    /*
+	 * Saves the directory file hashmap.
+	 */
+    private void saveDirectoryFileMap() {
+        try{
+            FileOutputStream savedDirectoryFileMap = new FileOutputStream("savedDirectoryFileMap.ser");
+            FSTObjectOutput savedDirectoryFileMapObject = new FSTObjectOutput(savedDirectoryFileMap);
+            savedDirectoryFileMapObject.writeObject(Library.getDirectoryPictureMap());
+            savedDirectoryFileMapObject.close();
+            System.out.println("Directory File Map Saved");
+        } catch (FileNotFoundException ex1) {
+            ex1.printStackTrace();
+        } catch (IOException ex2) {
+            ex2.printStackTrace();
+        }
+        Library.setDirectoryPictureMap(null);
+    }
 	
 	/*
 	 * Returns the saved Picture Library ArrayList.
@@ -1458,6 +1480,24 @@ public class MainFrame extends JFrame {
             ex2.printStackTrace();
         }  catch (IOException ex1) {
             System.out.println("File savedLastVisitedDIR.ser not found!");
+        }
+    }
+
+    /*
+	 * Returns the saved directory file hashmap.
+	 */
+    private void getSavedDirectoryFileMap() {
+        try{
+            FileInputStream savedDirectoryFileMap = new FileInputStream("savedDirectoryFileMap.ser");
+            FSTObjectInput restoredDirectoryFileMap = new FSTObjectInput(savedDirectoryFileMap);
+            Library.setDirectoryPictureMap((Map<File, ArrayList<Picture>>) restoredDirectoryFileMap.readObject());
+            restoredDirectoryFileMap.close();
+        } catch (EOFException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex2) {
+            ex2.printStackTrace();
+        }  catch (IOException ex1) {
+            System.out.println("File savedDirectoryFileMap.ser not found!");
         }
     }
 

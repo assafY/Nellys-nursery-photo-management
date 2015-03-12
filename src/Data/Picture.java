@@ -22,6 +22,7 @@ public class Picture implements Serializable{
     private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
     private File imageFile;
+
     private transient Object imageKey;
 
     public Picture(File pictureFile) {

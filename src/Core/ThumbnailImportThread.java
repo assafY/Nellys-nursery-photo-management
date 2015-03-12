@@ -18,7 +18,7 @@ public class ThumbnailImportThread extends Thread {
 
     public void run() {
         try {
-            while (Settings.IMPORT_THREAD_COUNT > 10) {
+            while (Settings.IMPORT_THREAD_COUNT > 5) {
                 sleep(500);
             }
             ++Settings.IMPORT_THREAD_COUNT;

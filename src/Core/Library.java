@@ -13,6 +13,7 @@ import java.util.*;
 public class Library implements Serializable {
 
     private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
+    private static ArrayList<PictureLabel> allPicturesLabels = new ArrayList<PictureLabel>();
     private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
@@ -50,6 +51,14 @@ public class Library implements Serializable {
         return directoryPictureMap;
     }
 
+    public static ArrayList<PictureLabel> getAllPicturesLabels() {
+        return allPicturesLabels;
+    }
+
+    public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
+        directoryPictureMap = newMap;
+    }
+
     /**
      *
      *
@@ -70,7 +79,7 @@ public class Library implements Serializable {
         if (importedPictures.size() > 0) {
 
             //specify no. of threads not including thread for leftover pictures
-            int noOfThreads = 10;
+            int noOfThreads = 5;
             //size of array
             int importSize = importedPictures.size();
             //leftover calculated by size of array % no. of threads
