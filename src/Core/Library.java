@@ -8,7 +8,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Vector;
@@ -48,28 +47,6 @@ public class Library implements Serializable {
         return pictureLibrary;
     }
 
-    /*public static void loadPictures(File currentDir) {
-        if (currentDir != null) {
-            ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
-            for (File currentFile : currentDir.listFiles()) {
-                if (currentFile.isDirectory()) {
-                loadPictures(currentFile);
-                }
-                else {
-                    if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
-                            FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
-                        currentDirectoryFiles.add(currentFile);
-                    }
-                }
-            }
-            File picturesToImport[] = new File[currentDirectoryFiles.size()];
-            for (int i = 0; i < picturesToImport.length; ++i) {
-                picturesToImport[i] = currentDirectoryFiles.get(i);
-            }
-            Library.importPicture(picturesToImport);
-        }
-    }*/
-
     /**
      *
      *
@@ -77,88 +54,83 @@ public class Library implements Serializable {
      */
     public static void importPicture(final ArrayList<Picture> importedPictures) {
 
+        Settings.IMPORT_IN_PROGRESS = true;
+
         final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0).getPicturesPanel();
         // master list of all thumbnails to be shown
         // thumbnails are added to it by all threads
         final ArrayList<PictureLabel> allThumbsToDisplay = new ArrayList<PictureLabel>();
         picturesPanel.removeAll();
-        picturesPanel.removeAllThumbsFromDisplay();
-                try {
-                    if (importedPictures.size() > 0) {
+        //picturesPanel.removeAllThumbsFromDisplay();
+        picturesPanel.revalidate();
 
-                        //specify no. of threads not including thread for leftover pictures
-                        int noOfThreads = 10;
-                        //size of array
-                        int importSize = importedPictures.size();
-                        //leftover calculated by size of array % no. of threads
-                        int leftover = 0;
+        if (importedPictures.size() > 0) {
 
-                        while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
-                            ++leftover;
-                            --importSize;
-                        }
-                        //if there are more pictures than threads to import pictures
-                        if (importedPictures.size() > noOfThreads) {
-                            //find out how many pictures will go in each thread and import
-                            int chunkSize = importSize / noOfThreads;
-                            for (int i = 0; i < importSize; i += chunkSize) {
-                                ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                                for (int j = i; j < i + chunkSize; ++j) {
-                                    PictureLabel currentThumb = new PictureLabel(importedPictures.get(j), picturesPanel);
-                                    thumbsToImport.add(currentThumb);
-                                    allThumbsToDisplay.add(currentThumb);
-                                    //picturesPanel.addThumbToDisplay(currentThumb);
-                                }
-                                new ThumbnailImportThread(thumbsToImport).start();
-                            }
-                            //import leftover pictures
-                            if (leftover > 0) {
-                                ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                                for (int i = 0; i < leftover; ++i) {
-                                    PictureLabel currentThumb = new PictureLabel(importedPictures.get(importSize - i - 1), picturesPanel);
-                                    thumbsToImport.add(currentThumb);
-                                    allThumbsToDisplay.add(currentThumb);
-                                    //picturesPanel.addThumbToDisplay(currentThumb);
-                                }
-                                ThumbnailImportThread leftoverThread = new ThumbnailImportThread(thumbsToImport);
-                                leftoverThread.start();
-                                try {
-                                    leftoverThread.join();
-                                } catch (InterruptedException e) {
+            //specify no. of threads not including thread for leftover pictures
+            int noOfThreads = 10;
+            //size of array
+            int importSize = importedPictures.size();
+            //leftover calculated by size of array % no. of threads
+            int leftover = 0;
 
-                                }
-                            }
-                        }
-                        //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
-                        else {
-                            ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                            for (Picture currentPic : importedPictures) {
-                                PictureLabel currentThumb = new PictureLabel(currentPic, picturesPanel);
-                                thumbsToImport.add(currentThumb);
-                                allThumbsToDisplay.add(currentThumb);
+            while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
+                ++leftover;
+                --importSize;
+            }
 
-                            }
-                            ThumbnailImportThread singleThread = new ThumbnailImportThread(thumbsToImport);
-                            singleThread.start();
-                            try {
-                                System.out.println("last thread");
-                                singleThread.join();
-                            } catch (InterruptedException e) {
-
-                            }
-                        }
+            Settings.IMPORT_INTERRUPTED = false;
+            //if there are more pictures than threads to import pictures
+            if (importedPictures.size() > noOfThreads) {
+                //find out how many pictures will go in each thread and import
+                int chunkSize = importSize / noOfThreads;
+                for (int i = 0; i < importSize; i += chunkSize) {
+                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
+                    for (int j = i; j < i + chunkSize; ++j) {
+                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(j), picturesPanel);
+                        thumbsToImport.add(currentThumb);
+                        allThumbsToDisplay.add(currentThumb);
+                    }
+                    new ThumbnailImportThread(thumbsToImport).start();
+                }
+                //import leftover pictures
+                if (leftover > 0) {
+                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
+                    for (int i = 0; i < leftover; ++i) {
+                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(importSize - i - 1), picturesPanel);
+                        thumbsToImport.add(currentThumb);
+                        allThumbsToDisplay.add(currentThumb);
                     }
 
-                } finally {
-
-                    /*for (PictureLabel p: picturesPanel.getThumbsOnDisplay()) {
-                        if (!allThumbsToDisplay.contains(p)) {
-                            picturesPanel.removeThumbFromDisplay(p);
-                        }
-                    }*/
-                    picturesPanel.addThumbnailsToView(allThumbsToDisplay, picturesPanel.getMainFrame().getZoomValue());
-                    picturesPanel.createThumbnailArray();
+                    try {
+                        ThumbnailImportThread leftoverThread = new ThumbnailImportThread(thumbsToImport);
+                        leftoverThread.start();
+                    } finally {
+                        picturesPanel.createThumbnailArray();
+                        Settings.IMPORT_IN_PROGRESS = false;
+                        Settings.IMPORT_INTERRUPTED = false;
+                    }
                 }
+            }
+            //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
+            else {
+                ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
+                for (Picture currentPic : importedPictures) {
+                    PictureLabel currentThumb = new PictureLabel(currentPic, picturesPanel);
+                    thumbsToImport.add(currentThumb);
+                    allThumbsToDisplay.add(currentThumb);
+
+                }
+                try {
+                ThumbnailImportThread singleThread = new ThumbnailImportThread(thumbsToImport);
+                singleThread.start();
+
+                } finally {
+                    picturesPanel.createThumbnailArray();
+                    Settings.IMPORT_IN_PROGRESS = false;
+                    Settings.IMPORT_INTERRUPTED = false;
+                }
+            }
+        }
     }
 
     /**

@@ -12,6 +12,9 @@ public class Settings {
     public static String NURSERY_LOCATION;
     public static String CSV_PATH;
     public static File PICTURE_HOME_DIR;
+    public static File LAST_VISITED_DIR;
+    public static boolean IMPORT_IN_PROGRESS = false;
+    public static boolean IMPORT_INTERRUPTED = false;
 
 
 }

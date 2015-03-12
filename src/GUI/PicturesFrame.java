@@ -81,7 +81,9 @@ public class PicturesFrame extends JPanel {
 
 			this.revalidate();
 			this.repaint();
-			createThumbnailArray();
+			if (!Settings.IMPORT_IN_PROGRESS) {
+                createThumbnailArray();
+            }
 		}
 
 	}
@@ -195,6 +197,13 @@ public class PicturesFrame extends JPanel {
             }
 
 	}
+
+    public void addThumbnailToView(PictureLabel currentThumb,
+                                    int zoomSize) {
+            this.add(currentThumb);
+            addThumbToDisplay(currentThumb);
+            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
+    }
 
 	public void keyAction(KeyEvent e, boolean shiftIsPressed) {
 		this.shiftIsPressed = shiftIsPressed;

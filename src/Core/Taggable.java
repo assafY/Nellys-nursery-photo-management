@@ -26,7 +26,15 @@ public abstract class Taggable implements Serializable {
     }
 
     public void addTaggedPicture(Picture picture) {
-        taggedPictures.add(picture);
+        boolean alreadyTagged = false;
+        for (Picture p: taggedPictures) {
+            if (picture.getImagePath().equals(p.getImagePath())) {
+                alreadyTagged = true;
+            }
+        }
+        if (!alreadyTagged) {
+            taggedPictures.add(picture);
+        }
     }
 
     public void removeTaggedPicture(Picture picture) {

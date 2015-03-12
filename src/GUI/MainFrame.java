@@ -44,12 +44,10 @@ import javax.swing.WindowConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -740,6 +738,25 @@ public class MainFrame extends JFrame {
 				// TODO: see if we need done button
 			}
 		});
+
+        fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+                Settings.LAST_VISITED_DIR = (File)
+                        fileSystemTree.getLastSelectedPathComponent();
+
+                if (Settings.LAST_VISITED_DIR == null) {
+                    return;
+                }
+                Settings.IMPORT_INTERRUPTED = true;
+                while (Settings.IMPORT_THREAD_COUNT > 0) {}
+                ArrayList<Picture> picturesToDisplay = dirToPictureList(Settings.LAST_VISITED_DIR);
+                Library.importPicture(picturesToDisplay);
+
+            }
+        });
 	}
 
 	private class Listeners {
@@ -811,7 +828,7 @@ public class MainFrame extends JFrame {
 					for (Taggable t : Library.getTaggableComponentsList()) {
 						if (tagField.getText().toLowerCase()
 								.equals(t.getName().toLowerCase())) {
-							for (Picture p : picturePanel.getSelectedPictures()) {
+							for (Picture p : picturesToTag) {
 								if (!p.getTag().getTaggedComponents()
 										.contains(t)) {
 									// if this is an area tag only tag if
@@ -916,7 +933,7 @@ public class MainFrame extends JFrame {
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
+                //picturePanel.removeAllThumbsFromDisplay();
                 //picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
             }
         }
@@ -1030,6 +1047,16 @@ public class MainFrame extends JFrame {
 
 	}
 
+    private ArrayList<Picture> dirToPictureList(File dir) {
+        ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+        for (Picture p: Library.getPictureLibrary()) {
+            if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                picturesToDisplay.add(p);
+            }
+        }
+        return picturesToDisplay;
+    }
+
     /**
      * Search label panel is cleared of all components and is
      * reset using the list of current chosen tags to search by.
@@ -1041,8 +1068,11 @@ public class MainFrame extends JFrame {
         searchLabelPanel.removeAll();
         searchLabelPanel.repaint();
 
+        picturePanel.removeAll();
+        picturePanel.revalidate();
+
         if (currentSearchTags.size() == 0) {
-            allPictureSet = Library.getPictureLibrary();
+            allPictureSet = dirToPictureList(Settings.LAST_VISITED_DIR);
         }
         else if (currentSearchTags.size() > 1) {
             ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
@@ -1083,7 +1113,7 @@ public class MainFrame extends JFrame {
         }
 
         searchLabelPanel.revalidate();
-
+        picturePanel.removeAllThumbsFromDisplay();
         Library.importPicture(allPictureSet);
     }
 
@@ -1252,7 +1282,7 @@ public class MainFrame extends JFrame {
 		try{
 			FileOutputStream savedAllTaggableComponentSFile = new FileOutputStream(
 					"savedAllTaggableComponents.ser");
-			ObjectOutputStream savedAllTaggableComponentsObject = new ObjectOutputStream(
+            FSTObjectOutput savedAllTaggableComponentsObject = new FSTObjectOutput(
 					savedAllTaggableComponentSFile);
 			savedAllTaggableComponentsObject.writeObject(Library.getTaggableComponentsList());
 			savedAllTaggableComponentsObject.close();
@@ -1271,7 +1301,7 @@ public class MainFrame extends JFrame {
 	private void saveNurseryLocation() {
 		try{
 			FileOutputStream savedNurseryLocation = new FileOutputStream("savedNurseryLocation.ser");
-			ObjectOutputStream savedNurseryLocationObject = new ObjectOutputStream(savedNurseryLocation);
+            FSTObjectOutput savedNurseryLocationObject = new FSTObjectOutput(savedNurseryLocation);
 			savedNurseryLocationObject.writeObject(Settings.NURSERY_LOCATION);
 			savedNurseryLocationObject.close();
 			System.out.println("Nursery Location Saved");
@@ -1289,7 +1319,7 @@ public class MainFrame extends JFrame {
 	private void savePicturesHomeDIR() {
 		try{
 			FileOutputStream savedPicturesHomeDIR = new FileOutputStream("savedPicturesHomeDIR.ser");
-			ObjectOutputStream savedPicturesHomeDIRObject = new ObjectOutputStream(savedPicturesHomeDIR);
+            FSTObjectOutput savedPicturesHomeDIRObject = new FSTObjectOutput(savedPicturesHomeDIR);
 			savedPicturesHomeDIRObject.writeObject(Settings.PICTURE_HOME_DIR);
 			savedPicturesHomeDIRObject.close();
 			System.out.println("Pictures Home Directory Saved");
@@ -1332,7 +1362,7 @@ public class MainFrame extends JFrame {
 	private void getSavedTaggableComponents() {
 		try{
 			FileInputStream savedTaggableComponents = new FileInputStream("savedAllTaggableComponents.ser");
-			ObjectInputStream restoredTaggableComponentsObject = new ObjectInputStream(savedTaggableComponents);
+            FSTObjectInput restoredTaggableComponentsObject = new FSTObjectInput(savedTaggableComponents);
 			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject.readObject();
 			for(int i = 0; i < savedTaggableComponentsData.size(); i++) {
 				Library.getTaggableComponentsList().add(savedTaggableComponentsData.get(i));
@@ -1353,7 +1383,7 @@ public class MainFrame extends JFrame {
 	private void getSavedNurseryLocation() {
 		try{
 			FileInputStream savedNurseryName = new FileInputStream("savedNurseryLocation.ser");
-			ObjectInputStream restoredNurseryName = new ObjectInputStream(savedNurseryName);
+            FSTObjectInput restoredNurseryName = new FSTObjectInput(savedNurseryName);
 			Settings.NURSERY_LOCATION = (String)restoredNurseryName.readObject();
 			restoredNurseryName.close();
 		} catch (EOFException ex) {
@@ -1371,7 +1401,7 @@ public class MainFrame extends JFrame {
 	private void getSavedPicturesHomeDIR() {
 		try{
 			FileInputStream savedPicturesHomeDIR = new FileInputStream("savedPicturesHomeDIR.ser");
-			ObjectInputStream restoredPicturesHomeDIR = new ObjectInputStream(savedPicturesHomeDIR);
+            FSTObjectInput restoredPicturesHomeDIR = new FSTObjectInput(savedPicturesHomeDIR);
 			Settings.PICTURE_HOME_DIR = (File)restoredPicturesHomeDIR.readObject();
 			restoredPicturesHomeDIR.close();
 		} catch (EOFException ex) {

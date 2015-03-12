@@ -29,7 +29,7 @@ public class Picture implements Serializable{
         this.imageFile = pictureFile;
         metadata = new Tag();
 
-        getDateAndKey();
+          getDateAndKey();
     }
 
 
@@ -49,7 +49,7 @@ public class Picture implements Serializable{
         }
 
         // store unique file key
-        imageKey = attr.fileKey();
+        //imageKey = attr.fileKey();
         Date pictureTakenDate;
         // get original date and time picture was taken and add to metadata
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
