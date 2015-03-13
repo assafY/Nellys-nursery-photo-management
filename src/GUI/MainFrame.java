@@ -156,9 +156,7 @@ public class MainFrame extends JFrame {
 		createPanels();
 		addListeners();
 		saveData();
-        if (Settings.PICTURE_HOME_DIR != null) {
-            Library.importFolder(Settings.PICTURE_HOME_DIR);
-        }
+
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -169,6 +167,10 @@ public class MainFrame extends JFrame {
 		pack();
 		setVisible(true);
 		frames.add(this);
+
+        if (Settings.PICTURE_HOME_DIR != null) {
+            Library.importFolder(Settings.PICTURE_HOME_DIR);
+        }
 	}
 	
 	/*

@@ -86,7 +86,6 @@ public class Library implements Serializable {
         final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0).getPicturesPanel();
         // master list of all thumbnails to be shown
         // thumbnails are added to it by all threads
-        final ArrayList<PictureLabel> allThumbsToDisplay = new ArrayList<PictureLabel>();
         picturesPanel.removeAll();
         //picturesPanel.removeAllThumbsFromDisplay();
         picturesPanel.revalidate();
@@ -112,9 +111,7 @@ public class Library implements Serializable {
                 for (int i = 0; i < importSize; i += chunkSize) {
                     ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
                     for (int j = i; j < i + chunkSize; ++j) {
-                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(j), picturesPanel);
-                        thumbsToImport.add(currentThumb);
-                        allThumbsToDisplay.add(currentThumb);
+                        thumbsToImport.add(importedPictures.get(j).getPictureLabel());
                     }
                     new ThumbnailImportThread(thumbsToImport).start();
                 }
@@ -122,9 +119,7 @@ public class Library implements Serializable {
                 if (leftover > 0) {
                     ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
                     for (int i = 0; i < leftover; ++i) {
-                        PictureLabel currentThumb = new PictureLabel(importedPictures.get(importSize - i - 1), picturesPanel);
-                        thumbsToImport.add(currentThumb);
-                        allThumbsToDisplay.add(currentThumb);
+                        thumbsToImport.add(importedPictures.get(importSize - i - 1).getPictureLabel());
                     }
 
                     try {
@@ -140,9 +135,7 @@ public class Library implements Serializable {
             else {
                 ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
                 for (Picture currentPic : importedPictures) {
-                    PictureLabel currentThumb = new PictureLabel(currentPic, picturesPanel);
-                    thumbsToImport.add(currentThumb);
-                    allThumbsToDisplay.add(currentThumb);
+                    thumbsToImport.add(currentPic.getPictureLabel());
 
                 }
                 try {

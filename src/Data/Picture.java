@@ -1,15 +1,12 @@
 package Data;
 
 import Core.Settings;
+import GUI.MainFrame;
+import GUI.PictureLabel;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import org.imgscalr.Scalr;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -22,6 +19,7 @@ public class Picture implements Serializable{
     private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
     private File imageFile;
+    private PictureLabel pictureLabel;
 
     private transient Object imageKey;
 
@@ -29,6 +27,8 @@ public class Picture implements Serializable{
 
         this.imageFile = pictureFile;
         metadata = new Tag();
+
+       pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());
 
           getDateAndKey();
     }
@@ -64,6 +64,9 @@ public class Picture implements Serializable{
         }
     }
 
+    public PictureLabel getPictureLabel() {
+        return pictureLabel;
+    }
     public Object getImageKey() {
         return imageKey;
     }

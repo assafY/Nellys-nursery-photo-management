@@ -28,7 +28,6 @@ public class PictureLabel extends JLabel {
 
     public PictureLabel(Picture picture, PicturesFrame mainFrame) {
         this.picture = picture;
-        //createThumbnail();
         isSelected = false;
         this.picturePanel = mainFrame;
         this.addMouseListener(new ThumbnailMouseListener());

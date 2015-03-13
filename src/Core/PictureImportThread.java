@@ -30,8 +30,7 @@ public class PictureImportThread extends Thread {
                 // if it doesn't exist in library
                 if (!exists) {
                     // add picture to library
-                    Picture currentPicture = new Picture(
-                            importedPictures[i]);
+                    Picture currentPicture = new Picture(importedPictures[i]);
                     picturesToDisplay.add(currentPicture);
                 }
 
