@@ -14,17 +14,23 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Rectangle;
 import java.awt.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-
-import com.sun.xml.internal.ws.api.config.management.policy.ManagementAssertion;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -49,10 +55,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 
 import Core.Library;
 import Core.Settings;
@@ -465,6 +468,15 @@ public class MainFrame extends JFrame {
             if (Settings.LAST_VISITED_PATH != null) {
                 fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
             }
+            fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
+                @Override
+                public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                    System.out.println(value);
+                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+                    setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
+                    return this;
+                }
+            });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
@@ -1039,9 +1051,9 @@ public class MainFrame extends JFrame {
         @Override
         public int getIndexOfChild(Object parent, Object child) {
             File[] files = getFiles((File) parent);
-            for (int idx = 0; idx < files.length; idx++) {
-                if (files[idx].equals(child))
-                    return idx;
+            for (int i = 0; i < files.length; ++i) {
+                if (files[i].equals(child))
+                    return i;
             }
             return -1;
         }
