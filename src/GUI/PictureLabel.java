@@ -120,6 +120,21 @@ public class PictureLabel extends JLabel {
 
         }
     }
+    
+    /**
+     * !Only for use when selecting another picture than the current selection!
+     * Selects this picture as the only one selected
+     */
+    public void setAsOnlySelection() {
+    	
+            picturePanel.removeAllSelectedThumbs();
+            picturePanel.addSelectedThumb(PictureLabel.this);
+            picturePanel.setMostRecentSelection(PictureLabel.this);
+            picturePanel.refresh();
+            picturePanel.createTagLabels();
+            toggleSelection();
+
+    }
 
     public class ThumbnailMouseListener extends MouseAdapter {
 

@@ -272,7 +272,11 @@ public class FullScreenPicturesFrame extends JInternalFrame {
             //TODO: Handle exception
 			e1.printStackTrace();
 		}
-		filePath = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getPicture().getImagePath();
+		// moves index in the background to the new picture
+		PictureLabel currentPictureLabel = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a);
+		currentPictureLabel.setAsOnlySelection();
+		// --- end of move
+		filePath = currentPictureLabel.getPicture().getImagePath();
 		try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {

@@ -92,18 +92,13 @@ public class TagPanel extends JPanel {
     }
 
     /**
-     * This method creates tag labels when a components are tagged in a
+     * This method creates tag labels when components are tagged in a
      * selected thumbnail. It redraws all labels for a picture every time a
      * component is tagged or removed from the picture metadata.
      */
     public void resetTagLabels() {
 
-        childTagPanel.removeAll();
-        childTagPanel.repaint();
-        areaTagPanel.removeAll();
-        areaTagPanel.repaint();
-        dateTagPanel.removeAll();
-        dateTagPanel.repaint();
+        removeTagLabels();
 
         // array list to keep all children tagged in a selected
         // thumbnail or thumbnails
