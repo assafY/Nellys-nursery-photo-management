@@ -25,19 +25,15 @@ public class ThumbnailImportThread extends Thread {
             // for evey thumbnail requesting view in GUI
             for (PictureLabel p : picturesToDisplay) {
                 if (isInterrupted()) {
-                    mainFrame.getPicturesPanel().removeAll();
+                    //mainFrame.getPicturesPanel().removeAll();
                     break;
                 }
                // if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().contains(p)) {
+                if (p.getThumbnail() == null) {
                     p.createThumbnail();
                     mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
                     System.out.println("added: " + p.getPicture().getImagePath());
-               /* } else {
-                    if (p.getThumbnail() != null) {
-                        mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
-                        System.out.println("showing existing thumb: " + p.getPicture().getImagePath());
-                    }
-                }*/
+                }
             }
 
         } catch (InterruptedException e) {

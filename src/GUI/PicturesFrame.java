@@ -200,7 +200,7 @@ public class PicturesFrame extends JPanel {
 
     public void addThumbnailToView(PictureLabel currentThumb,
                                     int zoomSize) {
-            this.add(currentThumb);
+            //this.add(currentThumb);
             addThumbToDisplay(currentThumb);
             currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
     }

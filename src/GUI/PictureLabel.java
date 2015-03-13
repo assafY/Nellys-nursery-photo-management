@@ -13,10 +13,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
-public class PictureLabel extends JLabel {
+public class PictureLabel extends JLabel implements Serializable{
 
     private static final int DEFAULT_SIZE = Settings.THUMBNAIL_SIZES[4];
+    private static final long serialVersionUID = 8439367751494088459L;
 
     private Picture picture;
     private int currentSize;

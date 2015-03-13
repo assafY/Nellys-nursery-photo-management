@@ -25,6 +25,7 @@ public class PictureImportThread extends Thread {
                     if (importedPictures[i].getPath().equals(
                             Library.getPictureLibrary().get(j).getImagePath())) {
                         exists = true;
+                        break;
                     }
                 }
                 // if it doesn't exist in library

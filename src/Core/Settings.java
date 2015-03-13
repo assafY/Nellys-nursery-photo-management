@@ -11,13 +11,11 @@ public class Settings {
     public static final String[] AREA_NAMES = {"Babies Room", "Main Room", "Garden"};
     public static int IMPORT_THREAD_COUNT = 0;
     public static int LOADED_THUMBNAILS_COUNT = 0;
-
+    public static boolean IMPORT_IN_PROGRESS = false;
     public static String NURSERY_LOCATION;
     public static String CSV_PATH;
     public static File PICTURE_HOME_DIR;
     public static File LAST_VISITED_DIR;
     public static TreePath LAST_VISITED_PATH;
-    public static boolean IMPORT_IN_PROGRESS = false;
-    public static boolean IMPORT_INTERRUPTED = false;
 
 }

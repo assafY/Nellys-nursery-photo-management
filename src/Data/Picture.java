@@ -19,7 +19,7 @@ public class Picture implements Serializable{
     private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
     private File imageFile;
-    private PictureLabel pictureLabel;
+    private transient PictureLabel pictureLabel = null;
 
     private transient Object imageKey;
 
@@ -27,13 +27,9 @@ public class Picture implements Serializable{
 
         this.imageFile = pictureFile;
         metadata = new Tag();
-
-       pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());
-
-          getDateAndKey();
+        createPictureLabel();
+        getDateAndKey();
     }
-
-
 
     //TODO what if there is no date and key? boolean maybe?
     private void getDateAndKey() {
@@ -64,7 +60,15 @@ public class Picture implements Serializable{
         }
     }
 
+    public void createPictureLabel() {
+        if (MainFrame.getMainFrames().size() > 0) {
+            if (pictureLabel == null) {
+                pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());
+            }
+        }
+    }
     public PictureLabel getPictureLabel() {
+        createPictureLabel();
         return pictureLabel;
     }
     public Object getImageKey() {

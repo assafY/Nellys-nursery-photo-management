@@ -86,7 +86,7 @@ public class Library implements Serializable {
         final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0).getPicturesPanel();
         // master list of all thumbnails to be shown
         // thumbnails are added to it by all threads
-        picturesPanel.removeAll();
+        //picturesPanel.removeAll();
         //picturesPanel.removeAllThumbsFromDisplay();
         picturesPanel.revalidate();
 

@@ -759,7 +759,6 @@ public class MainFrame extends JFrame {
                 Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
                 Settings.LAST_VISITED_DIR = (File)
                         fileSystemTree.getLastSelectedPathComponent();
-                System.out.println(((File) fileSystemTree.getLastSelectedPathComponent()).getPath() + "yes indeed");
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
@@ -769,8 +768,10 @@ public class MainFrame extends JFrame {
                     return;
                 }
 
-                while (Settings.IMPORT_THREAD_COUNT > 0) {}
                 ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.add(p.getPictureLabel());
+                }
                 Library.importPicture(picturesToDisplay);
 
             }
