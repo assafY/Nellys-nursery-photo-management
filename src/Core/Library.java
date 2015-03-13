@@ -12,8 +12,9 @@ import java.util.*;
 
 public class Library implements Serializable {
 
-    private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
-    private static ArrayList<PictureLabel> allPicturesLabels = new ArrayList<PictureLabel>();
+    private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
+    private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
+    private static ArrayList<PictureLabel> ALL_PICTURE_LABELS = new ArrayList<PictureLabel>();
     private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
@@ -44,7 +45,7 @@ public class Library implements Serializable {
     }
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
-        return pictureLibrary;
+        return PICTURE_LIBRARY;
     }
 
     public static Map<File, ArrayList<Picture>> getDirectoryPictureMap() {
@@ -52,11 +53,25 @@ public class Library implements Serializable {
     }
 
     public static ArrayList<PictureLabel> getAllPicturesLabels() {
-        return allPicturesLabels;
+        return ALL_PICTURE_LABELS;
     }
 
     public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
         directoryPictureMap = newMap;
+    }
+
+    public static ArrayList<Thread> getRunningThreads() {
+        return RUNNING_THREADS;
+    }
+
+    public static void addRunningThread(Thread t) {
+        if (!RUNNING_THREADS.contains(t)) {
+            RUNNING_THREADS.add(t);
+        }
+    }
+
+    public static void removeRunningThread(Thread t) {
+        RUNNING_THREADS.remove(t);
     }
 
     /**
@@ -90,7 +105,6 @@ public class Library implements Serializable {
                 --importSize;
             }
 
-            Settings.IMPORT_INTERRUPTED = false;
             //if there are more pictures than threads to import pictures
             if (importedPictures.size() > noOfThreads) {
                 //find out how many pictures will go in each thread and import
@@ -119,7 +133,6 @@ public class Library implements Serializable {
                     } finally {
                         picturesPanel.createThumbnailArray();
                         Settings.IMPORT_IN_PROGRESS = false;
-                        Settings.IMPORT_INTERRUPTED = false;
                     }
                 }
             }
@@ -139,7 +152,6 @@ public class Library implements Serializable {
                 } finally {
                     picturesPanel.createThumbnailArray();
                     Settings.IMPORT_IN_PROGRESS = false;
-                    Settings.IMPORT_INTERRUPTED = false;
                 }
             }
         }
@@ -204,12 +216,12 @@ public class Library implements Serializable {
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
-		pictureLibrary.add(picture);
+		PICTURE_LIBRARY.add(picture);
 	}
 	
 	public static void deletePictureLibrary()
 	{
-		pictureLibrary = null;
+		PICTURE_LIBRARY = null;
 	}
 	
 	public static void deleteTaggableComponentsList() {

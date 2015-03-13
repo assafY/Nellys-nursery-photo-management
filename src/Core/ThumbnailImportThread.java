@@ -18,24 +18,26 @@ public class ThumbnailImportThread extends Thread {
 
     public void run() {
         try {
-            while (Settings.IMPORT_THREAD_COUNT > 5) {
+            while (Library.getRunningThreads().size() > 5) {
                 sleep(500);
             }
-            ++Settings.IMPORT_THREAD_COUNT;
+            Library.addRunningThread(this);
             // for evey thumbnail requesting view in GUI
-            if (!Settings.IMPORT_INTERRUPTED) {
-                for (PictureLabel p : picturesToDisplay) {
-                   // if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().contains(p)) {
-                        p.createThumbnail();
-                        mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
-                        System.out.println("added: " + p.getPicture().getImagePath());
-                   /* } else {
-                        if (p.getThumbnail() != null) {
-                            mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
-                            System.out.println("showing existing thumb: " + p.getPicture().getImagePath());
-                        }
-                    }*/
+            for (PictureLabel p : picturesToDisplay) {
+                if (isInterrupted()) {
+                    mainFrame.getPicturesPanel().removeAll();
+                    break;
                 }
+               // if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().contains(p)) {
+                    p.createThumbnail();
+                    mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
+                    System.out.println("added: " + p.getPicture().getImagePath());
+               /* } else {
+                    if (p.getThumbnail() != null) {
+                        mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
+                        System.out.println("showing existing thumb: " + p.getPicture().getImagePath());
+                    }
+                }*/
             }
 
         } catch (InterruptedException e) {
@@ -45,7 +47,7 @@ public class ThumbnailImportThread extends Thread {
 
                 public void run() {*/
                     //mainFrame.getPicturesPanel().addThumbnailsToView(picturesToDisplay, MainFrame.getMainFrames().get(0).getZoomValue());
-                    --Settings.IMPORT_THREAD_COUNT;
+                    Library.removeRunningThread(this);
                 /*}
             };
             SwingUtilities.invokeLater(displayPictures);*/

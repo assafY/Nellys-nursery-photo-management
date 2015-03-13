@@ -750,6 +750,10 @@ public class MainFrame extends JFrame {
         fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
 
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
+                }
+
                 Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
                 Settings.LAST_VISITED_DIR = (File)
                         fileSystemTree.getLastSelectedPathComponent();
@@ -763,7 +767,6 @@ public class MainFrame extends JFrame {
                     return;
                 }
 
-                Settings.IMPORT_INTERRUPTED = true;
                 while (Settings.IMPORT_THREAD_COUNT > 0) {}
                 ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
                 Library.importPicture(picturesToDisplay);
@@ -978,7 +981,9 @@ public class MainFrame extends JFrame {
                 allSubPictures.addAll(getAllSubPictures(f));
             }
         }
-        allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
+        if (Library.getDirectoryPictureMap().get(currentFolder) != null) {
+            allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
+        }
         return allSubPictures;
     }
 	
