@@ -44,6 +44,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		this.mainFrame = mainFrame;
 		this.filePath = filePath;
 		a = mainFrame.getPicturesPanel().getThumbsOnDisplay().indexOf(resizedPicture);
+        mainFrame.getSearchField().setFocusable(false);
 
 		getPicture();
         getThePictureIndex();

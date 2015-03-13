@@ -13,14 +13,7 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -155,7 +148,7 @@ public class MainFrame extends JFrame {
 
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
-		
+
 		addSavedData();
         startUpChecks();
         loadTaggableComponents();
@@ -394,6 +387,7 @@ public class MainFrame extends JFrame {
 			searchField = new JSuggestField(MainFrame.this,
 					Library.getTaggableComponentNamesVector(true));
 			searchField.setPreferredSize(new Dimension(210, 30));
+            searchField.setFocusable(false);
 			taggedRadioButton = new JRadioButton("Tagged");
 			untaggedRadioButton = new JRadioButton("Untagged");
 			incompleteRadioButton = new JRadioButton("Incomplete");
@@ -598,6 +592,37 @@ public class MainFrame extends JFrame {
         incompleteRadioButton.addActionListener(l.new RadioButtonListener());
         allRadioButton.addActionListener(l.new RadioButtonListener());
 
+        /* listener for the search field - the drop down menu is supposed to show up after one click
+           sometimes it's coming up after 2 clicks tho, probably coz I set the focus to false
+           will try to fix this by creating our own listener
+           leaving it as it is for the time being coz it's annoying as fuck
+         */
+
+        searchField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(e.getClickCount()==1) {
+                    searchField.setFocusable(true);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -1132,6 +1157,9 @@ public class MainFrame extends JFrame {
 			}
 		});
 	}
+
+    // returns searchField
+    public JSuggestField getSearchField(){ return searchField; }
 
 	// returns CenterPanel
 	public JPanel getCenterPanel() {
