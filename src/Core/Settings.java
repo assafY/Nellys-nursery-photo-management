@@ -9,6 +9,7 @@ public class Settings {
     public static final int AREA_TAG = 2;
     public static final int[] THUMBNAIL_SIZES = {377, 320, 288, 233, 196, 169, 148, 132, 119, 109};
     public static final String[] AREA_NAMES = {"Babies Room", "Main Room", "Garden"};
+    public static int THUMBNAIL_CACHE_SIZE = 100;
     public static int IMPORT_THREAD_COUNT = 0;
     public static int LOADED_THUMBNAILS_COUNT = 0;
     public static boolean IMPORT_IN_PROGRESS = false;

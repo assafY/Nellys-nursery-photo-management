@@ -9,45 +9,25 @@ import java.util.ArrayList;
 
 public class ThumbnailImportThread extends Thread {
 
-    ArrayList<PictureLabel> picturesToDisplay = new ArrayList<PictureLabel>();
+    PictureLabel pictureToDisplay;
     MainFrame mainFrame = MainFrame.getMainFrames().get(0);
 
-    public ThumbnailImportThread(ArrayList<PictureLabel> picturesToDisplay){
-        this.picturesToDisplay = picturesToDisplay;
+    public ThumbnailImportThread(PictureLabel pictureToDisplay){
+        this.pictureToDisplay = pictureToDisplay;
     }
 
     public void run() {
         try {
-            while (Library.getRunningThreads().size() > 5) {
-                sleep(500);
-            }
             Library.addRunningThread(this);
-            // for evey thumbnail requesting view in GUI
-            for (PictureLabel p : picturesToDisplay) {
-                if (isInterrupted()) {
-                    //mainFrame.getPicturesPanel().removeAll();
-                    break;
+
+            if (!isInterrupted()) {
+                if (pictureToDisplay.getThumbnail() == null) {
+                    pictureToDisplay.createThumbnail();
                 }
-               // if (!mainFrame.getPicturesPanel().getThumbsOnDisplay().contains(p)) {
-                if (p.getThumbnail() == null) {
-                    p.createThumbnail();
-                    mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
-                    System.out.println("added: " + p.getPicture().getImagePath());
-                }
+                mainFrame.getPicturesPanel().addThumbnailToView(pictureToDisplay, mainFrame.getZoomValue());
             }
-
-        } catch (InterruptedException e) {
-
-        } finally {
-            /*Runnable displayPictures = new Runnable() {
-
-                public void run() {*/
-                    //mainFrame.getPicturesPanel().addThumbnailsToView(picturesToDisplay, MainFrame.getMainFrames().get(0).getZoomValue());
+        }  finally {
                     Library.removeRunningThread(this);
-                /*}
-            };
-            SwingUtilities.invokeLater(displayPictures);*/
-
         }
     }
 }

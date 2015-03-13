@@ -99,9 +99,6 @@ public class PictureLabel extends JLabel implements Serializable{
                 setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
             }
         }
-        else {
-            System.out.println("Thumbnail not created for " + getPicture().getImagePath());
-        }
     }
 
     public void hideThumbnail() {

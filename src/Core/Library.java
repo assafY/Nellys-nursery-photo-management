@@ -14,7 +14,7 @@ public class Library implements Serializable {
 
     private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
     private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
-    private static ArrayList<PictureLabel> ALL_PICTURE_LABELS = new ArrayList<PictureLabel>();
+    private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
     private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
@@ -52,8 +52,8 @@ public class Library implements Serializable {
         return directoryPictureMap;
     }
 
-    public static ArrayList<PictureLabel> getAllPicturesLabels() {
-        return ALL_PICTURE_LABELS;
+    public static ArrayList<PictureLabel> getThumbnailCache() {
+        return THUMBNAIL_CACHE;
     }
 
     public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
@@ -77,77 +77,41 @@ public class Library implements Serializable {
     /**
      *
      *
-     * @param importedPictures File array for all pictures being imported in this batch
+     * @param importedPictures ArrayList of all pictures being imported in this batch
      */
     public static void importPicture(final ArrayList<Picture> importedPictures) {
 
         Settings.IMPORT_IN_PROGRESS = true;
 
         final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0).getPicturesPanel();
-        // master list of all thumbnails to be shown
-        // thumbnails are added to it by all threads
-        //picturesPanel.removeAll();
-        //picturesPanel.removeAllThumbsFromDisplay();
         picturesPanel.revalidate();
 
-        if (importedPictures.size() > 0) {
+        Thread thumbnailImport = new Thread() {
 
-            //specify no. of threads not including thread for leftover pictures
-            int noOfThreads = 5;
-            //size of array
-            int importSize = importedPictures.size();
-            //leftover calculated by size of array % no. of threads
-            int leftover = 0;
-
-            while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
-                ++leftover;
-                --importSize;
-            }
-
-            //if there are more pictures than threads to import pictures
-            if (importedPictures.size() > noOfThreads) {
-                //find out how many pictures will go in each thread and import
-                int chunkSize = importSize / noOfThreads;
-                for (int i = 0; i < importSize; i += chunkSize) {
-                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                    for (int j = i; j < i + chunkSize; ++j) {
-                        thumbsToImport.add(importedPictures.get(j).getPictureLabel());
-                    }
-                    new ThumbnailImportThread(thumbsToImport).start();
-                }
-                //import leftover pictures
-                if (leftover > 0) {
-                    ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                    for (int i = 0; i < leftover; ++i) {
-                        thumbsToImport.add(importedPictures.get(importSize - i - 1).getPictureLabel());
-                    }
-
-                    try {
-                        ThumbnailImportThread leftoverThread = new ThumbnailImportThread(thumbsToImport);
-                        leftoverThread.start();
-                    } finally {
-                        picturesPanel.createThumbnailArray();
-                        Settings.IMPORT_IN_PROGRESS = false;
-                    }
-                }
-            }
-            //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
-            else {
-                ArrayList<PictureLabel> thumbsToImport = new ArrayList<PictureLabel>();
-                for (Picture currentPic : importedPictures) {
-                    thumbsToImport.add(currentPic.getPictureLabel());
-
-                }
+            public void run() {
+                Library.addRunningThread(this);
                 try {
-                ThumbnailImportThread singleThread = new ThumbnailImportThread(thumbsToImport);
-                singleThread.start();
+                    if (importedPictures.size() > 0) {
+                        for (Picture p: importedPictures) {
+                            while (Library.getRunningThreads().size() > 10) {
+                                sleep(200);
+                            }
+                            if (isInterrupted()) {
+                                break;
+                            }
+                            new ThumbnailImportThread(p.getPictureLabel()).start();
+                        }
+                    }
+                } catch (InterruptedException e) {
 
                 } finally {
+                    Library.removeRunningThread(this);
                     picturesPanel.createThumbnailArray();
                     Settings.IMPORT_IN_PROGRESS = false;
                 }
             }
-        }
+        };
+        thumbnailImport.start();
     }
 
     /**
@@ -171,9 +135,7 @@ public class Library implements Serializable {
                 importFolder(file);
             }
         }
-
         File[] toProcess = new File[0];
-        System.out.println(nestedPictures.size() + " lqlq");
         if(nestedPictures.size() > 0){
             new PictureImportThread(nestedPictures.toArray(toProcess)).start();
         }

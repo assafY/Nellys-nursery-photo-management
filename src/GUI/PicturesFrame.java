@@ -109,15 +109,20 @@ public class PicturesFrame extends JPanel {
     }
 
 	public synchronized void addThumbToDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.add(thumb);
+        if (!thumbsOnDisplay.contains(thumb)) {
+            thumbsOnDisplay.add(thumb);
+            add(thumb);
+        }
 	}
 
 	public void removeThumbFromDisplay(PictureLabel thumb) {
 		thumbsOnDisplay.remove(thumb);
+        remove(thumb);
 	}
 
 	public void removeAllThumbsFromDisplay() {
 		thumbsOnDisplay = new ArrayList<PictureLabel>();
+        removeAll();
 	}
 
 	public ArrayList<PictureLabel> getSelectedThumbs() {
@@ -200,8 +205,7 @@ public class PicturesFrame extends JPanel {
 
     public void addThumbnailToView(PictureLabel currentThumb,
                                     int zoomSize) {
-            //this.add(currentThumb);
-            addThumbToDisplay(currentThumb);
+
             currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
     }
 

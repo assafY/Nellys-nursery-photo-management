@@ -770,7 +770,7 @@ public class MainFrame extends JFrame {
 
                 ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
                 for (Picture p: picturesToDisplay) {
-                    picturePanel.add(p.getPictureLabel());
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
                 }
                 Library.importPicture(picturesToDisplay);
 
@@ -980,6 +980,7 @@ public class MainFrame extends JFrame {
     private ArrayList<Picture> getAllSubPictures(File currentFolder) {
         ArrayList<Picture> allSubPictures = new ArrayList<Picture>();
         for (File f: currentFolder.listFiles()) {
+
             if (f.isDirectory()) {
                 allSubPictures.addAll(getAllSubPictures(f));
             }
