@@ -12,7 +12,6 @@ import java.awt.Menu;
 import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Rectangle;
-import java.awt.event.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -622,8 +621,13 @@ public class MainFrame extends JFrame {
 		searchField.setFocusTraversalKeysEnabled(false);
 		tagField.addKeyListener(l.new keyStrokes());
 		tagField.setFocusTraversalKeysEnabled(false);
-		//fileSystemTree.addKeyListener((l.new keyStrokes()));
-		//fileSystemTree.setFocusTraversalKeysEnabled(false);
+
+		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
+		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
+		//fileTreePanel.addKeyListener((l.new keyStrokes()));
+		//fileTreePanel.setFocusTraversalKeysEnabled(false);
+		fileSystemTree.addKeyListener((l.new keyStrokes()));
+		fileSystemTree.setFocusTraversalKeysEnabled(false);
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
