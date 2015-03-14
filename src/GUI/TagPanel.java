@@ -29,6 +29,8 @@ public class TagPanel extends JPanel {
     private JPanel areaTagPanel;
     private JPanel dateTagPanel;
     private MainFrame mainFrame;
+    private Font biggerFont = new Font("Serif", Font.PLAIN, 1);
+
 
 
     public TagPanel(MainFrame mainFrame) {
@@ -36,6 +38,7 @@ public class TagPanel extends JPanel {
         mainEmptyBorder = new EmptyBorder(10, 10, 10, 10);
         smallEmptyBorder = new EmptyBorder(3, 3, 3, 3);
         TitledBorder titledBorder = new TitledBorder(" Existing Tags ");
+        titledBorder.setTitleFont(biggerFont);
         CompoundBorder compoundBorder = new CompoundBorder(titledBorder,
                 mainEmptyBorder);
         setBorder(compoundBorder);
@@ -58,6 +61,7 @@ public class TagPanel extends JPanel {
                 BoxLayout.Y_AXIS));
 
         TitledBorder childTitledBorder = new TitledBorder(" Children ");
+        childTitledBorder.setTitleFont(biggerFont);
         CompoundBorder childCompoundBorder = new CompoundBorder(childTitledBorder,
                 mainEmptyBorder);
 
@@ -67,6 +71,7 @@ public class TagPanel extends JPanel {
     private void createAreaTagPanel() {
         areaTagPanel = new JPanel();
         TitledBorder areaTitledBorder = new TitledBorder(" Area ");
+        areaTitledBorder.setTitleFont(biggerFont);
         CompoundBorder areaCompoundBorder = new CompoundBorder(areaTitledBorder,
                 smallEmptyBorder);
 
@@ -76,6 +81,7 @@ public class TagPanel extends JPanel {
     private void createDateTagPanel() {
         dateTagPanel = new JPanel();
         TitledBorder dateTitledBorder = new TitledBorder(" Date Taken ");
+        dateTitledBorder.setTitleFont(biggerFont);
         CompoundBorder dateCompoundBorder = new CompoundBorder(dateTitledBorder,
                 smallEmptyBorder);
 

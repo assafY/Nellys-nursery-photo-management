@@ -139,8 +139,9 @@ public class MainFrame extends JFrame {
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
+    private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
 
-	/**
+    /**
 	 * Constructor for the application
 	 */
 	public MainFrame()  {
@@ -397,19 +398,24 @@ public class MainFrame extends JFrame {
             radioButtonGroup = new ButtonGroup();
 			sortByPanel = new JPanel();
 			sortByLabel = new JLabel("Filter: ");
+            sortByLabel.setFont(biggerFont);
 
             taggedRadioButton.setMnemonic(KeyEvent.VK_T);
             taggedRadioButton.setSelected(false);
             taggedRadioButton.setActionCommand("TAGGED");
+            taggedRadioButton.setFont(biggerFont);
             untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
 			untaggedRadioButton.setSelected(false);
             untaggedRadioButton.setActionCommand("UNTAGGED");
-			incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
+            untaggedRadioButton.setFont(biggerFont);
+            incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
 			incompleteRadioButton.setSelected(false);
             incompleteRadioButton.setActionCommand("INCOMPLETE");
+            incompleteRadioButton.setFont(biggerFont);
 			allRadioButton.setMnemonic(KeyEvent.VK_A);
 			allRadioButton.setSelected(true);
             allRadioButton.setActionCommand("ALL");
+            allRadioButton.setFont(biggerFont);
 
 			searchPanel.add(sortByLabel);
 			searchPanel.add(searchField);
@@ -428,7 +434,8 @@ public class MainFrame extends JFrame {
             northPanel.add(searchLabelPanel, BorderLayout.CENTER);
 
 			TitledBorder titledBorder = new TitledBorder("Search: ");
-			EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
+            titledBorder.setTitleFont(biggerFont);
+            EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
 			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 					titledBorder);
 			northPanel.setBorder(compoundBorder);
@@ -446,10 +453,15 @@ public class MainFrame extends JFrame {
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			exportButton = new JButton("Export");
-			backupButton = new JButton("Backup");
+            exportButton.setFont(biggerFont);
+            backupButton = new JButton("Backup");
+            backupButton.setFont(biggerFont);
 			rotateButton = new JButton("Rotate");
+            rotateButton.setFont(biggerFont);
 			deleteButton = new JButton("Delete");
+            deleteButton.setFont(biggerFont);
 			printButton = new JButton("Print");
+            printButton.setFont(biggerFont);
 
             if (Settings.PICTURE_HOME_DIR != null) {
                 fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
@@ -477,7 +489,7 @@ public class MainFrame extends JFrame {
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
-			
+			tabbedPane.setFont(biggerFont);
 			mainPanel.add(westPanel, BorderLayout.WEST);
 			westPanel.add(tabbedPane, BorderLayout.CENTER);
 			westPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -508,7 +520,8 @@ public class MainFrame extends JFrame {
 			buttonPanel.add(printButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
-			westPanel.setBorder(titledBorder);
+            titledBorder.setTitleFont(biggerFont);
+            westPanel.setBorder(titledBorder);
 
 		}
 
@@ -525,7 +538,7 @@ public class MainFrame extends JFrame {
 			scrollPanel = new JPanel();
 			scrollPanel.add(zoomSlider);
 
-			TitledBorder titledBorder = new TitledBorder("Pictures: ");
+			TitledBorder titledBorder = new TitledBorder(" ");
 			EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
 			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 					titledBorder);
@@ -557,8 +570,10 @@ public class MainFrame extends JFrame {
 			tagPanel.add(tagField, BorderLayout.NORTH);
 
 			eastPanel = new JPanel(new BorderLayout());
-			eastPanel.setBorder(new TitledBorder("Add Tag: "));
-			eastPanel.add(tagPanel, BorderLayout.NORTH);
+            eastPanel.setBorder(BorderFactory.createTitledBorder(null, "Add description: ",
+                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP, biggerFont));
+
+            eastPanel.add(tagPanel, BorderLayout.NORTH);
 
 			mainPanel.add(eastPanel, BorderLayout.EAST);
 
