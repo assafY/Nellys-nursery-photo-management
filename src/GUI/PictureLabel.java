@@ -38,24 +38,16 @@ public class PictureLabel extends JLabel implements Serializable{
 
     public void createThumbnail() {
         Settings.LOADED_THUMBNAILS_COUNT++;
-/*        for (PictureLabel p: picturePanel.getThumbsOnDisplay()) {
-            System.out.println(p.getPicture().getImagePath());
-            if (p.getPicture().equals(picture)) {
-                thumbnail = p.getThumbnail();
-            }
-            else {*/
-                try {
-                    thumbnail = ImageIO.read(picture.getImageFile());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        try {
+            thumbnail = ImageIO.read(picture.getImageFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-                if (thumbnail != null) {
-                    thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[3]);
+        if (thumbnail != null) {
+            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[3]);
 
-                }
-            //}
-        //}
+        }
     }
 
     public void showThumbnail(int size) {

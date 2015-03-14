@@ -295,7 +295,6 @@ public class MainFrame extends JFrame {
 							boolean childExists = false;
 							for (Taggable t : Library
 									.getTaggableComponentsList()) {
-								System.out.println(t.getName());
 								if (t.getName().equals(childName)) {
 									childExists = true;
 									break;
@@ -469,7 +468,6 @@ public class MainFrame extends JFrame {
             fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
                 @Override
                 public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                    System.out.println(value);
                     super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
                     setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
                     return this;
@@ -1044,7 +1042,7 @@ public class MainFrame extends JFrame {
 
         picturePanel.removeAll();
         picturePanel.revalidate();
-
+        // if there are no search tags
         if (currentSearchTags.size() == 0) {
             allPictureSet = Library.getDirectoryPictureMap().get(Settings.LAST_VISITED_DIR);
         }
@@ -1068,16 +1066,7 @@ public class MainFrame extends JFrame {
                 // if the picture is tagged with all search tags
                 // and the new picture set does not already contain it
                 if (pictureInAllLists && !allPictureSet.contains(p)) {
-                    /*if (picturePanel.getPicturesOnDisplay().contains(p)) {
-                        for (PictureLabel pl: picturePanel.getThumbsOnDisplay()) {
-                            if (pl.getPicture().equals(p)) {
-                                pl.showThumbnail(getZoomValue());
-                            }
-                        }
-                    }*/
-                    //else {
                         allPictureSet.add(p);
-                    //}
                 }
             }
         }
@@ -1088,6 +1077,9 @@ public class MainFrame extends JFrame {
 
         searchLabelPanel.revalidate();
         picturePanel.removeAllThumbsFromDisplay();
+        for (Picture p: allPictureSet) {
+            picturePanel.addThumbToDisplay(p.getPictureLabel());
+        }
         Library.importPicture(allPictureSet);
     }
 

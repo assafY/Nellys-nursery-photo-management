@@ -45,7 +45,6 @@ public class PictureImportThread extends Thread {
                         for (int i = 0; i < picturesToDisplay.size(); ++i) {
                             Library.addPictureToLibrary(picturesToDisplay.get(i));
                             picturesInCurrentFolder.add(picturesToDisplay.get(i));
-                            System.out.println("added: " + picturesToDisplay.get(i).getImagePath());
                         }
 
                         String parentDirPath = picturesToDisplay.get(0).getImagePath();

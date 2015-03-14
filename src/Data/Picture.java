@@ -60,7 +60,7 @@ public class Picture implements Serializable{
         }
     }
 
-    public void createPictureLabel() {
+    private void createPictureLabel() {
         if (MainFrame.getMainFrames().size() > 0) {
             if (pictureLabel == null) {
                 pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());

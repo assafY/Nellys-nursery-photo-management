@@ -24,7 +24,6 @@ public class PicturesFrame extends JPanel {
 	private ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 	private ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
-	private boolean picturePanelBiggerThanFrame = false;
 	private int currentRow = 0;
 	private int currentColumn = 0;
 	private boolean shiftIsPressed;
@@ -56,13 +55,6 @@ public class PicturesFrame extends JPanel {
 	}
 
 	public void adjustColumnCount(int zoomValue) {
-
-		/*
-		 * if(picturePanelBiggerThanFrame) {
-		 * 
-		 * //picturePanelBiggerThanFrame = false; } else { currentPanelSize =
-		 * (int) Math.round(getSize().getWidth()); }
-		 */
 
 		int newColumnCount;
 		int currentPanelSize = ((int) Math
@@ -160,7 +152,6 @@ public class PicturesFrame extends JPanel {
 		if (getThumbsOnDisplay().size() % columnCount != 0) {
 			++rowCount;
 		}
-		System.out.println(rowCount);
 		int thumbnailCounter = 0;
 
 		thumbsOnDisplay2DArray = new PictureLabel[rowCount][columnCount];
@@ -176,7 +167,7 @@ public class PicturesFrame extends JPanel {
 	}
 
 	public void refresh() {
-		if (getMostRecentSelection() != null) {
+		if (getMostRecentSelection() != null && !Settings.IMPORT_IN_PROGRESS) {
 			for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
 				for (int j = 0; j < thumbsOnDisplay2DArray[i].length; ++j) {
 					if (thumbsOnDisplay2DArray[i][j] != null
@@ -197,7 +188,7 @@ public class PicturesFrame extends JPanel {
 
 	public void keyAction(KeyEvent e, boolean shiftIsPressed) {
 		this.shiftIsPressed = shiftIsPressed;
-		if (Library.getPictureLibrary().size() > 0) {
+		if (Library.getPictureLibrary().size() > 0 && !Settings.IMPORT_IN_PROGRESS) {
 			switch (getSelectedThumbs().size()) {
 			case 0:
 				setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);

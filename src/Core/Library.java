@@ -99,6 +99,7 @@ public class Library implements Serializable {
                             if (isInterrupted()) {
                                 break;
                             }
+
                             new ThumbnailImportThread(p.getPictureLabel()).start();
                         }
                     }
