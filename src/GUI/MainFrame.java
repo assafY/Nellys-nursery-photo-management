@@ -108,7 +108,6 @@ public class MainFrame extends JFrame {
 	private JPanel buttonPanel;
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
-	private JButton importButton;
 	private JButton exportButton;
 	private JButton backupButton;
 	private JButton rotateButton;
@@ -137,8 +136,6 @@ public class MainFrame extends JFrame {
 	private JPanel donePanel;
 	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
-	private JButton doneButton;
-	private JButton resetButton;
 
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
@@ -450,7 +447,6 @@ public class MainFrame extends JFrame {
 			virtualTreePanel = new JPanel();
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-			importButton = new JButton("Import");
 			exportButton = new JButton("Export");
 			backupButton = new JButton("Backup");
 			rotateButton = new JButton("Rotate");
@@ -468,6 +464,8 @@ public class MainFrame extends JFrame {
             if (Settings.LAST_VISITED_PATH != null) {
                 fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
             }
+            // use tree cell renderer to set tree node names
+            // to the folder name, rather than the whole path
             fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
                 @Override
                 public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -491,9 +489,6 @@ public class MainFrame extends JFrame {
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.insets = new Insets(2, 2, 2, 2);
-			c.gridx = 0;
-			c.gridy = 0;
-			buttonPanel.add(importButton, c);
 			c.gridx = 1;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
@@ -528,9 +523,8 @@ public class MainFrame extends JFrame {
 			picturePanelScrollPane = new JScrollPane(picturePanel);
 			picturePanelScrollPane
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
-			// picturePanelScrollPane.setBackground(WHITE);
 
-			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
+			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 2);
 			scrollPanel = new JPanel();
 			scrollPanel.add(zoomSlider);
 
@@ -555,14 +549,9 @@ public class MainFrame extends JFrame {
 
 			// east component assignment
 
-			/**
-			 * for testing purposes our names and some mock areas are added to
-			 * the list
-			 */
-
 			tagField = new JSuggestField(this,
 					Library.getTaggableComponentNamesVector(false));
-			tagField.setSize(210, 30);
+			tagField.setPreferredSize(new Dimension(210, 30));
 
 			storedTagsPanel = new TagPanel(this);
 
@@ -570,22 +559,8 @@ public class MainFrame extends JFrame {
 			tagPanel.add(storedTagsPanel, BorderLayout.CENTER);
 			tagPanel.add(tagField, BorderLayout.NORTH);
 
-			doneButton = new JButton("Done");
-			resetButton = new JButton("Reset");
-
-			donePanel = new JPanel();
-			donePanel.add(resetButton);
-			donePanel.add(doneButton);
-
-			descriptionPanel = new JPanel(new BorderLayout());
-			descriptionPanel.setBorder(new TitledBorder("Add desription: "));
-			descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
-					BorderLayout.NORTH);
-			descriptionPanel.add(donePanel, BorderLayout.SOUTH);
-
 			eastPanel = new JPanel(new BorderLayout());
 			eastPanel.setBorder(new TitledBorder("Add Tag: "));
-			eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
 			eastPanel.add(tagPanel, BorderLayout.NORTH);
 
 			mainPanel.add(eastPanel, BorderLayout.EAST);
@@ -605,7 +580,6 @@ public class MainFrame extends JFrame {
 
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
-		importButton.addActionListener(l.new ImportButtonListener());
 
         taggedRadioButton.addActionListener(l.new RadioButtonListener());
         untaggedRadioButton.addActionListener(l.new RadioButtonListener());
@@ -735,7 +709,7 @@ public class MainFrame extends JFrame {
 									if (currentThumbnail.getIcon() == null) {
 										currentThumbnail
 												.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-														.getValue()]);
+                                                        .getValue()]);
 									}
 								} else {
 									currentThumbnail.hideThumbnail();
@@ -744,22 +718,6 @@ public class MainFrame extends JFrame {
 						}
 					}
 				});
-
-		resetButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO: probably remove reset button
-			}
-		});
-
-		doneButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO: see if we need done button
-			}
-		});
 
         fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
@@ -823,25 +781,6 @@ public class MainFrame extends JFrame {
 
 			}
 
-		}
-
-		private class ImportButtonListener implements ActionListener {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// open system file manager to ask user for pictures to import
-				FileDialog importDialog = new FileDialog(MainFrame.this,
-						"Choose picture(s) to import", FileDialog.LOAD);
-				importDialog.setFile("*.jpg");
-				importDialog.setMultipleMode(true);
-				importDialog.setVisible(true);
-				if (Library.getPictureLibrary().size() == 0) {
-					setFocusable(true);
-					requestFocus();
-				}
-				// import pictures into library
-				//Library.importPicture(importDialog.getFiles());
-			}
 		}
 
 		/**
