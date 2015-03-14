@@ -1,32 +1,5 @@
 package GUI;
 
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Rectangle;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
@@ -60,13 +33,14 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -76,6 +50,10 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -657,6 +635,13 @@ public class MainFrame extends JFrame {
 		searchField.setFocusTraversalKeysEnabled(false);
 		tagField.addKeyListener(l.new keyStrokes());
 		tagField.setFocusTraversalKeysEnabled(false);
+		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
+		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
+		//fileTreePanel.addKeyListener((l.new keyStrokes()));
+		//fileTreePanel.setFocusTraversalKeysEnabled(false);
+		fileSystemTree.addKeyListener((l.new keyStrokes()));
+		fileSystemTree.setFocusTraversalKeysEnabled(false);
+
 
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
@@ -841,6 +826,17 @@ public class MainFrame extends JFrame {
 
 					if (tagField.hasFocus()) {
 						searchField.requestFocus();
+					}
+
+					if(fileSystemTree.hasFocus())
+					{
+						picturePanel.requestFocus();
+					}
+
+					if(allRadioButton.hasFocus()|| incompleteRadioButton.hasFocus()||taggedRadioButton.hasFocus()|| untaggedRadioButton.hasFocus())
+					{
+						tagField.requestFocus();
+						System.out.print("test ignore this if");
 					}
 				}
 
