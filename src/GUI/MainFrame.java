@@ -549,7 +549,7 @@ public class MainFrame extends JFrame {
 
 			tagField = new JSuggestField(this,
 					Library.getTaggableComponentNamesVector(false));
-			tagField.setPreferredSize(new Dimension(210, 30));
+			tagField.setPreferredSize(new Dimension(300, 30));
 
 			storedTagsPanel = new TagPanel(this);
 
@@ -782,44 +782,48 @@ public class MainFrame extends JFrame {
 		}
 
 		/**
-		 * method to action the tag field
+		 * This method
 		 */
 		private class TagListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<Picture> picturesToTag = picturePanel
-						.getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until picture/s selected
-				} else {
-					for (Taggable t : Library.getTaggableComponentsList()) {
-						if (tagField.getText().toLowerCase()
-								.equals(t.getName().toLowerCase())) {
-							for (Picture p : picturesToTag) {
-								if (!p.getTag().getTaggedComponents()
-										.contains(t)) {
-									// if this is an area tag only tag if
-									// picture has no area tag
-									if ((t.getType() == Settings.AREA_TAG && p
-											.getTag().isAreaSet())) {
-                                        p.getTag().getArea().removeTaggedPicture(p);
-                                        p.getTag().removeTag(p.getTag().getArea());
-									}
-                                    p.getTag().addTag(t);
-                                    t.addTaggedPicture(p);
-								}
-							}
-						}
-					}
-				}
-                createTagLabels();
-				tagField.setText("");
+                if (picturePanel.getThumbsOnDisplay().size() > 0) {
+                    ArrayList<Picture> picturesToTag = picturePanel
+                            .getSelectedPictures();
+                    if (picturesToTag.size() != 0) {
+                        for (Taggable t : Library.getTaggableComponentsList()) {
+                            if (tagField.getText().toLowerCase()
+                                    .equals(t.getName().toLowerCase())) {
+                                for (Picture p : picturesToTag) {
+                                    if (!p.getTag().getTaggedComponents()
+                                            .contains(t)) {
+                                        // if this is an area tag and pictures already
+                                        // has an area tag, replace it with new one
+                                        if ((t.getType() == Settings.AREA_TAG && p
+                                                .getTag().isAreaSet())) {
+                                            p.getTag().getArea().removeTaggedPicture(p);
+                                            p.getTag().removeTag(p.getTag().getArea());
+                                        }
+                                        p.getTag().addTag(t);
+                                        t.addTaggedPicture(p);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    createTagLabels();
+                }
+                tagField.setText("");
 			}
 		}
 
 		/**
-		 * method to action the search
+		 * Listener for the search suggestion field. When a selection is made,
+         * the tag being searched for is found in the full tag list. If it wasn't
+         * already searched for, a search label is added for it. If it is a room
+         * tag and a room has already been searched for, the previous room tag is
+         * removed before the new one is added. The method calls the refresh
+         * search method to update the display of pictures when search is made.
 		 */
 		private class SearchListener implements ActionListener {
 			@Override
@@ -837,11 +841,14 @@ public class MainFrame extends JFrame {
                     // gets text from GUI to a string
                     String searchString = searchField.getText().toLowerCase();
 
-                    // loops to the end of tagged children
+                    // loops over all taggable components
                     for (int i = 0; i < allTaggableComponents.size(); ++i) {
+                        // if the search selection is a taggable component
                         if (searchString.equalsIgnoreCase(allTaggableComponents
                                 .get(i).getName())) {
+                            // if there isn't already a search tag
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
+                                // if the tag is a room
                                 if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
                                     Taggable toRemove = null;
                                     for (Taggable t: currentSearchTags) {
@@ -850,12 +857,14 @@ public class MainFrame extends JFrame {
                                             break;
                                         }
                                     }
+                                    // if there already was a search tag for a room, remove it
                                     if (toRemove != null) {
                                         currentSearchTags.remove(toRemove);
                                     }
                                 }
+                                // add the search label
                                 addSearchTag(allTaggableComponents.get(i));
-
+                                searchPanel.revalidate();
                             }
                         }
                     }
@@ -873,36 +882,40 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
+                ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
                 ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (e.getActionCommand() == "TAGGED") {
-                    for (Picture p: picturePanel.getPicturesOnDisplay()) {
+                if (e.getActionCommand().equals("TAGGED")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isFullyTagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "UNTAGGED") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                else if (e.getActionCommand().equals("UNTAGGED")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isUntagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "INCOMPLETE") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                else if (e.getActionCommand().equals("INCOMPLETE")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isPartiallyTagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "ALL") {
-                    picturesToDisplay = Library.getPictureLibrary();
+                else if (e.getActionCommand().equals("ALL")) {
+                    picturesToDisplay = allPicsInFolder;
                 }
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
-                //picturePanel.removeAllThumbsFromDisplay();
-                //picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
+                picturePanel.removeAllThumbsFromDisplay();
+                for (Picture p : picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+                Library.importPicture(picturesToDisplay);
             }
         }
         
@@ -1036,51 +1049,53 @@ public class MainFrame extends JFrame {
      * which are tagged with all tags chosen in the search.
      */
     public void refreshSearch() {
-        ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
-        searchLabelPanel.removeAll();
-        searchLabelPanel.repaint();
+        if (picturePanel.getThumbsOnDisplay().size() > 0) {
+            ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
+            searchLabelPanel.removeAll();
+            searchLabelPanel.repaint();
 
-        picturePanel.removeAll();
-        picturePanel.revalidate();
-        // if there are no search tags
-        if (currentSearchTags.size() == 0) {
-            allPictureSet = Library.getDirectoryPictureMap().get(Settings.LAST_VISITED_DIR);
-        }
-        else if (currentSearchTags.size() > 1) {
-            ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
-            for (int i = 0; i < currentSearchTags.size(); ++i) {
-                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+            picturePanel.removeAll();
+            picturePanel.revalidate();
+            // if there are no search tags
+            if (currentSearchTags.size() == 0) {
+                allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
             }
-            // for every picture in the first picture list
-            for (Picture p: allPictureListsList.get(0)) {
-                boolean pictureInAllLists = true;
-                // for every other picture list
-                for (int i = 1; i < allPictureListsList.size(); ++i) {
-                    // if a picture does not appear then the picture is not in intersection of all lists
-                    if (!allPictureListsList.get(i).contains(p)) {
-                        pictureInAllLists = false;
-                        break;
+            else if (currentSearchTags.size() > 1) {
+                ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+                for (int i = 0; i < currentSearchTags.size(); ++i) {
+                    searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
+                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+                }
+                // for every picture in the first picture list
+                for (Picture p : allPictureListsList.get(0)) {
+                    boolean pictureInAllLists = true;
+                    // for every other picture list
+                    for (int i = 1; i < allPictureListsList.size(); ++i) {
+                        // if a picture does not appear then the picture is not in intersection of all lists
+                        if (!allPictureListsList.get(i).contains(p)) {
+                            pictureInAllLists = false;
+                            break;
+                        }
+                    }
+                    // if the picture is tagged with all search tags
+                    // and the new picture set does not already contain it
+                    if (pictureInAllLists && !allPictureSet.contains(p)) {
+                        allPictureSet.add(p);
                     }
                 }
-                // if the picture is tagged with all search tags
-                // and the new picture set does not already contain it
-                if (pictureInAllLists && !allPictureSet.contains(p)) {
-                        allPictureSet.add(p);
-                }
             }
-        }
-        else {
-            allPictureSet = currentSearchTags.get(0).getTaggedPictures();
-            searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
-        }
+            else {
+                allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
+            }
 
-        searchLabelPanel.revalidate();
-        picturePanel.removeAllThumbsFromDisplay();
-        for (Picture p: allPictureSet) {
-            picturePanel.addThumbToDisplay(p.getPictureLabel());
+            searchLabelPanel.revalidate();
+            picturePanel.removeAllThumbsFromDisplay();
+            for (Picture p : allPictureSet) {
+                picturePanel.addThumbToDisplay(p.getPictureLabel());
+            }
+            Library.importPicture(allPictureSet);
         }
-        Library.importPicture(allPictureSet);
     }
 
 	/**
