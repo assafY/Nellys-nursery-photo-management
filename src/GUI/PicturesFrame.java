@@ -24,9 +24,7 @@ public class PicturesFrame extends JPanel {
 	private ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 	private ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
-	private int currentColumnCount = 0;
 	private boolean picturePanelBiggerThanFrame = false;
-
 	private int currentRow = 0;
 	private int currentColumn = 0;
 	private boolean shiftIsPressed;
@@ -68,7 +66,7 @@ public class PicturesFrame extends JPanel {
 
 		int newColumnCount;
 		int currentPanelSize = ((int) Math
-				.round(mainFrame.getSize().getWidth())) - 460;
+				.round(mainFrame.getSize().getWidth())) - (mainFrame.getSidePanelsWidth() + 65);
 
 		newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[zoomValue];
 

@@ -877,7 +877,7 @@ public class MainFrame extends JFrame {
                 refreshSearch();
                 ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
                 if (e.getActionCommand() == "TAGGED") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                    for (Picture p: picturePanel.getPicturesOnDisplay()) {
                         if (p.getTag().isFullyTagged()) {
                             picturesToDisplay.add(p);
                         }
@@ -1191,6 +1191,10 @@ public class MainFrame extends JFrame {
 	public PicturesFrame getPicturesPanel() {
 		return picturePanel;
 	}
+
+    public int getSidePanelsWidth() {
+        return eastPanel.getWidth() + westPanel.getWidth();
+    }
 
 	/* returns true if a pictureLabel is in view in the scroll pane */
 	private static boolean isInView(PictureLabel thumbnail,
