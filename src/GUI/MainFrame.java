@@ -844,9 +844,9 @@ public class MainFrame extends JFrame {
 					}
 				}
 
-				/*if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
 					tagField.requestFocus();
-				}*/
+				}
 				//TODO: Fix print shortcut, find graphic workaround
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
