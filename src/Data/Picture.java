@@ -1,15 +1,12 @@
 package Data;
 
 import Core.Settings;
+import GUI.MainFrame;
+import GUI.PictureLabel;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
-import org.imgscalr.Scalr;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -21,32 +18,17 @@ public class Picture implements Serializable{
 
     private static final long serialVersionUID = -690711084688757476L;
     private Tag metadata;
-    private transient BufferedImage thumbnail;
     private File imageFile;
+    private transient PictureLabel pictureLabel = null;
+
     private transient Object imageKey;
 
     public Picture(File pictureFile) {
 
         this.imageFile = pictureFile;
         metadata = new Tag();
-
-        createThumbnail();
+        createPictureLabel();
         getDateAndKey();
-    }
-
-    private void createThumbnail() {
-        thumbnail = null;
-
-        try {
-            thumbnail = ImageIO.read(imageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (thumbnail != null) {
-            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[1]);
-
-        }
     }
 
     //TODO what if there is no date and key? boolean maybe?
@@ -64,7 +46,7 @@ public class Picture implements Serializable{
         }
 
         // store unique file key
-        imageKey = attr.fileKey();
+        //imageKey = attr.fileKey();
         Date pictureTakenDate;
         // get original date and time picture was taken and add to metadata
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
@@ -78,13 +60,17 @@ public class Picture implements Serializable{
         }
     }
 
-    // prints the number of bytes taken by a thumbnail
-    private void checkSizeOnDisk() {
-        DataBuffer buff = thumbnail.getRaster().getDataBuffer();
-        int bytes = buff.getSize() * DataBuffer.getDataTypeSize(buff.getDataType()) / 8;
-        System.out.println(bytes);
+    private void createPictureLabel() {
+        if (MainFrame.getMainFrames().size() > 0) {
+            if (pictureLabel == null) {
+                pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());
+            }
+        }
     }
-
+    public PictureLabel getPictureLabel() {
+        createPictureLabel();
+        return pictureLabel;
+    }
     public Object getImageKey() {
         return imageKey;
     }
@@ -93,9 +79,6 @@ public class Picture implements Serializable{
     }
     public File getImageFile() {
         return imageFile;
-    }
-    public BufferedImage getThumbnail() {
-        return thumbnail;
     }
     public Tag getTag() {
     	return metadata;

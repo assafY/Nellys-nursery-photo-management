@@ -34,7 +34,9 @@ public class Tag implements Serializable {
             // if area tag is not already
             if (!areaSet) {
                 areaSet = true;
-                taggedComponents.add(taggedComponent);
+                if (!taggedComponents.contains(taggedComponent)) {
+                    taggedComponents.add(taggedComponent);
+                }
             }
             else {
                 taggedComponents.remove(getArea());

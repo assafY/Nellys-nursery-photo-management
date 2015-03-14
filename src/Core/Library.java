@@ -2,20 +2,24 @@ package Core;
 
 import Data.Picture;
 import GUI.MainFrame;
+import GUI.PictureLabel;
+import GUI.PicturesFrame;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Vector;
+import java.util.*;
 
 public class Library implements Serializable {
 
-    private static ArrayList<Picture> pictureLibrary = new ArrayList<Picture>();
+    private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
+    private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
+    private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
+    private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
     private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
+    public static boolean LAST_THREAD = false;
 
     public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
         return taggableComponents;
@@ -41,68 +45,74 @@ public class Library implements Serializable {
     }
 
     public static synchronized ArrayList<Picture> getPictureLibrary() {
-        return pictureLibrary;
+        return PICTURE_LIBRARY;
     }
 
-    /*public static void loadPictures(File currentDir) {
-        if (currentDir != null) {
-            ArrayList<File> currentDirectoryFiles = new ArrayList<File>();
-            for (File currentFile : currentDir.listFiles()) {
-                if (currentFile.isDirectory()) {
-                loadPictures(currentFile);
-                }
-                else {
-                    if (FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpg") ||
-                            FilenameUtils.getExtension(currentFile.getPath()).equalsIgnoreCase("jpeg")) {
-                        currentDirectoryFiles.add(currentFile);
-                    }
-                }
-            }
-            File picturesToImport[] = new File[currentDirectoryFiles.size()];
-            for (int i = 0; i < picturesToImport.length; ++i) {
-                picturesToImport[i] = currentDirectoryFiles.get(i);
-            }
-            Library.importPicture(picturesToImport);
+    public static Map<File, ArrayList<Picture>> getDirectoryPictureMap() {
+        return directoryPictureMap;
+    }
+
+    public static ArrayList<PictureLabel> getThumbnailCache() {
+        return THUMBNAIL_CACHE;
+    }
+
+    public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
+        directoryPictureMap = newMap;
+    }
+
+    public static ArrayList<Thread> getRunningThreads() {
+        return RUNNING_THREADS;
+    }
+
+    public static void addRunningThread(Thread t) {
+        if (!RUNNING_THREADS.contains(t)) {
+            RUNNING_THREADS.add(t);
         }
-    }*/
+    }
+
+    public static void removeRunningThread(Thread t) {
+        RUNNING_THREADS.remove(t);
+    }
 
     /**
      *
      *
-     * @param importedPictures File array for all pictures being imported in this batch
+     * @param importedPictures ArrayList of all pictures being imported in this batch
      */
-    public static void importPicture(final File[] importedPictures) {
+    public static void importPicture(final ArrayList<Picture> importedPictures) {
 
-        //specify no. of threads not including thread for leftover pictures
-        int noOfThreads = 10;
-        //size of array
-        int importSize = importedPictures.length;
-        //leftover calculated by size of array % no. of threads
-        int leftover = 0;
-        while (importSize % noOfThreads != 0 && importSize > noOfThreads) {
-            ++leftover;
-            --importSize;
-        }
-        //if there are more pictures than threads to import pictures
-        if (importedPictures.length > noOfThreads) {
-            //find out how many pictures will go in each thread and import
-            int chunkSize = importSize / noOfThreads;
-            for (int i = 0; i < importSize; i += chunkSize) {
-                File[] partition = new File[chunkSize];
-                System.arraycopy(importedPictures, i, partition, 0, chunkSize);
-                new PictureImportThread(partition).start();
+        Settings.IMPORT_IN_PROGRESS = true;
+
+        final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0).getPicturesPanel();
+        picturesPanel.revalidate();
+
+        Thread thumbnailImport = new Thread() {
+
+            public void run() {
+                Library.addRunningThread(this);
+                try {
+                    if (importedPictures.size() > 0) {
+                        for (Picture p: importedPictures) {
+                            while (Library.getRunningThreads().size() > 10) {
+                                sleep(200);
+                            }
+                            if (isInterrupted()) {
+                                break;
+                            }
+
+                            new ThumbnailImportThread(p.getPictureLabel()).start();
+                        }
+                    }
+                } catch (InterruptedException e) {
+
+                } finally {
+                    Library.removeRunningThread(this);
+                    picturesPanel.createThumbnailArray();
+                    Settings.IMPORT_IN_PROGRESS = false;
+                }
             }
-            //import leftover pictures
-            if (leftover > 0) {
-                File[] partialPartition = new File[leftover];
-                System.arraycopy(importedPictures, importedPictures.length - leftover, partialPartition, 0, leftover);
-                new PictureImportThread(partialPartition).start();
-            }
-        }
-        //if there are less pictures than threads to import pictures, import all pictures on 1 thread :))
-        else {
-            new PictureImportThread(importedPictures).start();
-        }
+        };
+        thumbnailImport.start();
     }
 
     /**
@@ -126,11 +136,9 @@ public class Library implements Serializable {
                 importFolder(file);
             }
         }
-
         File[] toProcess = new File[0];
-        System.out.println(nestedPictures.size() + " lqlq");
         if(nestedPictures.size() > 0){
-            importPicture(nestedPictures.toArray(toProcess));
+            new PictureImportThread(nestedPictures.toArray(toProcess)).start();
         }
 
 	}
@@ -164,12 +172,12 @@ public class Library implements Serializable {
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
-		pictureLibrary.add(picture);
+		PICTURE_LIBRARY.add(picture);
 	}
 	
 	public static void deletePictureLibrary()
 	{
-		pictureLibrary = null;
+		PICTURE_LIBRARY = null;
 	}
 	
 	public static void deleteTaggableComponentsList() {

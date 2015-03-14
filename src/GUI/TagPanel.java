@@ -309,6 +309,7 @@ public class TagPanel extends JPanel {
                             }
                         }
                     }
+                    tagPanel.revalidate();
                 }
             });
         }

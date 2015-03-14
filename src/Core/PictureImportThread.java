@@ -1,24 +1,21 @@
 package Core;
 
 import Data.Picture;
-import GUI.MainFrame;
 
 import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 
 public class PictureImportThread extends Thread {
-    File[] importedPictures;
-    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+
+    private File[] importedPictures;
+    private ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+
     public PictureImportThread(File[] importedPictures){
         this.importedPictures = importedPictures;
     }
     public void run(){
         try {
-            while (Settings.IMPORT_THREAD_COUNT > 10) {
-                sleep(500);
-            }
-            ++Settings.IMPORT_THREAD_COUNT;
             // for evey file path sent from importing in GUI
             for (int i = 0; i < importedPictures.length; ++i) {
 
@@ -28,33 +25,44 @@ public class PictureImportThread extends Thread {
                     if (importedPictures[i].getPath().equals(
                             Library.getPictureLibrary().get(j).getImagePath())) {
                         exists = true;
+                        break;
                     }
                 }
                 // if it doesn't exist in library
-                if (!exists ) {
+                if (!exists) {
                     // add picture to library
-                    Picture currentPicture = new Picture(
-                            importedPictures[i]);
+                    Picture currentPicture = new Picture(importedPictures[i]);
                     picturesToDisplay.add(currentPicture);
-                    System.out.println("Added: "
-                            + currentPicture.getImagePath());
                 }
 
             }
-        } catch (InterruptedException e) {
-
         } finally {
             Runnable displayPictures = new Runnable() {
 
                 public void run() {
-                    System.out.println("Import Complete.");
-                    for (MainFrame mainFrame : MainFrame.getMainFrames()) {
-                    mainFrame.getPicturesPanel().addThumbnailsToView(picturesToDisplay, mainFrame.getZoomValue());
+                    if (picturesToDisplay.size() > 0) {
+                        ArrayList<Picture> picturesInCurrentFolder = new ArrayList<Picture>();
+                        for (int i = 0; i < picturesToDisplay.size(); ++i) {
+                            Library.addPictureToLibrary(picturesToDisplay.get(i));
+                            picturesInCurrentFolder.add(picturesToDisplay.get(i));
+                        }
+
+                        String parentDirPath = picturesToDisplay.get(0).getImagePath();
+                        File parentDir = new File(parentDirPath.substring(0, parentDirPath.lastIndexOf(File.separator)));
+                        ArrayList<Picture> existingPictureList = new ArrayList<Picture>();
+                        if (Library.getDirectoryPictureMap().containsKey(parentDir)) {
+                            existingPictureList = Library.getDirectoryPictureMap().get(parentDir);
+                        }
+                        for (Picture p : picturesToDisplay) {
+                            if (!existingPictureList.contains(p)) {
+                                existingPictureList.add(p);
+                            }
+                        }
+                        Library.getDirectoryPictureMap().put(parentDir, existingPictureList);
                     }
-                    for (int i = 0; i < picturesToDisplay.size(); ++i) {
-                        Library.addPictureToLibrary(picturesToDisplay.get(i));
-                    }
-                    --Settings.IMPORT_THREAD_COUNT;
+
+                    importedPictures = null;
+                    picturesToDisplay = null;
                 }
             };
             SwingUtilities.invokeLater(displayPictures);

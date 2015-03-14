@@ -1,10 +1,8 @@
 package GUI;
 
-import Core.Library;
 import Core.Settings;
 import Data.Picture;
 import org.imgscalr.Scalr;
-import sun.applet.Main;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,19 +12,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.Serializable;
 
-public class PictureLabel extends JLabel {
+public class PictureLabel extends JLabel implements Serializable{
 
     private static final int DEFAULT_SIZE = Settings.THUMBNAIL_SIZES[4];
+    private static final long serialVersionUID = 8439367751494088459L;
 
     private Picture picture;
     private int currentSize;
     private boolean isSelected;
-    private Image image;
+    private BufferedImage thumbnail;
     private boolean horizontal = true;
     private FullScreenPicturesFrame frame;
     private PicturesFrame picturePanel;
@@ -36,46 +33,63 @@ public class PictureLabel extends JLabel {
         isSelected = false;
         this.picturePanel = mainFrame;
         this.addMouseListener(new ThumbnailMouseListener());
+        this.setAlignmentX(JLabel.CENTER);
+    }
+
+    public void createThumbnail() {
+        Settings.LOADED_THUMBNAILS_COUNT++;
+        try {
+            thumbnail = ImageIO.read(picture.getImageFile());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (thumbnail != null) {
+            thumbnail = Scalr.resize(thumbnail, Settings.THUMBNAIL_SIZES[3]);
+
+        }
     }
 
     public void showThumbnail(int size) {
-        currentSize = size;
-        if(picture.getThumbnail().getHeight() > picture.getThumbnail().getWidth()) {
-            horizontal = false;
-            if (currentSize == 109) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 27)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,23,0,0));
-            } else if (currentSize == 119) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 30)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,26,0,0));
-            } else if (currentSize == 132) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 33)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,29,0,0));
-            } else if (currentSize == 148) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 37)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,32,0,0));
-            } else if (currentSize == 169) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 42)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,35,0,0));
-            } else if (currentSize == 196) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 49)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,41,0,0));
-            } else if (currentSize == 233) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 58)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,49,0,0));
-            } else if (currentSize == 288) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 72)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,60,0,0));
-            } else if (currentSize == 377) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 94)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,78,0,0));
-            } else if (currentSize == 545) {
-                setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize - 136)));
-                this.setBorder(BorderFactory.createEmptyBorder(0,114,0,0));
+        if (thumbnail != null) {
+            currentSize = size;
+            if (thumbnail.getHeight() > thumbnail.getWidth()) {
+                horizontal = false;
+                if (currentSize == 109) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 27)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 23, 0, 0));
+                } else if (currentSize == 119) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 30)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 26, 0, 0));
+                } else if (currentSize == 132) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 33)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 29, 0, 0));
+                } else if (currentSize == 148) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 37)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 0));
+                } else if (currentSize == 169) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 42)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 35, 0, 0));
+                } else if (currentSize == 196) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 49)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 41, 0, 0));
+                } else if (currentSize == 233) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 58)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
+                } else if (currentSize == 288) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 72)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
+                } else if (currentSize == 377) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 94)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
+                } else if (currentSize == 545) {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize - 136)));
+                    this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
+                }
+            } else {
+                horizontal = true;
+                setIcon(new ImageIcon(Scalr.resize(thumbnail, currentSize)));
             }
-        } else {
-            horizontal = true;
-            setIcon(new ImageIcon(Scalr.resize(picture.getThumbnail(), currentSize)));
         }
     }
 
@@ -105,6 +119,15 @@ public class PictureLabel extends JLabel {
 
     public Picture getPicture() {
         return picture;
+    }
+
+    public BufferedImage getThumbnail() {
+        return thumbnail;
+    }
+
+    public void deleteThumbnail() {
+        thumbnail = null;
+        Settings.LOADED_THUMBNAILS_COUNT--;
     }
 
     @Override

@@ -14,15 +14,23 @@ import java.awt.MenuBar;
 import java.awt.MenuItem;
 import java.awt.Rectangle;
 import java.awt.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -36,7 +44,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -44,15 +51,10 @@ import javax.swing.WindowConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 
 import Core.Library;
 import Core.Settings;
@@ -105,7 +107,6 @@ public class MainFrame extends JFrame {
 	private JPanel buttonPanel;
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
-	private JButton importButton;
 	private JButton exportButton;
 	private JButton backupButton;
 	private JButton rotateButton;
@@ -134,8 +135,6 @@ public class MainFrame extends JFrame {
 	private JPanel donePanel;
 	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
-	private JButton doneButton;
-	private JButton resetButton;
 
 	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
@@ -156,9 +155,7 @@ public class MainFrame extends JFrame {
 		createPanels();
 		addListeners();
 		saveData();
-        if (Settings.PICTURE_HOME_DIR != null) {
-            Library.importFolder(Settings.PICTURE_HOME_DIR);
-        }
+
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -169,6 +166,10 @@ public class MainFrame extends JFrame {
 		pack();
 		setVisible(true);
 		frames.add(this);
+
+        if (Settings.PICTURE_HOME_DIR != null) {
+            Library.importFolder(Settings.PICTURE_HOME_DIR);
+        }
 	}
 	
 	/*
@@ -180,6 +181,8 @@ public class MainFrame extends JFrame {
 		getSavedTaggableComponents();
 		getSavedNurseryLocation();
 		getSavedPicturesHomeDIR();
+        getSavedLastVisitedDIR();
+        getSavedDirectoryFileMap();
 	}
 
 
@@ -291,7 +294,6 @@ public class MainFrame extends JFrame {
 							boolean childExists = false;
 							for (Taggable t : Library
 									.getTaggableComponentsList()) {
-								System.out.println(t.getName());
 								if (t.getName().equals(childName)) {
 									childExists = true;
 									break;
@@ -443,7 +445,6 @@ public class MainFrame extends JFrame {
 			virtualTreePanel = new JPanel();
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-			importButton = new JButton("Import");
 			exportButton = new JButton("Export");
 			backupButton = new JButton("Backup");
 			rotateButton = new JButton("Rotate");
@@ -457,6 +458,20 @@ public class MainFrame extends JFrame {
                 fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
             }
 			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            fileSystemTree.setExpandsSelectedPaths(true);
+            if (Settings.LAST_VISITED_PATH != null) {
+                fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
+            }
+            // use tree cell renderer to set tree node names
+            // to the folder name, rather than the whole path
+            fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
+                @Override
+                public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+                    setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
+                    return this;
+                }
+            });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
@@ -471,9 +486,6 @@ public class MainFrame extends JFrame {
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.insets = new Insets(2, 2, 2, 2);
-			c.gridx = 0;
-			c.gridy = 0;
-			buttonPanel.add(importButton, c);
 			c.gridx = 1;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
@@ -508,9 +520,8 @@ public class MainFrame extends JFrame {
 			picturePanelScrollPane = new JScrollPane(picturePanel);
 			picturePanelScrollPane
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
-			// picturePanelScrollPane.setBackground(WHITE);
 
-			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 4);
+			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 2);
 			scrollPanel = new JPanel();
 			scrollPanel.add(zoomSlider);
 
@@ -535,14 +546,9 @@ public class MainFrame extends JFrame {
 
 			// east component assignment
 
-			/**
-			 * for testing purposes our names and some mock areas are added to
-			 * the list
-			 */
-
 			tagField = new JSuggestField(this,
 					Library.getTaggableComponentNamesVector(false));
-			tagField.setSize(210, 30);
+			tagField.setPreferredSize(new Dimension(300, 30));
 
 			storedTagsPanel = new TagPanel(this);
 
@@ -550,22 +556,8 @@ public class MainFrame extends JFrame {
 			tagPanel.add(storedTagsPanel, BorderLayout.CENTER);
 			tagPanel.add(tagField, BorderLayout.NORTH);
 
-			doneButton = new JButton("Done");
-			resetButton = new JButton("Reset");
-
-			donePanel = new JPanel();
-			donePanel.add(resetButton);
-			donePanel.add(doneButton);
-
-			descriptionPanel = new JPanel(new BorderLayout());
-			descriptionPanel.setBorder(new TitledBorder("Add desription: "));
-			descriptionPanel.add(new JScrollPane(new JTextArea(7, 21)),
-					BorderLayout.NORTH);
-			descriptionPanel.add(donePanel, BorderLayout.SOUTH);
-
 			eastPanel = new JPanel(new BorderLayout());
 			eastPanel.setBorder(new TitledBorder("Add Tag: "));
-			eastPanel.add(descriptionPanel, BorderLayout.SOUTH);
 			eastPanel.add(tagPanel, BorderLayout.NORTH);
 
 			mainPanel.add(eastPanel, BorderLayout.EAST);
@@ -585,7 +577,6 @@ public class MainFrame extends JFrame {
 
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
-		importButton.addActionListener(l.new ImportButtonListener());
 
         taggedRadioButton.addActionListener(l.new RadioButtonListener());
         untaggedRadioButton.addActionListener(l.new RadioButtonListener());
@@ -715,7 +706,7 @@ public class MainFrame extends JFrame {
 									if (currentThumbnail.getIcon() == null) {
 										currentThumbnail
 												.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-														.getValue()]);
+                                                        .getValue()]);
 									}
 								} else {
 									currentThumbnail.hideThumbnail();
@@ -725,21 +716,33 @@ public class MainFrame extends JFrame {
 					}
 				});
 
-		resetButton.addActionListener(new ActionListener() {
+        fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				// TODO: probably remove reset button
-			}
-		});
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
+                }
 
-		doneButton.addActionListener(new ActionListener() {
+                Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
+                Settings.LAST_VISITED_DIR = (File)
+                        fileSystemTree.getLastSelectedPathComponent();
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO: see if we need done button
-			}
-		});
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+
+                if (Settings.LAST_VISITED_DIR == null) {
+                    return;
+                }
+
+                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+                Library.importPicture(picturesToDisplay);
+
+            }
+        });
 	}
 
 	private class Listeners {
@@ -777,64 +780,49 @@ public class MainFrame extends JFrame {
 
 		}
 
-		private class ImportButtonListener implements ActionListener {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// open system file manager to ask user for pictures to import
-				FileDialog importDialog = new FileDialog(MainFrame.this,
-						"Choose picture(s) to import", FileDialog.LOAD);
-				importDialog.setFile("*.jpg");
-				importDialog.setMultipleMode(true);
-				importDialog.setVisible(true);
-				if (Library.getPictureLibrary().size() == 0) {
-					setFocusable(true);
-					requestFocus();
-				}
-				// import pictures into library
-				//Library.importPicture(importDialog.getFiles());
-			}
-		}
-
 		/**
-		 * method to action the tag field
+		 * This method
 		 */
 		private class TagListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ArrayList<Picture> picturesToTag = picturePanel
-						.getSelectedPictures();
-				if (picturesToTag.size() == 0) {
-					// TODO: no thumnails selected, either reset texfield or
-					// simply disable them until picture/s selected
-				} else {
-					for (Taggable t : Library.getTaggableComponentsList()) {
-						if (tagField.getText().toLowerCase()
-								.equals(t.getName().toLowerCase())) {
-							for (Picture p : picturePanel.getSelectedPictures()) {
-								if (!p.getTag().getTaggedComponents()
-										.contains(t)) {
-									// if this is an area tag only tag if
-									// picture has no area tag
-									if ((t.getType() == Settings.AREA_TAG && p
-											.getTag().isAreaSet())) {
-                                        p.getTag().getArea().removeTaggedPicture(p);
-                                        p.getTag().removeTag(p.getTag().getArea());
-									}
-                                    p.getTag().addTag(t);
-                                    t.addTaggedPicture(p);
-								}
-							}
-						}
-					}
-				}
-                createTagLabels();
-				tagField.setText("");
+                if (picturePanel.getThumbsOnDisplay().size() > 0) {
+                    ArrayList<Picture> picturesToTag = picturePanel
+                            .getSelectedPictures();
+                    if (picturesToTag.size() != 0) {
+                        for (Taggable t : Library.getTaggableComponentsList()) {
+                            if (tagField.getText().toLowerCase()
+                                    .equals(t.getName().toLowerCase())) {
+                                for (Picture p : picturesToTag) {
+                                    if (!p.getTag().getTaggedComponents()
+                                            .contains(t)) {
+                                        // if this is an area tag and pictures already
+                                        // has an area tag, replace it with new one
+                                        if ((t.getType() == Settings.AREA_TAG && p
+                                                .getTag().isAreaSet())) {
+                                            p.getTag().getArea().removeTaggedPicture(p);
+                                            p.getTag().removeTag(p.getTag().getArea());
+                                        }
+                                        p.getTag().addTag(t);
+                                        t.addTaggedPicture(p);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    createTagLabels();
+                }
+                tagField.setText("");
 			}
 		}
 
 		/**
-		 * method to action the search
+		 * Listener for the search suggestion field. When a selection is made,
+         * the tag being searched for is found in the full tag list. If it wasn't
+         * already searched for, a search label is added for it. If it is a room
+         * tag and a room has already been searched for, the previous room tag is
+         * removed before the new one is added. The method calls the refresh
+         * search method to update the display of pictures when search is made.
 		 */
 		private class SearchListener implements ActionListener {
 			@Override
@@ -852,11 +840,14 @@ public class MainFrame extends JFrame {
                     // gets text from GUI to a string
                     String searchString = searchField.getText().toLowerCase();
 
-                    // loops to the end of tagged children
+                    // loops over all taggable components
                     for (int i = 0; i < allTaggableComponents.size(); ++i) {
+                        // if the search selection is a taggable component
                         if (searchString.equalsIgnoreCase(allTaggableComponents
                                 .get(i).getName())) {
+                            // if there isn't already a search tag
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
+                                // if the tag is a room
                                 if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
                                     Taggable toRemove = null;
                                     for (Taggable t: currentSearchTags) {
@@ -865,12 +856,14 @@ public class MainFrame extends JFrame {
                                             break;
                                         }
                                     }
+                                    // if there already was a search tag for a room, remove it
                                     if (toRemove != null) {
                                         currentSearchTags.remove(toRemove);
                                     }
                                 }
+                                // add the search label
                                 addSearchTag(allTaggableComponents.get(i));
-
+                                searchPanel.revalidate();
                             }
                         }
                     }
@@ -888,36 +881,40 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
+                ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
                 ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (e.getActionCommand() == "TAGGED") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                if (e.getActionCommand().equals("TAGGED")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isFullyTagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "UNTAGGED") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                else if (e.getActionCommand().equals("UNTAGGED")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isUntagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "INCOMPLETE") {
-                    for (Picture p: Library.getPictureLibrary()) {
+                else if (e.getActionCommand().equals("INCOMPLETE")) {
+                    for (Picture p: allPicsInFolder) {
                         if (p.getTag().isPartiallyTagged()) {
                             picturesToDisplay.add(p);
                         }
                     }
                 }
-                else if (e.getActionCommand() == "ALL") {
-                    picturesToDisplay = Library.getPictureLibrary();
+                else if (e.getActionCommand().equals("ALL")) {
+                    picturesToDisplay = allPicsInFolder;
                 }
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
                 picturePanel.removeAllThumbsFromDisplay();
-                picturePanel.addThumbnailsToView(picturesToDisplay, getZoomValue());
+                for (Picture p : picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+                Library.importPicture(picturesToDisplay);
             }
         }
         
@@ -940,6 +937,20 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
+
+    private ArrayList<Picture> getAllSubPictures(File currentFolder) {
+        ArrayList<Picture> allSubPictures = new ArrayList<Picture>();
+        for (File f: currentFolder.listFiles()) {
+
+            if (f.isDirectory()) {
+                allSubPictures.addAll(getAllSubPictures(f));
+            }
+        }
+        if (Library.getDirectoryPictureMap().get(currentFolder) != null) {
+            allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
+        }
+        return allSubPictures;
+    }
 	
 	/*
 	 * Creates the File Tree Model
@@ -989,9 +1000,9 @@ public class MainFrame extends JFrame {
         @Override
         public int getIndexOfChild(Object parent, Object child) {
             File[] files = getFiles((File) parent);
-            for (int idx = 0; idx < files.length; idx++) {
-                if (files[idx].equals(child))
-                    return idx;
+            for (int i = 0; i < files.length; ++i) {
+                if (files[i].equals(child))
+                    return i;
             }
             return -1;
         }
@@ -1033,47 +1044,57 @@ public class MainFrame extends JFrame {
     /**
      * Search label panel is cleared of all components and is
      * reset using the list of current chosen tags to search by.
-     * Finally the thumbnail display is reset to include pictures
-     * which are tagged with all tags chosen in search.
+     * Finally the thumbnail display is reset to show pictures
+     * which are tagged with all tags chosen in the search.
      */
     public void refreshSearch() {
-        ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
-        searchLabelPanel.removeAll();
-        searchLabelPanel.repaint();
+        if (picturePanel.getThumbsOnDisplay().size() > 0) {
+            ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
+            searchLabelPanel.removeAll();
+            searchLabelPanel.repaint();
 
-        if (currentSearchTags.size() == 0) {
-            allPictureSet = Library.getPictureLibrary();
-        }
-        else if (currentSearchTags.size() > 1) {
-            ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
-            for (int i = 0; i < currentSearchTags.size(); ++i) {
-                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+            picturePanel.removeAll();
+            picturePanel.revalidate();
+            // if there are no search tags
+            if (currentSearchTags.size() == 0) {
+                allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
             }
-            for (Picture p: allPictureListsList.get(0)) {
-                boolean pictureInAllLists = true;
-                for (int i = 1; i < allPictureListsList.size(); ++i) {
-                    if (!allPictureListsList.get(i).contains(p)) {
-                        pictureInAllLists = false;
-                        break;
+            else if (currentSearchTags.size() > 1) {
+                ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+                for (int i = 0; i < currentSearchTags.size(); ++i) {
+                    searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
+                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+                }
+                // for every picture in the first picture list
+                for (Picture p : allPictureListsList.get(0)) {
+                    boolean pictureInAllLists = true;
+                    // for every other picture list
+                    for (int i = 1; i < allPictureListsList.size(); ++i) {
+                        // if a picture does not appear then the picture is not in intersection of all lists
+                        if (!allPictureListsList.get(i).contains(p)) {
+                            pictureInAllLists = false;
+                            break;
+                        }
+                    }
+                    // if the picture is tagged with all search tags
+                    // and the new picture set does not already contain it
+                    if (pictureInAllLists && !allPictureSet.contains(p)) {
+                        allPictureSet.add(p);
                     }
                 }
-                if (pictureInAllLists && !allPictureSet.contains(p)) {
-                    allPictureSet.add(p);
-                }
             }
-        }
-        else {
-            allPictureSet = currentSearchTags.get(0).getTaggedPictures();
-            searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
-        }
+            else {
+                allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
+            }
 
-        searchLabelPanel.revalidate();
-        picturePanel.removeAll();
-        picturePanel.repaint();
-        picturePanel.removeAllThumbsFromDisplay();
-        picturePanel.addThumbnailsToView(allPictureSet, zoomSlider.getValue());
-        picturePanel.createThumbnailArray();
+            searchLabelPanel.revalidate();
+            picturePanel.removeAllThumbsFromDisplay();
+            for (Picture p : allPictureSet) {
+                picturePanel.addThumbToDisplay(p.getPictureLabel());
+            }
+            Library.importPicture(allPictureSet);
+        }
     }
 
 	/**
@@ -1148,6 +1169,8 @@ public class MainFrame extends JFrame {
 				saveAllTaggableComponents();
 				saveNurseryLocation();
 				savePicturesHomeDIR();
+                saveLastVisitedDIR();
+                saveDirectoryFileMap();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -1174,6 +1197,10 @@ public class MainFrame extends JFrame {
 	public PicturesFrame getPicturesPanel() {
 		return picturePanel;
 	}
+
+    public int getSidePanelsWidth() {
+        return eastPanel.getWidth() + westPanel.getWidth();
+    }
 
 	/* returns true if a pictureLabel is in view in the scroll pane */
 	private static boolean isInView(PictureLabel thumbnail,
@@ -1241,7 +1268,7 @@ public class MainFrame extends JFrame {
 		try{
 			FileOutputStream savedAllTaggableComponentSFile = new FileOutputStream(
 					"savedAllTaggableComponents.ser");
-			ObjectOutputStream savedAllTaggableComponentsObject = new ObjectOutputStream(
+            FSTObjectOutput savedAllTaggableComponentsObject = new FSTObjectOutput(
 					savedAllTaggableComponentSFile);
 			savedAllTaggableComponentsObject.writeObject(Library.getTaggableComponentsList());
 			savedAllTaggableComponentsObject.close();
@@ -1260,7 +1287,7 @@ public class MainFrame extends JFrame {
 	private void saveNurseryLocation() {
 		try{
 			FileOutputStream savedNurseryLocation = new FileOutputStream("savedNurseryLocation.ser");
-			ObjectOutputStream savedNurseryLocationObject = new ObjectOutputStream(savedNurseryLocation);
+            FSTObjectOutput savedNurseryLocationObject = new FSTObjectOutput(savedNurseryLocation);
 			savedNurseryLocationObject.writeObject(Settings.NURSERY_LOCATION);
 			savedNurseryLocationObject.close();
 			System.out.println("Nursery Location Saved");
@@ -1278,7 +1305,7 @@ public class MainFrame extends JFrame {
 	private void savePicturesHomeDIR() {
 		try{
 			FileOutputStream savedPicturesHomeDIR = new FileOutputStream("savedPicturesHomeDIR.ser");
-			ObjectOutputStream savedPicturesHomeDIRObject = new ObjectOutputStream(savedPicturesHomeDIR);
+            FSTObjectOutput savedPicturesHomeDIRObject = new FSTObjectOutput(savedPicturesHomeDIR);
 			savedPicturesHomeDIRObject.writeObject(Settings.PICTURE_HOME_DIR);
 			savedPicturesHomeDIRObject.close();
 			System.out.println("Pictures Home Directory Saved");
@@ -1289,6 +1316,42 @@ public class MainFrame extends JFrame {
 		}
 		Settings.PICTURE_HOME_DIR = null;
 	}
+
+    /*
+	 * Saves the last visited Directory.
+	 */
+    private void saveLastVisitedDIR() {
+        try{
+            FileOutputStream savedLastVisitedDIR = new FileOutputStream("savedLastVisitedDIR.ser");
+            FSTObjectOutput savedLastVisitedDIRObject = new FSTObjectOutput(savedLastVisitedDIR);
+            savedLastVisitedDIRObject.writeObject(Settings.LAST_VISITED_PATH);
+            savedLastVisitedDIRObject.close();
+            System.out.println("Last Visited Directory Saved");
+        } catch (FileNotFoundException ex1) {
+            ex1.printStackTrace();
+        } catch (IOException ex2) {
+            ex2.printStackTrace();
+        }
+        Settings.LAST_VISITED_PATH = null;
+    }
+
+    /*
+	 * Saves the directory file hashmap.
+	 */
+    private void saveDirectoryFileMap() {
+        try{
+            FileOutputStream savedDirectoryFileMap = new FileOutputStream("savedDirectoryFileMap.ser");
+            FSTObjectOutput savedDirectoryFileMapObject = new FSTObjectOutput(savedDirectoryFileMap);
+            savedDirectoryFileMapObject.writeObject(Library.getDirectoryPictureMap());
+            savedDirectoryFileMapObject.close();
+            System.out.println("Directory File Map Saved");
+        } catch (FileNotFoundException ex1) {
+            ex1.printStackTrace();
+        } catch (IOException ex2) {
+            ex2.printStackTrace();
+        }
+        Library.setDirectoryPictureMap(null);
+    }
 	
 	/*
 	 * Returns the saved Picture Library ArrayList.
@@ -1321,7 +1384,7 @@ public class MainFrame extends JFrame {
 	private void getSavedTaggableComponents() {
 		try{
 			FileInputStream savedTaggableComponents = new FileInputStream("savedAllTaggableComponents.ser");
-			ObjectInputStream restoredTaggableComponentsObject = new ObjectInputStream(savedTaggableComponents);
+            FSTObjectInput restoredTaggableComponentsObject = new FSTObjectInput(savedTaggableComponents);
 			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject.readObject();
 			for(int i = 0; i < savedTaggableComponentsData.size(); i++) {
 				Library.getTaggableComponentsList().add(savedTaggableComponentsData.get(i));
@@ -1342,7 +1405,7 @@ public class MainFrame extends JFrame {
 	private void getSavedNurseryLocation() {
 		try{
 			FileInputStream savedNurseryName = new FileInputStream("savedNurseryLocation.ser");
-			ObjectInputStream restoredNurseryName = new ObjectInputStream(savedNurseryName);
+            FSTObjectInput restoredNurseryName = new FSTObjectInput(savedNurseryName);
 			Settings.NURSERY_LOCATION = (String)restoredNurseryName.readObject();
 			restoredNurseryName.close();
 		} catch (EOFException ex) {
@@ -1360,7 +1423,7 @@ public class MainFrame extends JFrame {
 	private void getSavedPicturesHomeDIR() {
 		try{
 			FileInputStream savedPicturesHomeDIR = new FileInputStream("savedPicturesHomeDIR.ser");
-			ObjectInputStream restoredPicturesHomeDIR = new ObjectInputStream(savedPicturesHomeDIR);
+            FSTObjectInput restoredPicturesHomeDIR = new FSTObjectInput(savedPicturesHomeDIR);
 			Settings.PICTURE_HOME_DIR = (File)restoredPicturesHomeDIR.readObject();
 			restoredPicturesHomeDIR.close();
 		} catch (EOFException ex) {
@@ -1371,6 +1434,42 @@ public class MainFrame extends JFrame {
 			System.out.println("File savedPicturesHomeDIR.ser not found!");
 		}
 	}
+
+    /*
+	 * Returns the saved last visited directory.
+	 */
+    private void getSavedLastVisitedDIR() {
+        try{
+            FileInputStream savedLastVisitedDIR = new FileInputStream("savedLastVisitedDIR.ser");
+            FSTObjectInput restoredLastVisitedDIR = new FSTObjectInput(savedLastVisitedDIR);
+            Settings.LAST_VISITED_PATH = (TreePath) restoredLastVisitedDIR.readObject();
+            restoredLastVisitedDIR.close();
+        } catch (EOFException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex2) {
+            ex2.printStackTrace();
+        }  catch (IOException ex1) {
+            System.out.println("File savedLastVisitedDIR.ser not found!");
+        }
+    }
+
+    /*
+	 * Returns the saved directory file hashmap.
+	 */
+    private void getSavedDirectoryFileMap() {
+        try{
+            FileInputStream savedDirectoryFileMap = new FileInputStream("savedDirectoryFileMap.ser");
+            FSTObjectInput restoredDirectoryFileMap = new FSTObjectInput(savedDirectoryFileMap);
+            Library.setDirectoryPictureMap((Map<File, ArrayList<Picture>>) restoredDirectoryFileMap.readObject());
+            restoredDirectoryFileMap.close();
+        } catch (EOFException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex2) {
+            ex2.printStackTrace();
+        }  catch (IOException ex1) {
+            System.out.println("File savedDirectoryFileMap.ser not found!");
+        }
+    }
 
 	public static void main(String[] args) {
 

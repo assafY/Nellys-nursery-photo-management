@@ -24,9 +24,6 @@ public class PicturesFrame extends JPanel {
 	private ArrayList<PictureLabel> thumbsOnDisplay = new ArrayList<PictureLabel>();
 	private ArrayList<PictureLabel> selectedThumbs = new ArrayList<PictureLabel>();
 
-	private int currentColumnCount = 0;
-	private boolean picturePanelBiggerThanFrame = false;
-
 	private int currentRow = 0;
 	private int currentColumn = 0;
 	private boolean shiftIsPressed;
@@ -59,16 +56,9 @@ public class PicturesFrame extends JPanel {
 
 	public void adjustColumnCount(int zoomValue) {
 
-		/*
-		 * if(picturePanelBiggerThanFrame) {
-		 * 
-		 * //picturePanelBiggerThanFrame = false; } else { currentPanelSize =
-		 * (int) Math.round(getSize().getWidth()); }
-		 */
-
 		int newColumnCount;
 		int currentPanelSize = ((int) Math
-				.round(mainFrame.getSize().getWidth())) - 460;
+				.round(mainFrame.getSize().getWidth())) - (mainFrame.getSidePanelsWidth() + 65);
 
 		newColumnCount = currentPanelSize / Settings.THUMBNAIL_SIZES[zoomValue];
 
@@ -81,7 +71,9 @@ public class PicturesFrame extends JPanel {
 
 			this.revalidate();
 			this.repaint();
-			createThumbnailArray();
+			if (!Settings.IMPORT_IN_PROGRESS) {
+                createThumbnailArray();
+            }
 		}
 
 	}
@@ -98,16 +90,29 @@ public class PicturesFrame extends JPanel {
 		return thumbsOnDisplay;
 	}
 
+    public synchronized ArrayList<Picture> getPicturesOnDisplay() {
+        ArrayList<Picture> allPicturesOnDisplay = new ArrayList<Picture>();
+        for (PictureLabel p: thumbsOnDisplay) {
+            allPicturesOnDisplay.add(p.getPicture());
+        }
+        return allPicturesOnDisplay;
+    }
+
 	public synchronized void addThumbToDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.add(thumb);
+        if (!thumbsOnDisplay.contains(thumb)) {
+            thumbsOnDisplay.add(thumb);
+            add(thumb);
+        }
 	}
 
 	public void removeThumbFromDisplay(PictureLabel thumb) {
 		thumbsOnDisplay.remove(thumb);
+        remove(thumb);
 	}
 
 	public void removeAllThumbsFromDisplay() {
 		thumbsOnDisplay = new ArrayList<PictureLabel>();
+        removeAll();
 	}
 
 	public ArrayList<PictureLabel> getSelectedThumbs() {
@@ -147,7 +152,6 @@ public class PicturesFrame extends JPanel {
 		if (getThumbsOnDisplay().size() % columnCount != 0) {
 			++rowCount;
 		}
-		System.out.println(rowCount);
 		int thumbnailCounter = 0;
 
 		thumbsOnDisplay2DArray = new PictureLabel[rowCount][columnCount];
@@ -163,7 +167,7 @@ public class PicturesFrame extends JPanel {
 	}
 
 	public void refresh() {
-		if (getMostRecentSelection() != null) {
+		if (getMostRecentSelection() != null && !Settings.IMPORT_IN_PROGRESS) {
 			for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
 				for (int j = 0; j < thumbsOnDisplay2DArray[i].length; ++j) {
 					if (thumbsOnDisplay2DArray[i][j] != null
@@ -177,22 +181,14 @@ public class PicturesFrame extends JPanel {
 		}
 	}
 
-	public void addThumbnailsToView(ArrayList<Picture> picturesToDisplay,
-			int zoomSize) {
-
-		for (int i = 0; i < picturesToDisplay.size(); ++i) {
-			PictureLabel currentThumb = new PictureLabel(
-					picturesToDisplay.get(i), this);
-			addThumbToDisplay(currentThumb);
-			this.add(currentThumb);
-			currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
-		}
-		createThumbnailArray();
-	}
+    public void addThumbnailToView(PictureLabel currentThumb,
+                                    int zoomSize) {
+            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
+    }
 
 	public void keyAction(KeyEvent e, boolean shiftIsPressed) {
 		this.shiftIsPressed = shiftIsPressed;
-		if (Library.getPictureLibrary().size() > 0) {
+		if (Library.getPictureLibrary().size() > 0 && !Settings.IMPORT_IN_PROGRESS) {
 			switch (getSelectedThumbs().size()) {
 			case 0:
 				setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
