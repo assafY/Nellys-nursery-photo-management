@@ -570,7 +570,7 @@ public class MainFrame extends JFrame {
 			tagPanel.add(tagField, BorderLayout.NORTH);
 
 			eastPanel = new JPanel(new BorderLayout());
-            eastPanel.setBorder(BorderFactory.createTitledBorder(null, "Add description: ",
+            eastPanel.setBorder(BorderFactory.createTitledBorder(null, "Add Tag: ",
                     TitledBorder.LEFT, TitledBorder.ABOVE_TOP, biggerFont));
 
             eastPanel.add(tagPanel, BorderLayout.NORTH);
