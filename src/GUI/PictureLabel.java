@@ -14,12 +14,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.Serializable;
 
-public class PictureLabel extends JLabel implements Serializable{
+public class PictureLabel extends JLabel{
 
     private static final int DEFAULT_SIZE = Settings.THUMBNAIL_SIZES[2];
-    private static final long serialVersionUID = 8439367751494088459L;
 
     private Picture picture;
     private int currentSize;
@@ -38,16 +36,16 @@ public class PictureLabel extends JLabel implements Serializable{
     }
 
     public void createThumbnail() {
+        BufferedImage newThumbnail = null;
         Settings.LOADED_THUMBNAILS_COUNT++;
         try {
-            thumbnail = ImageIO.read(picture.getImageFile());
+            newThumbnail = ImageIO.read(picture.getImageFile());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        if (thumbnail != null) {
-            thumbnail = Scalr.resize(thumbnail, Scalr.Method.BALANCED, DEFAULT_SIZE);
-
+        if (newThumbnail != null) {
+            thumbnail = Scalr.resize(newThumbnail, Scalr.Method.BALANCED, DEFAULT_SIZE);
         }
     }
 
