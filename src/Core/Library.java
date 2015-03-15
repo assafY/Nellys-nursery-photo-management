@@ -109,7 +109,7 @@ public class Library implements Serializable {
 
                 } finally {
                     Library.removeRunningThread(this);
-                    picturesPanel.createThumbnailArray();
+                    //picturesPanel.createThumbnailArray();
                     Settings.IMPORT_IN_PROGRESS = false;
                 }
             }
