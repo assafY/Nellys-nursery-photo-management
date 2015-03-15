@@ -105,11 +105,6 @@ public class PicturesFrame extends JPanel {
         }
 	}
 
-	public void removeThumbFromDisplay(PictureLabel thumb) {
-		thumbsOnDisplay.remove(thumb);
-        remove(thumb);
-	}
-
 	public void removeAllThumbsFromDisplay() {
 		thumbsOnDisplay = new ArrayList<PictureLabel>();
         removeAll();
@@ -143,7 +138,7 @@ public class PicturesFrame extends JPanel {
 	}
 
 	/**
-	 * Creates a 2D array of currently shown thumbnails. used in the key
+	 * Creates a 2D array of currently shown thumbnails. Used in the key
 	 * listener for selection using keyboard
 	 */
 	public void createThumbnailArray() {
@@ -347,6 +342,10 @@ public class PicturesFrame extends JPanel {
 	public boolean isShiftPressed() {
 		return mainFrame.isShiftPressed();
 	}
+
+    public boolean isControlPressed() {
+        return mainFrame.isControlPressed();
+    }
 
 	public void createTagLabels() {
 		mainFrame.createTagLabels();
