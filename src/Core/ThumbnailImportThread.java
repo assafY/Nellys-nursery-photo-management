@@ -27,7 +27,7 @@ public class ThumbnailImportThread extends Thread {
                 mainFrame.getPicturesPanel().addThumbnailToView(pictureToDisplay, mainFrame.getZoomValue());
             }
         }  finally {
-                    Library.removeRunningThread(this);
+                Library.removeRunningThread(this);
         }
     }
 }

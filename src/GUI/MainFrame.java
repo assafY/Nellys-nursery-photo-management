@@ -858,13 +858,12 @@ public class MainFrame extends JFrame {
 
 				if (searchField.getText().equals("View All")) {
                     currentSearchTags.clear();
-                    refreshSearch();
 				} else {
                     ArrayList<Taggable> allTaggableComponents = Library
                             .getTaggableComponentsList();
 
                     // gets text from GUI to a string
-                    String searchString = searchField.getText().toLowerCase();
+                    String searchString = searchField.getText();
 
                     // loops over all taggable components
                     for (int i = 0; i < allTaggableComponents.size(); ++i) {
@@ -875,6 +874,7 @@ public class MainFrame extends JFrame {
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
                                 // if the tag is a room
                                 if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+                                    // check if a room is already tagged and needs to be replaced
                                     Taggable toRemove = null;
                                     for (Taggable t: currentSearchTags) {
                                         if (t.getType() == Settings.AREA_TAG) {
@@ -893,9 +893,8 @@ public class MainFrame extends JFrame {
                             }
                         }
                     }
-
-                    refreshSearch();
 				}
+                refreshSearch();
                 storedTagsPanel.removeTagLabels();
                 searchField.setText("");
 			}
@@ -1122,7 +1121,12 @@ public class MainFrame extends JFrame {
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
             }
 
-            searchLabelPanel.revalidate();
+            searchLabelPanel.repaint();
+            /*for (Picture p: picturePanel.getPicturesOnDisplay()) {
+                if (allPictureSet.contains(p)) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+            }*/
             picturePanel.removeAllThumbsFromDisplay();
             for (Picture p : allPictureSet) {
                 picturePanel.addThumbToDisplay(p.getPictureLabel());
