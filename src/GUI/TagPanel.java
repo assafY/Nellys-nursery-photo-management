@@ -238,7 +238,6 @@ public class TagPanel extends JPanel {
      */
     public static class TagTextLabel extends JPanel {
 
-        private BufferedImage tagDeleteButton;
         private boolean searchLabel;
 
         private Taggable taggableItem;
@@ -258,10 +257,6 @@ public class TagPanel extends JPanel {
          */
         public TagTextLabel(boolean isSearchLabel, Taggable t, JPanel tagPanel, MainFrame mainFrame) {
 
-            if (tagDeleteButton == null) {
-                loadTagDeleteButton();
-            }
-
             this.searchLabel = isSearchLabel;
             this.taggableItem = t;
 
@@ -269,7 +264,7 @@ public class TagPanel extends JPanel {
             setBorder(BorderFactory.createLineBorder(Color.black));
 
             deleteButton = new JLabel();
-            deleteButton.setIcon(new ImageIcon(tagDeleteButton));
+            deleteButton.setIcon(new ImageIcon(Library.DELETE_BUTTON));
 
             setLayout(new BorderLayout());
             add(tagLabel, BorderLayout.CENTER);
@@ -280,14 +275,6 @@ public class TagPanel extends JPanel {
 
             addListener();
 
-        }
-
-        private void loadTagDeleteButton() {
-            try {
-                tagDeleteButton = ImageIO.read(TagTextLabel.class.getResource("/images/delete_button.png"));
-            } catch (IOException e) {
-                //TODO: Handle exception
-            }
         }
 
         @Override
