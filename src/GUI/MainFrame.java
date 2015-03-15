@@ -1092,11 +1092,27 @@ public class MainFrame extends JFrame {
             if (currentSearchTags.size() == 0) {
                 allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
             }
+            // if there are more than one search selections
             else if (currentSearchTags.size() > 1) {
+                // create a list of picture lists of every search selection
                 ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+                // for every search selection
                 for (int i = 0; i < currentSearchTags.size(); ++i) {
+                    // create a new search label
                     searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+                    // create list to hold only pictures that are
+                    // under currently selected folder in tree
+                    ArrayList<Picture> adjustedPictureList = new ArrayList<Picture>();
+                    // for every picture tagged in search selection
+                    for (Picture p: currentSearchTags.get(i).getTaggedPictures()) {
+                        // if that picture is also under the selected folder
+                        if (getAllSubPictures(Settings.LAST_VISITED_DIR).contains(p)) {
+                            // add picture to temp list
+                            adjustedPictureList.add(p);
+                        }
+                    }
+                    // add the temp list to the picture list list
+                    allPictureListsList.add(adjustedPictureList);
                 }
                 // for every picture in the first picture list
                 for (Picture p : allPictureListsList.get(0)) {
@@ -1117,16 +1133,22 @@ public class MainFrame extends JFrame {
                 }
             }
             else {
-                allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                ArrayList<Picture> newPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                allPictureSet = new ArrayList<Picture>();
+                for (Picture p: newPictureSet) {
+                    if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                        allPictureSet.add(p);
+                    }
+                }
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
             }
 
-            searchLabelPanel.repaint();
-            /*for (Picture p: picturePanel.getPicturesOnDisplay()) {
-                if (allPictureSet.contains(p)) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+            if (Settings.IMPORT_IN_PROGRESS) {
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
                 }
-            }*/
+            }
+            searchLabelPanel.repaint();
             picturePanel.removeAllThumbsFromDisplay();
             for (Picture p : allPictureSet) {
                 picturePanel.addThumbToDisplay(p.getPictureLabel());
