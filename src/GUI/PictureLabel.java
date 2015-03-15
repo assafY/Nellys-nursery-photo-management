@@ -1,13 +1,10 @@
 package GUI;
 
-import Core.Library;
 import Core.Settings;
 import Data.Picture;
 import org.imgscalr.Scalr;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
