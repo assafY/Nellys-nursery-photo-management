@@ -974,40 +974,39 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
-                ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (e.getActionCommand().equals("TAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isFullyTagged()) {
-                            picturesToDisplay.add(p);
+                if (Settings.LAST_VISITED_DIR != null) {
+                    ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                    if (e.getActionCommand().equals("TAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isFullyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("UNTAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isUntagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("UNTAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isUntagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("INCOMPLETE")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isPartiallyTagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("INCOMPLETE")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isPartiallyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
+                    } else if (e.getActionCommand().equals("ALL")) {
+                        picturesToDisplay = allPicsInFolder;
                     }
-                }
-                else if (e.getActionCommand().equals("ALL")) {
-                    picturesToDisplay = allPicsInFolder;
-                }
 
-                picturePanel.removeAll();
-                picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
-                for (Picture p : picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    picturePanel.removeAll();
+                    picturePanel.repaint();
+                    picturePanel.removeAllThumbsFromDisplay();
+                    for (Picture p : picturesToDisplay) {
+                        picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    }
+                    Library.importPicture(picturesToDisplay);
                 }
-                Library.importPicture(picturesToDisplay);
             }
         }
         
