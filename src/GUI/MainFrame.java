@@ -146,6 +146,13 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame()  {
 
+        try {
+            Class.forName("java.awt.color.ICC_ColorSpace");
+            Class.forName("sun.java2d.cmm.lcms.LCMS");
+        } catch (ClassNotFoundException e) {
+
+        }
+
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
 
