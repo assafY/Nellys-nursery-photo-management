@@ -620,23 +620,6 @@ public class MainFrame extends JFrame {
                     searchField.setFocusable(true);
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
         });
 
 		//Key Stroke Listeners
