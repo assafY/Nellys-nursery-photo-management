@@ -1,5 +1,6 @@
 package GUI;
 
+import Core.Library;
 import Core.Settings;
 import Data.Picture;
 import org.imgscalr.Scalr;

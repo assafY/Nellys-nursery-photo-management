@@ -6,11 +6,14 @@ import GUI.PictureLabel;
 import GUI.PicturesFrame;
 import org.apache.commons.io.FilenameUtils;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
 
 public class Library implements Serializable {
+
+    public static BufferedImage DELETE_BUTTON;
 
     private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
     private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
@@ -19,7 +22,6 @@ public class Library implements Serializable {
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
     private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
-    public static boolean LAST_THREAD = false;
 
     public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
         return taggableComponents;

@@ -31,6 +31,8 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -152,6 +154,7 @@ public class MainFrame extends JFrame {
 		addSavedData();
         startUpChecks();
         loadTaggableComponents();
+        loadTagDeleteButton();
 		createMenuBar();
 		createPanels();
 		addListeners();
@@ -965,6 +968,14 @@ public class MainFrame extends JFrame {
             allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
         }
         return allSubPictures;
+    }
+
+    private void loadTagDeleteButton() {
+        try {
+            Library.DELETE_BUTTON = ImageIO.read(MainFrame.class.getResource("/images/delete_button.png"));
+        } catch (IOException e) {
+            //TODO: Handle exception
+        }
     }
 	
 	/*
