@@ -95,7 +95,7 @@ public class Library implements Serializable {
                 try {
                     if (importedPictures.size() > 0) {
                         for (Picture p: importedPictures) {
-                            while (Library.getRunningThreads().size() > 10) {
+                            while (Library.getRunningThreads().size() > 2) {
                                 sleep(200);
                             }
                             if (isInterrupted()) {
@@ -109,7 +109,7 @@ public class Library implements Serializable {
 
                 } finally {
                     Library.removeRunningThread(this);
-                    //picturesPanel.createThumbnailArray();
+                    picturesPanel.createThumbnailArray();
                     Settings.IMPORT_IN_PROGRESS = false;
                 }
             }

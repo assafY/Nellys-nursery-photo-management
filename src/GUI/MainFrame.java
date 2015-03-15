@@ -148,6 +148,13 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame()  {
 
+        try {
+            Class.forName("java.awt.color.ICC_ColorSpace");
+            Class.forName("sun.java2d.cmm.lcms.LCMS");
+        } catch (ClassNotFoundException e) {
+
+        }
+
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
 
@@ -851,13 +858,12 @@ public class MainFrame extends JFrame {
 
 				if (searchField.getText().equals("View All")) {
                     currentSearchTags.clear();
-                    refreshSearch();
 				} else {
                     ArrayList<Taggable> allTaggableComponents = Library
                             .getTaggableComponentsList();
 
                     // gets text from GUI to a string
-                    String searchString = searchField.getText().toLowerCase();
+                    String searchString = searchField.getText();
 
                     // loops over all taggable components
                     for (int i = 0; i < allTaggableComponents.size(); ++i) {
@@ -868,6 +874,7 @@ public class MainFrame extends JFrame {
                             if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
                                 // if the tag is a room
                                 if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+                                    // check if a room is already tagged and needs to be replaced
                                     Taggable toRemove = null;
                                     for (Taggable t: currentSearchTags) {
                                         if (t.getType() == Settings.AREA_TAG) {
@@ -886,9 +893,8 @@ public class MainFrame extends JFrame {
                             }
                         }
                     }
-
-                    refreshSearch();
 				}
+                refreshSearch();
                 storedTagsPanel.removeTagLabels();
                 searchField.setText("");
 			}
@@ -1086,11 +1092,27 @@ public class MainFrame extends JFrame {
             if (currentSearchTags.size() == 0) {
                 allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
             }
+            // if there are more than one search selections
             else if (currentSearchTags.size() > 1) {
+                // create a list of picture lists of every search selection
                 ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+                // for every search selection
                 for (int i = 0; i < currentSearchTags.size(); ++i) {
+                    // create a new search label
                     searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
+                    // create list to hold only pictures that are
+                    // under currently selected folder in tree
+                    ArrayList<Picture> adjustedPictureList = new ArrayList<Picture>();
+                    // for every picture tagged in search selection
+                    for (Picture p: currentSearchTags.get(i).getTaggedPictures()) {
+                        // if that picture is also under the selected folder
+                        if (getAllSubPictures(Settings.LAST_VISITED_DIR).contains(p)) {
+                            // add picture to temp list
+                            adjustedPictureList.add(p);
+                        }
+                    }
+                    // add the temp list to the picture list list
+                    allPictureListsList.add(adjustedPictureList);
                 }
                 // for every picture in the first picture list
                 for (Picture p : allPictureListsList.get(0)) {
@@ -1111,11 +1133,22 @@ public class MainFrame extends JFrame {
                 }
             }
             else {
-                allPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                ArrayList<Picture> newPictureSet = currentSearchTags.get(0).getTaggedPictures();
+                allPictureSet = new ArrayList<Picture>();
+                for (Picture p: newPictureSet) {
+                    if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                        allPictureSet.add(p);
+                    }
+                }
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
             }
 
-            searchLabelPanel.revalidate();
+            if (Settings.IMPORT_IN_PROGRESS) {
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
+                }
+            }
+            searchLabelPanel.repaint();
             picturePanel.removeAllThumbsFromDisplay();
             for (Picture p : allPictureSet) {
                 picturePanel.addThumbToDisplay(p.getPictureLabel());
