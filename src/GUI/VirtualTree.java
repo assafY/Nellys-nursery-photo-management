@@ -119,7 +119,7 @@ public class VirtualTree extends JTree {
 			}
 		}
 	}
-	
+
 	private void sortArrayValues(ArrayList<String> list) {
 		Collections.sort(list, new Comparator<String>() {
 			public int compare(String firstValue, String nextValue) {
@@ -174,5 +174,5 @@ public class VirtualTree extends JTree {
 	
 	public void updateTreeModel() {
 		treeModel.reload();
-	}	
+	}
 }
