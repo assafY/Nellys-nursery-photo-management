@@ -5,10 +5,9 @@ import Data.Picture;
 import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -28,7 +27,10 @@ public class PictureLabel extends JLabel{
         this.picture = picture;
         isSelected = false;
         this.picturePanel = mainFrame;
-        this.addMouseListener(new ThumbnailMouseListener());
+
+        ThumbnailMouseListener mouseInput = new ThumbnailMouseListener();
+        this.addMouseListener(mouseInput);
+        this.addMouseMotionListener(mouseInput);
         this.setAlignmentX(JLabel.CENTER);
     }
 
@@ -216,12 +218,28 @@ public class PictureLabel extends JLabel{
 
         @Override
         public void mousePressed(MouseEvent e) {
-
+            /*picturePanel.setFocusable(true);
+            picturePanel.requestFocus();
+            for (MouseListener l: picturePanel.getMouseListeners()) {
+                l.mousePressed(e);
+            }*/
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            /*for (MouseListener l: picturePanel.getMouseListeners()) {
+                l.mouseReleased(e);
+            }*/
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
+        }
 
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            /*for (MouseMotionListener l: picturePanel.getMouseMotionListeners()) {
+                l.mouseMoved(e);
+            }*/
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
     }

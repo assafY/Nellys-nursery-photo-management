@@ -2,9 +2,8 @@ package GUI;
 
 import static java.awt.Color.WHITE;
 
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
@@ -29,6 +28,9 @@ public class PicturesFrame extends JPanel {
 	private int currentColumn = 0;
 	private boolean shiftIsPressed;
 
+    private Point startPoint = null;
+    private Point currentPoint = null;
+
 	public PicturesFrame(MainFrame mainFrame) {
 		super();
 		this.mainFrame = mainFrame;
@@ -39,7 +41,8 @@ public class PicturesFrame extends JPanel {
 	}
 
 	private void addListeners() {
-		this.addMouseListener(new MouseInputAdapter() {
+        MouseInputAdapter mouseInput = new MouseInputAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
@@ -49,19 +52,32 @@ public class PicturesFrame extends JPanel {
 
             @Override
             public void mousePressed(MouseEvent e) {
-
+                super.mousePressed(e);
+                System.out.println("Mouse pressed, start point: " + e.getX() + " " + e.getY());
+                startPoint = e.getPoint();
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                super.mouseReleased(e);
+                startPoint = null;
+                repaint();
+                System.out.println("Mouse released");
             }
             @Override
             public void mouseDragged(MouseEvent e) {
-
+                super.mouseDragged(e);
+                currentPoint = e.getPoint();
+                repaint();
+                System.out.println("Mouse dragged, current point: " + e.getX() + " " + e.getY());
             }
 
-		});
+        };
+
+		this.addMouseListener(mouseInput);
+        this.addMouseMotionListener(mouseInput);
+
+
 
 	}
 
@@ -353,6 +369,20 @@ public class PicturesFrame extends JPanel {
 		}
 
 	}
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        if (startPoint != null) {
+            Rectangle rectangle = new Rectangle(startPoint);
+            rectangle.add(currentPoint);
+
+            g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+        }
+        else {
+            g.dispose();
+        }
+    }
 
 	public boolean isShiftPressed() {
 		return mainFrame.isShiftPressed();
