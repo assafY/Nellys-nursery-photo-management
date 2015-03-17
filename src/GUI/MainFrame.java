@@ -1312,7 +1312,7 @@ public class MainFrame extends JFrame {
     }
 
 	/* returns true if a pictureLabel is in view in the scroll pane */
-	private static boolean isInView(PictureLabel thumbnail,
+	public static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
 		if (thumbnail.getBounds().intersects(currentView)) {

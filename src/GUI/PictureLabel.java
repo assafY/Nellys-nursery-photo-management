@@ -20,6 +20,7 @@ public class PictureLabel extends JLabel{
     private boolean isSelected;
     private BufferedImage thumbnail;
     private boolean horizontal = true;
+    private boolean firstDrag = true;
     private FullScreenPicturesFrame frame;
     private PicturesFrame picturePanel;
 
@@ -168,6 +169,13 @@ public class PictureLabel extends JLabel{
 
     }
 
+    public void setFirstDrag(boolean firstDrag) {
+        this.firstDrag = firstDrag;
+    }
+    public boolean isFirstDrag() {
+        return firstDrag;
+    }
+
     public class ThumbnailMouseListener extends MouseAdapter {
 
         /**
@@ -218,27 +226,16 @@ public class PictureLabel extends JLabel{
 
         @Override
         public void mousePressed(MouseEvent e) {
-            /*picturePanel.setFocusable(true);
-            picturePanel.requestFocus();
-            for (MouseListener l: picturePanel.getMouseListeners()) {
-                l.mousePressed(e);
-            }*/
             picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            /*for (MouseListener l: picturePanel.getMouseListeners()) {
-                l.mouseReleased(e);
-            }*/
             picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
         @Override
         public void mouseDragged(MouseEvent e) {
-            /*for (MouseMotionListener l: picturePanel.getMouseMotionListeners()) {
-                l.mouseMoved(e);
-            }*/
             picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 

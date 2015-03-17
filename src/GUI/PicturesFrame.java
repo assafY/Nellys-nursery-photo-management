@@ -53,32 +53,33 @@ public class PicturesFrame extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
-                System.out.println("Mouse pressed, start point: " + e.getX() + " " + e.getY());
                 startPoint = e.getPoint();
+                // System.out.println("Mouse pressed, start point: " + e.getX() + " " + e.getY());
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
                 startPoint = null;
+                currentPoint = null;
                 repaint();
-                System.out.println("Mouse released");
+                for (PictureLabel p: getThumbsOnDisplay()) {
+                    p.setFirstDrag(true);
+                }
+                //System.out.println("Mouse released");
             }
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
                 currentPoint = e.getPoint();
                 repaint();
-                System.out.println("Mouse dragged, current point: " + e.getX() + " " + e.getY());
+                // System.out.println("Mouse dragged, current point: " + e.getX() + " " + e.getY());
             }
 
         };
 
 		this.addMouseListener(mouseInput);
         this.addMouseMotionListener(mouseInput);
-
-
-
 	}
 
 	public void setCurrentPosition(int row, int col) {
@@ -373,11 +374,42 @@ public class PicturesFrame extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        if (startPoint != null) {
+        if (startPoint != null && currentPoint != null) {
             Rectangle rectangle = new Rectangle(startPoint);
             rectangle.add(currentPoint);
 
-            g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            for (PictureLabel p: getThumbsOnDisplay()) {
+                if (mainFrame.isInView(p, rectangle)) {
+                    if (p.isFirstDrag()) {
+                        if (p.isSelected()) {
+                            removeSelectedThumb(p);
+                            setMostRecentSelection(null);
+                            refresh();
+                            createTagLabels();
+                        }
+                        else {
+                            addSelectedThumb(p);
+                            setMostRecentSelection(p);
+                            refresh();
+                            createTagLabels();
+                        }
+                        p.toggleSelection();
+                        p.setFirstDrag(false);
+                    }
+                }
+                else {
+                    p.setFirstDrag(true);
+                    if (!isShiftPressed()) {
+                        if (p.isSelected()) {
+                            removeSelectedThumb(p);
+                            p.toggleSelection();
+                            refresh();
+                            createTagLabels();
+                        }
+                    }
+                }
+            }
         }
         else {
             g.dispose();
