@@ -191,12 +191,14 @@ public class TagPanel extends JPanel {
 
         // if area is the same in all pictures
         if (areaInAllPictures) {
-            Taggable areaTag = selectedPictures.get(0).getTag().getArea();
-            areaTagPanel.removeAll();
-            areaTagPanel.revalidate();
-            if (areaTag != null) {
-                // add tag label to area panel
-                areaTagPanel.add(new TagTextLabel(false, areaTag, areaTagPanel, mainFrame));
+            if (selectedPictures.size() > 0) {
+                Taggable areaTag = selectedPictures.get(0).getTag().getArea();
+                areaTagPanel.removeAll();
+                areaTagPanel.revalidate();
+                if (areaTag != null) {
+                    // add tag label to area panel
+                    areaTagPanel.add(new TagTextLabel(false, areaTag, areaTagPanel, mainFrame));
+                }
             }
         }
 
