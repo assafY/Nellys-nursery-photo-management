@@ -469,7 +469,19 @@ public class MainFrame extends JFrame {
             });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
+			virtualTreeDatesList = new ArrayList<String>();
+			if(!Library.getPictureLibrary().isEmpty()) {
+				for(int i = 0;i < Library.getPictureLibrary().size();i++){
+					virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
+				}
+				virtualTree = new VirtualTree(virtualTreeDatesList);
+			} else {
+				virtualTree = new VirtualTree(virtualTreeDatesList);	
+			}
+			virtualTreeScrollPane = new JScrollPane(virtualTree);
+			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
+			virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
