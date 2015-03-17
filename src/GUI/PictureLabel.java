@@ -5,10 +5,9 @@ import Data.Picture;
 import org.imgscalr.Scalr;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -21,6 +20,7 @@ public class PictureLabel extends JLabel{
     private boolean isSelected;
     private BufferedImage thumbnail;
     private boolean horizontal = true;
+    private boolean firstDrag = true;
     private FullScreenPicturesFrame frame;
     private PicturesFrame picturePanel;
 
@@ -28,7 +28,10 @@ public class PictureLabel extends JLabel{
         this.picture = picture;
         isSelected = false;
         this.picturePanel = mainFrame;
-        this.addMouseListener(new ThumbnailMouseListener());
+
+        ThumbnailMouseListener mouseInput = new ThumbnailMouseListener();
+        this.addMouseListener(mouseInput);
+        this.addMouseMotionListener(mouseInput);
         this.setAlignmentX(JLabel.CENTER);
     }
 
@@ -166,6 +169,13 @@ public class PictureLabel extends JLabel{
 
     }
 
+    public void setFirstDrag(boolean firstDrag) {
+        this.firstDrag = firstDrag;
+    }
+    public boolean isFirstDrag() {
+        return firstDrag;
+    }
+
     public class ThumbnailMouseListener extends MouseAdapter {
 
         /**
@@ -216,12 +226,17 @@ public class PictureLabel extends JLabel{
 
         @Override
         public void mousePressed(MouseEvent e) {
-
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
+        }
 
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            picturePanel.dispatchEvent(SwingUtilities.convertMouseEvent(PictureLabel.this, e, picturePanel));
         }
 
     }

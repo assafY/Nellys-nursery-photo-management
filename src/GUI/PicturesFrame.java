@@ -2,13 +2,13 @@ package GUI;
 
 import static java.awt.Color.WHITE;
 
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
 import Core.Library;
 import Core.Settings;
@@ -27,6 +27,10 @@ public class PicturesFrame extends JPanel {
 	private int currentRow = 0;
 	private int currentColumn = 0;
 	private boolean shiftIsPressed;
+    private boolean controlIsPressed;
+
+    private Point startPoint = null;
+    private Point currentPoint = null;
 
 	public PicturesFrame(MainFrame mainFrame) {
 		super();
@@ -38,15 +42,42 @@ public class PicturesFrame extends JPanel {
 	}
 
 	private void addListeners() {
-		this.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				setFocusable(true);
-				requestFocus();
-			}
-		});
+        MouseInputAdapter mouseInput = new MouseInputAdapter() {
 
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                startPoint = e.getPoint();
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                startPoint = null;
+                currentPoint = null;
+                repaint();
+                for (PictureLabel p: getThumbsOnDisplay()) {
+                    p.setFirstDrag(true);
+                }
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
+                currentPoint = e.getPoint();
+                repaint();
+            }
+
+        };
+
+		this.addMouseListener(mouseInput);
+        this.addMouseMotionListener(mouseInput);
 	}
 
 	public void setCurrentPosition(int row, int col) {
@@ -75,7 +106,6 @@ public class PicturesFrame extends JPanel {
                 createThumbnailArray();
             }
 		}
-
 	}
 
 	public PictureLabel getMostRecentSelection() {
@@ -181,8 +211,9 @@ public class PicturesFrame extends JPanel {
             currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
     }
 
-	public void keyAction(KeyEvent e, boolean shiftIsPressed) {
+	public void keyAction(KeyEvent e, boolean shiftIsPressed, boolean controlIsPressed) {
 		this.shiftIsPressed = shiftIsPressed;
+        this.controlIsPressed = controlIsPressed;
 		if (Library.getPictureLibrary().size() > 0 && !Settings.IMPORT_IN_PROGRESS) {
 			switch (getSelectedThumbs().size()) {
 			case 0:
@@ -254,7 +285,7 @@ public class PicturesFrame extends JPanel {
 
 	private void moveSingleInner(int row, int col) {
 		if (thumbsOnDisplay2DArray[currentRow + row][currentColumn + col] != null) {
-			if (!shiftIsPressed) {
+			if (!controlIsPressed) {
 				getMostRecentSelection().toggleSelection();
 				removeSelectedThumb(getMostRecentSelection());
 			}
@@ -271,7 +302,7 @@ public class PicturesFrame extends JPanel {
 			if (currentRow > 0) {
 				moveMultipleInner(-1, 0);
 			} else {
-				if (!shiftIsPressed) {
+				if (!controlIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -282,7 +313,7 @@ public class PicturesFrame extends JPanel {
 			if (currentRow < thumbsOnDisplay2DArray.length - 1) {
 				moveSingleInner(1, 0);
 			} else {
-				if (!shiftIsPressed) {
+				if (!controlIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -293,7 +324,7 @@ public class PicturesFrame extends JPanel {
 			if (currentColumn > 0) {
 				moveMultipleInner(0, -1);
 			} else {
-				if (!shiftIsPressed) {
+				if (!controlIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -304,7 +335,7 @@ public class PicturesFrame extends JPanel {
 			if (currentColumn < thumbsOnDisplay2DArray[currentRow].length - 1) {
 				moveMultipleInner(0, 1);
 			} else {
-				if (!shiftIsPressed) {
+				if (!controlIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -319,7 +350,7 @@ public class PicturesFrame extends JPanel {
 			currentRow += row;
 			currentColumn += col;
 			setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-			if (!shiftIsPressed) {
+			if (!controlIsPressed) {
 				removeAllSelectedThumbs();
 				getMostRecentSelection().toggleSelection();
 				addSelectedThumb(getMostRecentSelection());
@@ -330,7 +361,7 @@ public class PicturesFrame extends JPanel {
 				}
 			}
 		} else {
-			if (!shiftIsPressed) {
+			if (!controlIsPressed) {
 				removeAllSelectedThumbs();
 				getMostRecentSelection().toggleSelection();
 				addSelectedThumb(getMostRecentSelection());
@@ -338,6 +369,63 @@ public class PicturesFrame extends JPanel {
 		}
 
 	}
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        if (startPoint != null && currentPoint != null) {
+            Rectangle rectangle = new Rectangle(startPoint);
+            rectangle.add(currentPoint);
+
+            g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            for (PictureLabel p: getThumbsOnDisplay()) {
+                if (mainFrame.isInView(p, rectangle)) {
+                    if (p.isFirstDrag() && getSelectedThumbs().size() > 1) {
+                        if (p.isSelected()) {
+                            removeSelectedThumb(p);
+                            setMostRecentSelection(null);
+                            refresh();
+                            createTagLabels();
+                        }
+                        else {
+                            addSelectedThumb(p);
+                            setMostRecentSelection(p);
+                            refresh();
+                            createTagLabels();
+                        }
+                        p.toggleSelection();
+                        p.setFirstDrag(false);
+                    }
+                    else {
+                        if (p.isFirstDrag()) {
+                            if (!p.isSelected()) {
+                                addSelectedThumb(p);
+                                setMostRecentSelection(p);
+                                refresh();
+                                createTagLabels();
+                                p.toggleSelection();
+                            }
+                            p.setFirstDrag(false);
+                        }
+                    }
+                }
+                else {
+                    p.setFirstDrag(true);
+                    if (!isShiftPressed() && !isControlPressed()) {
+                        if (p.isSelected()) {
+                            removeSelectedThumb(p);
+                            p.toggleSelection();
+                            refresh();
+                            createTagLabels();
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            g.dispose();
+        }
+    }
 
 	public boolean isShiftPressed() {
 		return mainFrame.isShiftPressed();
@@ -358,4 +446,6 @@ public class PicturesFrame extends JPanel {
 	public MainFrame getMainFrame() {
 		return mainFrame;
 	}
+
+
 }
