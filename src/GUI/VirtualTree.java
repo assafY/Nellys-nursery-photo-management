@@ -9,6 +9,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
 public class VirtualTree extends JTree {
 	
@@ -123,7 +124,8 @@ public class VirtualTree extends JTree {
 					for(int b = 0;b < years.size();b++){
 						if(dates.get(i).equals(days.get(j) + "/" + months.get(a) + "/" + years.get(b))) {
 							if(dayDirectory.containsKey(days.get(j) + "/" + months.get(a) + "/" + years.get(b))) {
-								dayDirectory.get(days.get(j) + "/" + months.get(a) + "/" + years.get(b)).add(new DefaultMutableTreeNode(dates.get(i)));
+								DefaultMutableTreeNode dateNode = new DefaultMutableTreeNode(dates.get(i));
+								dayDirectory.get(days.get(j) + "/" + months.get(a) + "/" + years.get(b)).add(dateNode);
 								System.out.println(dayDirectory.get(days.get(j) + "/" + months.get(a) + "/" + years.get(b)).getChildCount());
 							}
 						}
