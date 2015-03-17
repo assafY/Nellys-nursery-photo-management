@@ -1,6 +1,7 @@
 package GUI;
 
 import Core.Library;
+import Data.Picture;
 import org.imgscalr.Scalr;
 
 import javax.imageio.IIOImage;
@@ -43,7 +44,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		super("", false, true, false, false);
 		this.mainFrame = mainFrame;
 		this.filePath = filePath;
-		a = mainFrame.getPicturesPanel().getThumbsOnDisplay().indexOf(resizedPicture);
         mainFrame.getSearchField().setFocusable(false);
 
 		getPicture();
@@ -267,17 +267,18 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Gets the previous and next thumbnails from the picture library.
 	 */
 	private void getPreviousAndNextPicture() {
+        Picture currentPicture = mainFrame.getPicturesPanel().getPicturesOnDisplay().get(a);
 		try {
-			resizedPicture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
+			resizedPicture = ImageIO.read(new File(currentPicture.getImagePath()));
 		} catch (IOException e1) {
             //TODO: Handle exception
 			e1.printStackTrace();
 		}
 		// moves index in the background to the new picture
-		PictureLabel currentPictureLabel = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a);
+		PictureLabel currentPictureLabel = currentPicture.getPictureLabel();
 		currentPictureLabel.setAsOnlySelection();
 		// --- end of move
-		filePath = currentPictureLabel.getPicture().getImagePath();
+		filePath = currentPicture.getImagePath();
 		try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {

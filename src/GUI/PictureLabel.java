@@ -184,7 +184,7 @@ public class PictureLabel extends JLabel{
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
 
-                if (!picturePanel.isShiftPressed()) {
+                if (!picturePanel.isControlPressed()) {
                     picturePanel.removeAllSelectedThumbs();
                 }
 
@@ -193,7 +193,7 @@ public class PictureLabel extends JLabel{
                     picturePanel.setMostRecentSelection(null);
                     picturePanel.refresh();
                     picturePanel.createTagLabels();
-                    if (!picturePanel.isShiftPressed()) {
+                    if (!picturePanel.isControlPressed()) {
                         toggleSelection();
                     }
                 }

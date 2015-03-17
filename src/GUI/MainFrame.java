@@ -1,63 +1,5 @@
 package GUI;
 
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Rectangle;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
-
-import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.*;
-
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
@@ -65,8 +7,40 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+
+import javax.imageio.ImageIO;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -610,7 +584,7 @@ public class MainFrame extends JFrame {
         /* listener for the search field - the drop down menu is supposed to show up after one click
            sometimes it's coming up after 2 clicks tho, probably coz I set the focus to false
            will try to fix this by creating our own listener
-           leaving it as it is for the time being coz it's annoying as fuck
+           leaving it as it is for the time being coz it's annoying as fungi
          */
 
         searchField.addMouseListener(new MouseAdapter() {
@@ -620,24 +594,23 @@ public class MainFrame extends JFrame {
                     searchField.setFocusable(true);
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
         });
+
+		//Key Stroke Listeners
+		picturePanel.addKeyListener(l. new keyStrokes());
+		picturePanel.setFocusTraversalKeysEnabled(false);
+		searchField.addKeyListener(l.new keyStrokes());
+		searchField.setFocusTraversalKeysEnabled(false);
+		tagField.addKeyListener(l.new keyStrokes());
+		tagField.setFocusTraversalKeysEnabled(false);
+
+		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
+		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
+		//fileTreePanel.addKeyListener((l.new keyStrokes()));
+		//fileTreePanel.setFocusTraversalKeysEnabled(false);
+		fileSystemTree.addKeyListener((l.new keyStrokes()));
+		fileSystemTree.setFocusTraversalKeysEnabled(false);
+
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -805,6 +778,88 @@ public class MainFrame extends JFrame {
 
 		}
 
+		public class keyStrokes implements  KeyListener {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_TAB) {
+
+					if(tagField.hasFocus()|| tagPanel.hasFocus()) {
+						searchField.requestFocus();
+					}
+
+					if (picturePanel.hasFocus()) {
+						tagField.requestFocus();
+					}
+
+					if (searchField.hasFocus()) {
+						picturePanel.requestFocus();
+					}
+
+					if(fileSystemTree.hasFocus())
+					{
+						picturePanel.requestFocus();
+					}
+
+					if(allRadioButton.hasFocus()|| incompleteRadioButton.hasFocus()||taggedRadioButton.hasFocus()|| untaggedRadioButton.hasFocus())
+					{
+						tagField.requestFocus();
+						System.out.print("test ignore this if");
+					}
+				}
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
+					tagField.requestFocus();
+				}
+				//TODO: Fix print shortcut, find graphic workaround
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+
+					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+					PrinterJob printJob = PrinterJob.getPrinterJob();
+					printJob.setPrintable(new Printable() {
+						public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+							if (pageIndex != 0) {
+								return NO_SUCH_PAGE;
+							}
+                            ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+                            for (int i = 0; i < allSelectedPictures.size(); ++i) {
+                                try {
+                                    BufferedImage sourceImage;
+                                    sourceImage = ImageIO.read(allSelectedPictures.get(i).getImageFile());
+                                    graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+
+                                } catch (IOException e) {
+
+                                }
+                            }
+
+							return PAGE_EXISTS;
+						}
+					});
+
+					if (printJob.printDialog(aset))
+						try {
+							printJob.print(aset);
+						} catch (PrinterException e1) {
+							e1.printStackTrace();
+						}
+				}
+
+			}
+
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+		}
+
 		/**
 		 * This method
 		 */
@@ -905,40 +960,39 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
-                ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (e.getActionCommand().equals("TAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isFullyTagged()) {
-                            picturesToDisplay.add(p);
+                if (Settings.LAST_VISITED_DIR != null) {
+                    ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                    if (e.getActionCommand().equals("TAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isFullyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("UNTAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isUntagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("UNTAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isUntagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("INCOMPLETE")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isPartiallyTagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("INCOMPLETE")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isPartiallyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
+                    } else if (e.getActionCommand().equals("ALL")) {
+                        picturesToDisplay = allPicsInFolder;
                     }
-                }
-                else if (e.getActionCommand().equals("ALL")) {
-                    picturesToDisplay = allPicsInFolder;
-                }
 
-                picturePanel.removeAll();
-                picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
-                for (Picture p : picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    picturePanel.removeAll();
+                    picturePanel.repaint();
+                    picturePanel.removeAllThumbsFromDisplay();
+                    for (Picture p : picturesToDisplay) {
+                        picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    }
+                    Library.importPicture(picturesToDisplay);
                 }
-                Library.importPicture(picturesToDisplay);
             }
         }
         
@@ -957,7 +1011,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				picturePanel.keyAction(e, shiftIsPressed);
+				picturePanel.keyAction(e, controlIsPressed);
 			}
 		}
 	}
