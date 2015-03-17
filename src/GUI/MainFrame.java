@@ -1011,7 +1011,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				picturePanel.keyAction(e, controlIsPressed);
+				picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
 			}
 		}
 	}
