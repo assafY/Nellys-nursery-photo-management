@@ -821,12 +821,13 @@ public class MainFrame extends JFrame {
 							if (pageIndex != 0) {
 								return NO_SUCH_PAGE;
 							}
-                            for (int i = 0; i < picturePanel.getSelectedThumbs().size(); ++i) {
+                            ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+                            for (int i = 0; i < allSelectedPictures.size(); ++i) {
                                 try {
                                     BufferedImage sourceImage;
-                                    sourceImage = ImageIO.read(picturePanel.getSelectedPictures().get(i).getImageFile());
-
+                                    sourceImage = ImageIO.read(allSelectedPictures.get(i).getImageFile());
                                     graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+
                                 } catch (IOException e) {
 
                                 }
