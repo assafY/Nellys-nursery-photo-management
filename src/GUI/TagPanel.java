@@ -291,7 +291,6 @@ public class TagPanel extends JPanel {
                     tagPanel.revalidate();
                     if (searchLabel) {
                         mainFrame.removeSearchTag(taggableItem);
-                        mainFrame.getSearchPanel().repaint();
                         mainFrame.refreshSearch();
                     }
                     else {

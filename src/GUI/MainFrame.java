@@ -133,8 +133,6 @@ public class MainFrame extends JFrame {
 	// east component declaration
 	private JPanel eastPanel;
 	private JPanel tagPanel;
-	private JPanel descriptionPanel;
-	private JPanel donePanel;
 	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
 
@@ -142,6 +140,7 @@ public class MainFrame extends JFrame {
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
     private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
+    private boolean noPicturesFound = false;
 
     /**
 	 * Constructor for the application
@@ -1081,7 +1080,8 @@ public class MainFrame extends JFrame {
      * which are tagged with all tags chosen in the search.
      */
     public void refreshSearch() {
-        if (picturePanel.getThumbsOnDisplay().size() > 0) {
+        if (picturePanel.getThumbsOnDisplay().size() > 0 || noPicturesFound) {
+            noPicturesFound = false;
             ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
             searchLabelPanel.removeAll();
             searchLabelPanel.repaint();
@@ -1100,11 +1100,10 @@ public class MainFrame extends JFrame {
                 }
                 // for every picture in the first picture list
                 for (Picture p : allPictureListsList.get(0)) {
-                    System.out.println(p.getImagePath());
                     boolean pictureInAllLists = true;
+                    // if the picture is not in all tag lists set boolean to false
                     for (int i = 1; i < allPictureListsList.size(); ++i) {
                         if (!allPictureListsList.get(i).contains(p)) {
-                            System.out.println(p.getImagePath() + " not in intersection");
                             pictureInAllLists = false;
                         }
                     }
@@ -1137,8 +1136,13 @@ public class MainFrame extends JFrame {
             }
             searchLabelPanel.repaint();
             picturePanel.removeAllThumbsFromDisplay();
-            for (Picture p : allPictureSet) {
-                picturePanel.addThumbToDisplay(p.getPictureLabel());
+            if (allPictureSet.size() == 0) {
+                noPicturesFound = true;
+            }
+            else {
+                for (Picture p : allPictureSet) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
             }
             Library.importPicture(allPictureSet);
         }
