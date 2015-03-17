@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.event.MouseInputAdapter;
 
 import Core.Library;
 import Core.Settings;
@@ -38,13 +39,28 @@ public class PicturesFrame extends JPanel {
 	}
 
 	private void addListeners() {
-		this.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				super.mouseClicked(e);
-				setFocusable(true);
-				requestFocus();
-			}
+		this.addMouseListener(new MouseInputAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                setFocusable(true);
+                requestFocus();
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
 		});
 
 	}
@@ -75,7 +91,6 @@ public class PicturesFrame extends JPanel {
                 createThumbnailArray();
             }
 		}
-
 	}
 
 	public PictureLabel getMostRecentSelection() {
@@ -358,4 +373,6 @@ public class PicturesFrame extends JPanel {
 	public MainFrame getMainFrame() {
 		return mainFrame;
 	}
+
+
 }
