@@ -116,7 +116,10 @@ public class MainFrame extends JFrame {
 	private JButton printButton;
 	private JTabbedPane tabbedPane;
 	private JTree fileSystemTree;
+	private VirtualTree virtualTree;
+	private ArrayList<String> virtualTreeDatesList;
 	private JScrollPane fileSystemTreeScrollPane;
+	private JScrollPane virtualTreeScrollPane;
 
 	// center component declaration
 	private JPanel centerPanel;
@@ -458,8 +461,8 @@ public class MainFrame extends JFrame {
 			westPanel = new JPanel(new BorderLayout());
 			fileTreePanel = new JPanel(new BorderLayout());
 			fileTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			
-			virtualTreePanel = new JPanel();
+			virtualTreePanel = new JPanel(new BorderLayout());
+			virtualTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			exportButton = new JButton("Export");
@@ -496,7 +499,19 @@ public class MainFrame extends JFrame {
             });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
+			virtualTreeDatesList = new ArrayList<String>();
+			if(!Library.getPictureLibrary().isEmpty()) {
+				for(int i = 0;i < Library.getPictureLibrary().size();i++){
+					virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
+				}
+				virtualTree = new VirtualTree(virtualTreeDatesList);
+			} else {
+				virtualTree = new VirtualTree(virtualTreeDatesList);	
+			}
+			virtualTreeScrollPane = new JScrollPane(virtualTree);
+			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
+			virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
