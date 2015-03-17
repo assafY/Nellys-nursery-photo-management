@@ -1,23 +1,5 @@
 package GUI;
 
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Rectangle;
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
@@ -31,26 +13,11 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -61,10 +28,16 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
@@ -623,7 +596,7 @@ public class MainFrame extends JFrame {
         });
 
 		//Key Stroke Listeners
-		picturePanel.addKeyListener(l.new keyStrokes());
+		picturePanel.addKeyListener(l. new keyStrokes());
 		picturePanel.setFocusTraversalKeysEnabled(false);
 		searchField.addKeyListener(l.new keyStrokes());
 		searchField.setFocusTraversalKeysEnabled(false);
@@ -809,6 +782,9 @@ public class MainFrame extends JFrame {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_TAB) {
 
+					if(tagField.hasFocus()|| tagPanel.hasFocus()) {
+						searchField.requestFocus();
+					}
 
 					if (picturePanel.hasFocus()) {
 						tagField.requestFocus();
@@ -816,10 +792,6 @@ public class MainFrame extends JFrame {
 
 					if (searchField.hasFocus()) {
 						picturePanel.requestFocus();
-					}
-
-					if (tagField.hasFocus()) {
-						searchField.requestFocus();
 					}
 
 					if(fileSystemTree.hasFocus())
@@ -1033,7 +1005,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				picturePanel.keyAction(e, shiftIsPressed);
+				picturePanel.keyAction(e, controlIsPressed);
 			}
 		}
 	}
