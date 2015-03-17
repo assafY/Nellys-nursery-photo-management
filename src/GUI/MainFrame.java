@@ -30,6 +30,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -820,12 +821,16 @@ public class MainFrame extends JFrame {
 							if (pageIndex != 0) {
 								return NO_SUCH_PAGE;
 							}
+                            for (int i = 0; i < picturePanel.getSelectedThumbs().size(); ++i) {
+                                try {
+                                    BufferedImage sourceImage;
+                                    sourceImage = ImageIO.read(picturePanel.getSelectedPictures().get(i).getImageFile());
 
-							//Image sourceImage;
-							//sourceImage = new ImageIcon(getMostRecentSelection().getGraphicsConfiguration());
+                                    graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+                                } catch (IOException e) {
 
-							//graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
-
+                                }
+                            }
 
 							return PAGE_EXISTS;
 						}
