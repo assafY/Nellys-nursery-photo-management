@@ -370,6 +370,13 @@ public class PicturesFrame extends JPanel {
 
 	}
 
+    /** method for finding the unselected thumbnails between
+     * the last selected thumbnail (or top left if no are selected)
+     * and the thumbnail clicked on while shift is pressed, and
+     * selecting them.
+     *
+     * @param clickedThumb the thumbnail that was clicked while holding shift
+     */
     public void shiftMouseClick(PictureLabel clickedThumb) {
         int startRowIndex = -1;
         int endRowIndex = -1;
