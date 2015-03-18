@@ -7,6 +7,34 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
+import java.awt.Adjustable;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Rectangle;
+import java.awt.event.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
@@ -25,10 +53,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -143,6 +168,7 @@ public class MainFrame extends JFrame {
 		createMenuBar();
 		createPanels();
 		addListeners();
+		createVirtualTree();
 		saveData();
 
 
@@ -443,19 +469,7 @@ public class MainFrame extends JFrame {
             });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
-			virtualTreeDatesList = new ArrayList<String>();
-			if(!Library.getPictureLibrary().isEmpty()) {
-				for(int i = 0;i < Library.getPictureLibrary().size();i++){
-					virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
-				}
-				virtualTree = new VirtualTree(virtualTreeDatesList);
-			} else {
-				virtualTree = new VirtualTree(virtualTreeDatesList);	
-			}
-			virtualTreeScrollPane = new JScrollPane(virtualTree);
-			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
-			virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
@@ -727,9 +741,76 @@ public class MainFrame extends JFrame {
 
             }
         });
+        
+        tabbedPane.addMouseListener(new MouseAdapter() {
+        	public void mouseClicked(MouseEvent e) {
+        		if(tabbedPane.getSelectedIndex() == 1) {
+        			createVirtualTree();
+        		}
+        	}
+		});
 	}
 
 	private class Listeners {
+		
+		class NodeListener implements TreeSelectionListener {
+
+    		@Override
+    		public void valueChanged(TreeSelectionEvent e) {
+    			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
+    			TreeNode[] date = selectedNode.getPath();			
+    			String dateToFind = "";
+    			if(date.length == 4){
+    				dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
+    			} else if(date.length == 3){
+    				dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
+    			} else if(date.length == 2){
+    				dateToFind = date[1].toString();
+    			}
+    			
+    			
+    		}
+    		
+    		private String getMonthAsNumber(String month){
+    			String[] months = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
+    			if (month.equals("January")) {
+    				return months[0];
+    			} else if (month.equals("Faburay")) {
+    				return months[1];
+    			} else if (month.equals("March")) {
+    				return months[2];
+    			} else if (month.equals("April")) {
+    				return months[3];
+    			} else if (month.equals("May")) {
+    				return months[4];
+    			} else if (month.equals("June")) {
+    				return months[5];
+    			} else if (month.equals("July")) {
+    				return months[6];
+    			} else if (month.equals("August")) {
+    				return months[7];
+    			} else if (month.equals("September")) {
+    				return months[8];
+    			} else if (month.equals("October")) {
+    				return months[9];
+    			} else if (month.equals("November")) {
+    				return months[10];
+    			} else if (month.equals("December")) {
+    				return months[11];
+    			}
+    			return "";
+    		}
+    		private void filterPictureLibrary(String date){
+    			
+    			for(Picture p:Library.getPictureLibrary()){
+    				if(Library.getFormattedDate(p.getTag().getDate()).contains(date)){
+    					
+    				}
+    			}
+    		}   		
+    		
+    	}
+		
 		public class KeysListener implements KeyListener {
 
 			public KeysListener() {
@@ -1235,6 +1316,24 @@ public class MainFrame extends JFrame {
 
 	public void createTagLabels() {
 		storedTagsPanel.resetTagLabels();
+	}
+	
+	private void createVirtualTree() {
+		virtualTreePanel.removeAll();
+		virtualTreeDatesList = new ArrayList<String>();
+		if(!Library.getPictureLibrary().isEmpty()) {
+			for(int i = 0;i < Library.getPictureLibrary().size();i++){
+				virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
+			}
+			virtualTree = new VirtualTree(virtualTreeDatesList);
+		} else {
+			virtualTree = new VirtualTree(virtualTreeDatesList);	
+		}
+		Listeners listeners = new Listeners();
+		virtualTree.addTreeSelectionListener(listeners.new NodeListener());
+		virtualTreeScrollPane = new JScrollPane(virtualTree);
+		virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
+		virtualTree.updateTreeModel();
 	}
 	
 	/**
