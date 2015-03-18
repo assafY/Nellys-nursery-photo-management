@@ -230,8 +230,8 @@ public class PicturesFrame extends JPanel {
 					moveSingle(0, 1);
 					break;
 				case KeyEvent.VK_UP:
-					moveSingle(-1, 0);
-					break;
+                    moveSingle(-1, 0);
+                    break;
 				case KeyEvent.VK_DOWN:
 					moveSingle(1, 0);
 					break;
@@ -263,7 +263,12 @@ public class PicturesFrame extends JPanel {
 	private void moveSingle(int row, int col) {
 		if (row == -1) {
 			if (currentRow > 0) {
-				moveSingleInner(-1, 0);
+                if (!shiftIsPressed) {
+                    moveSingleInner(-1, 0);
+                }
+                else {
+
+                }
 			}
 		}
 		if (row == 1) {
