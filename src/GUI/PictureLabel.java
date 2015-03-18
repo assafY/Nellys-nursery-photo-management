@@ -194,26 +194,30 @@ public class PictureLabel extends JLabel{
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
 
-                if (!picturePanel.isControlPressed()) {
-                    picturePanel.removeAllSelectedThumbs();
-                }
-
-                if (isSelected) {
-                    picturePanel.removeSelectedThumb(PictureLabel.this);
-                    picturePanel.setMostRecentSelection(null);
-                    picturePanel.refresh();
-                    picturePanel.createTagLabels();
-                    if (!picturePanel.isControlPressed()) {
-                        toggleSelection();
-                    }
+                if (picturePanel.isShiftPressed()) {
+                    picturePanel.shiftMouseClick(PictureLabel.this);
                 }
                 else {
-                    picturePanel.addSelectedThumb(PictureLabel.this);
-                    picturePanel.setMostRecentSelection(PictureLabel.this);
-                    picturePanel.refresh();
-                    picturePanel.createTagLabels();
+                    if (!picturePanel.isControlPressed()) {
+                        picturePanel.removeAllSelectedThumbs();
+                    }
+
+                    if (isSelected) {
+                        picturePanel.removeSelectedThumb(PictureLabel.this);
+                        picturePanel.setMostRecentSelection(null);
+                        picturePanel.refresh();
+                        picturePanel.createTagLabels();
+                        if (!picturePanel.isControlPressed()) {
+                            toggleSelection();
+                        }
+                    } else {
+                        picturePanel.addSelectedThumb(PictureLabel.this);
+                        picturePanel.setMostRecentSelection(PictureLabel.this);
+                        picturePanel.refresh();
+                        picturePanel.createTagLabels();
+                    }
+                    toggleSelection();
                 }
-                toggleSelection();
             }
             else if (clickCount == 2) {
             	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());

@@ -217,9 +217,9 @@ public class PicturesFrame extends JPanel {
 		if (Library.getPictureLibrary().size() > 0 && !Settings.IMPORT_IN_PROGRESS) {
 			switch (getSelectedThumbs().size()) {
 			case 0:
-				setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-				getMostRecentSelection().toggleSelection();
-				addSelectedThumb(getMostRecentSelection());
+                setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
+                getMostRecentSelection().toggleSelection();
+                addSelectedThumb(getMostRecentSelection());
 				break;
 			case 1:
 				switch (e.getKeyCode()) {
@@ -369,6 +369,66 @@ public class PicturesFrame extends JPanel {
 		}
 
 	}
+
+    public void shiftMouseClick(PictureLabel clickedThumb) {
+        int startRowIndex = -1;
+        int startColumnIndex = -1;
+        int endRowIndex = -1;
+        int endColumnIndex = -1;
+
+        boolean selectionStarted = false;
+        PictureLabel savedFirstSelection = getMostRecentSelection();
+
+        switch (getSelectedThumbs().size()) {
+            case 0:
+                for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
+                    for (int j = 0; j < thumbsOnDisplay2DArray[i].length; ++j) {
+                        if (thumbsOnDisplay2DArray[i][j] != null && !thumbsOnDisplay2DArray[i][j].isSelected()) {
+                            if (getMostRecentSelection().equals(clickedThumb)) {
+                                break;
+                            }
+                            setMostRecentSelection(thumbsOnDisplay2DArray[i][j]);
+                            getMostRecentSelection().toggleSelection();
+                            addSelectedThumb(getMostRecentSelection());
+                        }
+                    }
+                    if (getMostRecentSelection().equals(clickedThumb)) {
+                        break;
+                    }
+                }
+            break;
+            case 1:
+                for (int i = 0; i < thumbsOnDisplay2DArray.length; ++i) {
+                    for (int j = 0; j < thumbsOnDisplay2DArray[i].length; ++j) {
+                        if (startRowIndex != -1 && endRowIndex != -1) {
+                            break;
+                        }
+                        if (savedFirstSelection != null && thumbsOnDisplay2DArray[i][j].equals(savedFirstSelection)) {
+                            startRowIndex = i;
+                            if (!selectionStarted) {
+                                selectionStarted = true;
+                            }
+                        }
+                        if (thumbsOnDisplay2DArray[i][j] != null && thumbsOnDisplay2DArray[i][j].equals(clickedThumb)) {
+                            endRowIndex = i;
+                            if (!selectionStarted) {
+                                selectionStarted = true;
+                            }
+                        }
+                        if (selectionStarted && thumbsOnDisplay2DArray[i][j] != null &&
+                                !thumbsOnDisplay2DArray[i][j].isSelected()) {
+                            setMostRecentSelection(thumbsOnDisplay2DArray[i][j]);
+                            getMostRecentSelection().toggleSelection();
+                            addSelectedThumb(getMostRecentSelection());
+                        }
+                    }
+                    if (startRowIndex != -1 && endRowIndex != -1) {
+                        break;
+                    }
+                }
+
+        }
+    }
 
     @Override
     public void paint(Graphics g) {
