@@ -1,5 +1,7 @@
 package GUI;
 
+import javax.swing.tree.*;
+
 import Core.Library;
 import Core.Settings;
 import Core.Taggable;
@@ -54,7 +56,6 @@ import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.*;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -469,19 +470,7 @@ public class MainFrame extends JFrame {
             });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
-			virtualTreeDatesList = new ArrayList<String>();
-			if(!Library.getPictureLibrary().isEmpty()) {
-				for(int i = 0;i < Library.getPictureLibrary().size();i++){
-					virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
-				}
-				virtualTree = new VirtualTree(virtualTreeDatesList);
-			} else {
-				virtualTree = new VirtualTree(virtualTreeDatesList);	
-			}
-			virtualTreeScrollPane = new JScrollPane(virtualTree);
-			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
-			virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
@@ -770,7 +759,7 @@ public class MainFrame extends JFrame {
     		@Override
     		public void valueChanged(TreeSelectionEvent e) {
     			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
-    			TreeNode[] date = selectedNode.getPath();			
+    			TreeNode[] date = selectedNode.getPath();
     			String dateToFind = "";
     			if(date.length == 4){
     				dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];

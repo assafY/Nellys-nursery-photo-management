@@ -14,6 +14,9 @@ import javax.swing.tree.TreeNode;
 import Core.Library;
 import Data.Picture;
 
+import Core.Library;
+import Data.Picture;
+
 public class VirtualTree extends JTree {
 	
 	private DefaultMutableTreeNode root;
