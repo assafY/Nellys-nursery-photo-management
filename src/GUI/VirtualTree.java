@@ -5,11 +5,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
+
+import Core.Library;
+import Data.Picture;
 
 public class VirtualTree extends JTree {
 	
@@ -36,7 +40,6 @@ public class VirtualTree extends JTree {
 		addYearDirectories();
 		addMonthDirectories();
 		addDayDirectories();
-		addActualDates();
 		this.setModel(treeModel);
 	}
 	private void createArrayLists() {
@@ -117,24 +120,6 @@ public class VirtualTree extends JTree {
 		}
 	}
 	
-	private void addActualDates() {
-		for(int i = 0;i < dates.size();i++){
-			for(int j = 0;j < days.size();j++){
-				for(int a = 0;a < months.size();a++){
-					for(int b = 0;b < years.size();b++){
-						if(dates.get(i).equals(days.get(j) + "/" + months.get(a) + "/" + years.get(b))) {
-							if(dayDirectory.containsKey(days.get(j) + "/" + months.get(a) + "/" + years.get(b))) {
-								DefaultMutableTreeNode dateNode = new DefaultMutableTreeNode(dates.get(i));
-								dayDirectory.get(days.get(j) + "/" + months.get(a) + "/" + years.get(b)).add(dateNode);
-								System.out.println(dayDirectory.get(days.get(j) + "/" + months.get(a) + "/" + years.get(b)).getChildCount());
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	private void sortArrayValues(ArrayList<String> list) {
 		Collections.sort(list, new Comparator<String>() {
 			public int compare(String firstValue, String nextValue) {
@@ -186,4 +171,8 @@ public class VirtualTree extends JTree {
 		if (list.contains(date) == false)
 			list.add(date);
 	}
+	
+	public void updateTreeModel() {
+		treeModel.reload();
+	}	
 }

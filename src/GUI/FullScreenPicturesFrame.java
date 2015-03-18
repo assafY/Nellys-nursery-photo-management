@@ -268,7 +268,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void getPreviousAndNextPicture() {
 		try {
-			resizedPicture = ImageIO.read(new File(Library.getPictureLibrary().get(a).getImagePath()));
+			resizedPicture = ImageIO.read(new File(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getPicture().getImagePath()));
 		} catch (IOException e1) {
             //TODO: Handle exception
 			e1.printStackTrace();
