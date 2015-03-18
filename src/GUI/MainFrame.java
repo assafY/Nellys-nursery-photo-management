@@ -798,7 +798,7 @@ public class MainFrame extends JFrame {
     			} else if(date.length == 2){
     				dateToFind = date[1].toString();
     			}
-    			
+				filterPictureLibrary(dateToFind);
     			
     		}
     		
@@ -832,12 +832,18 @@ public class MainFrame extends JFrame {
     			return "";
     		}
     		private void filterPictureLibrary(String date){
-    			
+				picturePanel.removeAll();
+				picturePanel.repaint();
+				picturePanel.removeAllThumbsFromDisplay();
+				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
     			for(Picture p:Library.getPictureLibrary()){
     				if(Library.getFormattedDate(p.getTag().getDate()).contains(date)){
-    					
+						picturesToDisplay.add(p);
+						picturePanel.addThumbToDisplay(p.getPictureLabel());
     				}
     			}
+				picturePanel.createThumbnailArray();
+				Library.importPicture(picturesToDisplay);
     		}   		
     		
     	}
@@ -1358,7 +1364,7 @@ public class MainFrame extends JFrame {
 			}
 			virtualTree = new VirtualTree(virtualTreeDatesList);
 		} else {
-			virtualTree = new VirtualTree(virtualTreeDatesList);	
+			virtualTree = new VirtualTree(virtualTreeDatesList);
 		}
 		Listeners listeners = new Listeners();
 		virtualTree.addTreeSelectionListener(listeners.new NodeListener());
