@@ -1,11 +1,19 @@
 package GUI;
 
+import javax.swing.tree.*;
+
+import Core.Library;
+import Core.Settings;
+import Core.Taggable;
+import Data.Area;
+import Data.Child;
+import Data.Picture;
+import ch.rakudave.suggest.JSuggestField;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
 import java.awt.Adjustable;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -33,43 +41,26 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.*;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
-import Core.Library;
-import Core.Settings;
-import Core.Taggable;
-import Data.Area;
-import Data.Child;
-import Data.Picture;
-import ch.rakudave.suggest.JSuggestField;
-
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 public class MainFrame extends JFrame {
 	// menu bar component declaration
@@ -139,8 +130,6 @@ public class MainFrame extends JFrame {
 	// east component declaration
 	private JPanel eastPanel;
 	private JPanel tagPanel;
-	private JPanel descriptionPanel;
-	private JPanel donePanel;
 	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
 
@@ -148,6 +137,7 @@ public class MainFrame extends JFrame {
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
     private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
+    private boolean noPicturesFound = false;
 
     /**
 	 * Constructor for the application
@@ -618,7 +608,7 @@ public class MainFrame extends JFrame {
         /* listener for the search field - the drop down menu is supposed to show up after one click
            sometimes it's coming up after 2 clicks tho, probably coz I set the focus to false
            will try to fix this by creating our own listener
-           leaving it as it is for the time being coz it's annoying as fuck
+           leaving it as it is for the time being coz it's annoying as fungi
          */
 
         searchField.addMouseListener(new MouseAdapter() {
@@ -628,24 +618,23 @@ public class MainFrame extends JFrame {
                     searchField.setFocusable(true);
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
         });
+
+		//Key Stroke Listeners
+		picturePanel.addKeyListener(l. new keyStrokes());
+		picturePanel.setFocusTraversalKeysEnabled(false);
+		searchField.addKeyListener(l.new keyStrokes());
+		searchField.setFocusTraversalKeysEnabled(false);
+		tagField.addKeyListener(l.new keyStrokes());
+		tagField.setFocusTraversalKeysEnabled(false);
+
+		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
+		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
+		//fileTreePanel.addKeyListener((l.new keyStrokes()));
+		//fileTreePanel.setFocusTraversalKeysEnabled(false);
+		fileSystemTree.addKeyListener((l.new keyStrokes()));
+		fileSystemTree.setFocusTraversalKeysEnabled(false);
+
 		// exit menu item listener
 		exitMenuItem.addActionListener(new ActionListener() {
 			@Override
@@ -752,7 +741,9 @@ public class MainFrame extends JFrame {
             public void valueChanged(TreeSelectionEvent e) {
 
                 for (Thread t: Library.getRunningThreads()) {
-                    t.interrupt();
+                	if(t != null) {
+                		t.interrupt();
+                	}
                 }
 
                 Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
@@ -792,17 +783,24 @@ public class MainFrame extends JFrame {
 
     		@Override
     		public void valueChanged(TreeSelectionEvent e) {
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
+                }
+
     			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
-    			TreeNode[] date = selectedNode.getPath();			
+    			TreeNode[] date = selectedNode.getPath();
     			String dateToFind = "";
     			if(date.length == 4){
     				dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                    System.out.println(dateToFind);
     			} else if(date.length == 3){
     				dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                    System.out.println(dateToFind);
     			} else if(date.length == 2){
     				dateToFind = date[1].toString();
+                    System.out.println(dateToFind);
     			}
-    			
+				filterPictureLibrary(dateToFind);
     			
     		}
     		
@@ -836,12 +834,50 @@ public class MainFrame extends JFrame {
     			return "";
     		}
     		private void filterPictureLibrary(String date){
-    			
-    			for(Picture p:Library.getPictureLibrary()){
-    				if(Library.getFormattedDate(p.getTag().getDate()).contains(date)){
-    					
-    				}
-    			}
+				picturePanel.removeAll();
+				picturePanel.repaint();
+				picturePanel.removeAllThumbsFromDisplay();
+				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                if (date.length() == 4) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            System.out.println(Library.getFormattedDate(p.getTag().getDate()).substring(7));
+                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(10)).equals(date)) {
+                                System.out.println(date);
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                else if (date.length() == 7) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(7)).equals(date)) {
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                else if (date.length() == 14) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            if ((Library.getFormattedDate(p.getTag().getDate())).equals(date)) {
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+				picturePanel.createThumbnailArray();
+				Library.importPicture(picturesToDisplay);
     		}   		
     		
     	}
@@ -875,6 +911,88 @@ public class MainFrame extends JFrame {
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
+
+			}
+
+		}
+
+		public class keyStrokes implements  KeyListener {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_TAB) {
+
+					if(tagField.hasFocus()|| tagPanel.hasFocus()) {
+						searchField.requestFocus();
+					}
+
+					if (picturePanel.hasFocus()) {
+						tagField.requestFocus();
+					}
+
+					if (searchField.hasFocus()) {
+						picturePanel.requestFocus();
+					}
+
+					if(fileSystemTree.hasFocus())
+					{
+						picturePanel.requestFocus();
+					}
+
+					if(allRadioButton.hasFocus()|| incompleteRadioButton.hasFocus()||taggedRadioButton.hasFocus()|| untaggedRadioButton.hasFocus())
+					{
+						tagField.requestFocus();
+						System.out.print("test ignore this if");
+					}
+				}
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
+					tagField.requestFocus();
+				}
+				//TODO: Fix print shortcut, find graphic workaround
+
+				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
+
+					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+					PrinterJob printJob = PrinterJob.getPrinterJob();
+					printJob.setPrintable(new Printable() {
+						public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+							if (pageIndex != 0) {
+								return NO_SUCH_PAGE;
+							}
+                            ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+                            for (int i = 0; i < allSelectedPictures.size(); ++i) {
+                                try {
+                                    BufferedImage sourceImage;
+                                    sourceImage = ImageIO.read(allSelectedPictures.get(i).getImageFile());
+                                    graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+
+                                } catch (IOException e) {
+
+                                }
+                            }
+
+							return PAGE_EXISTS;
+						}
+					});
+
+					if (printJob.printDialog(aset))
+						try {
+							printJob.print(aset);
+						} catch (PrinterException e1) {
+							e1.printStackTrace();
+						}
+				}
+
+			}
+
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
 
 			}
 
@@ -980,40 +1098,39 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
-                ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (e.getActionCommand().equals("TAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isFullyTagged()) {
-                            picturesToDisplay.add(p);
+                if (Settings.LAST_VISITED_DIR != null) {
+                    ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                    if (e.getActionCommand().equals("TAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isFullyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("UNTAGGED")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isUntagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("UNTAGGED")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isUntagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
-                    }
-                }
-                else if (e.getActionCommand().equals("INCOMPLETE")) {
-                    for (Picture p: allPicsInFolder) {
-                        if (p.getTag().isPartiallyTagged()) {
-                            picturesToDisplay.add(p);
+                    } else if (e.getActionCommand().equals("INCOMPLETE")) {
+                        for (Picture p : allPicsInFolder) {
+                            if (p.getTag().isPartiallyTagged()) {
+                                picturesToDisplay.add(p);
+                            }
                         }
+                    } else if (e.getActionCommand().equals("ALL")) {
+                        picturesToDisplay = allPicsInFolder;
                     }
-                }
-                else if (e.getActionCommand().equals("ALL")) {
-                    picturesToDisplay = allPicsInFolder;
-                }
 
-                picturePanel.removeAll();
-                picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
-                for (Picture p : picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    picturePanel.removeAll();
+                    picturePanel.repaint();
+                    picturePanel.removeAllThumbsFromDisplay();
+                    for (Picture p : picturesToDisplay) {
+                        picturePanel.addThumbToDisplay(p.getPictureLabel());
+                    }
+                    Library.importPicture(picturesToDisplay);
                 }
-                Library.importPicture(picturesToDisplay);
             }
         }
         
@@ -1032,7 +1149,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				picturePanel.keyAction(e, shiftIsPressed);
+				picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
 			}
 		}
 	}
@@ -1155,7 +1272,8 @@ public class MainFrame extends JFrame {
      * which are tagged with all tags chosen in the search.
      */
     public void refreshSearch() {
-        if (picturePanel.getThumbsOnDisplay().size() > 0) {
+        if (picturePanel.getThumbsOnDisplay().size() > 0 || noPicturesFound) {
+            noPicturesFound = false;
             ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
             searchLabelPanel.removeAll();
             searchLabelPanel.repaint();
@@ -1166,43 +1284,27 @@ public class MainFrame extends JFrame {
             if (currentSearchTags.size() == 0) {
                 allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
             }
-            // if there are more than one search selections
             else if (currentSearchTags.size() > 1) {
-                // create a list of picture lists of every search selection
                 ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
-                // for every search selection
                 for (int i = 0; i < currentSearchTags.size(); ++i) {
-                    // create a new search label
                     searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                    // create list to hold only pictures that are
-                    // under currently selected folder in tree
-                    ArrayList<Picture> adjustedPictureList = new ArrayList<Picture>();
-                    // for every picture tagged in search selection
-                    for (Picture p: currentSearchTags.get(i).getTaggedPictures()) {
-                        // if that picture is also under the selected folder
-                        if (getAllSubPictures(Settings.LAST_VISITED_DIR).contains(p)) {
-                            // add picture to temp list
-                            adjustedPictureList.add(p);
-                        }
-                    }
-                    // add the temp list to the picture list list
-                    allPictureListsList.add(adjustedPictureList);
+                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
                 }
                 // for every picture in the first picture list
                 for (Picture p : allPictureListsList.get(0)) {
                     boolean pictureInAllLists = true;
-                    // for every other picture list
+                    // if the picture is not in all tag lists set boolean to false
                     for (int i = 1; i < allPictureListsList.size(); ++i) {
-                        // if a picture does not appear then the picture is not in intersection of all lists
                         if (!allPictureListsList.get(i).contains(p)) {
                             pictureInAllLists = false;
-                            break;
                         }
                     }
                     // if the picture is tagged with all search tags
                     // and the new picture set does not already contain it
                     if (pictureInAllLists && !allPictureSet.contains(p)) {
-                        allPictureSet.add(p);
+                        if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                            allPictureSet.add(p);
+                        }
                     }
                 }
             }
@@ -1210,22 +1312,37 @@ public class MainFrame extends JFrame {
                 ArrayList<Picture> newPictureSet = currentSearchTags.get(0).getTaggedPictures();
                 allPictureSet = new ArrayList<Picture>();
                 for (Picture p: newPictureSet) {
-                    if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                        allPictureSet.add(p);
+                    if (tabbedPane.getSelectedIndex() == 0) {
+                        if (Settings.LAST_VISITED_DIR != null && p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                            allPictureSet.add(p);
+                        }
                     }
+                    else {
+                        for (String date: virtualTree.getFilteredDates()) {
+
+                        }
+                    }
+
                 }
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
             }
 
             if (Settings.IMPORT_IN_PROGRESS) {
                 for (Thread t: Library.getRunningThreads()) {
-                    t.interrupt();
+                    if (t != null) {
+                        t.interrupt();
+                    }
                 }
             }
             searchLabelPanel.repaint();
             picturePanel.removeAllThumbsFromDisplay();
-            for (Picture p : allPictureSet) {
-                picturePanel.addThumbToDisplay(p.getPictureLabel());
+            if (allPictureSet.size() == 0) {
+                noPicturesFound = true;
+            }
+            else {
+                for (Picture p : allPictureSet) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
             }
             Library.importPicture(allPictureSet);
         }
@@ -1289,7 +1406,7 @@ public class MainFrame extends JFrame {
 			}
 			virtualTree = new VirtualTree(virtualTreeDatesList);
 		} else {
-			virtualTree = new VirtualTree(virtualTreeDatesList);	
+			virtualTree = new VirtualTree(virtualTreeDatesList);
 		}
 		Listeners listeners = new Listeners();
 		virtualTree.addTreeSelectionListener(listeners.new NodeListener());
@@ -1354,8 +1471,12 @@ public class MainFrame extends JFrame {
         return eastPanel.getWidth() + westPanel.getWidth();
     }
 
+    public JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
 	/* returns true if a pictureLabel is in view in the scroll pane */
-	private static boolean isInView(PictureLabel thumbnail,
+	public static boolean isInView(PictureLabel thumbnail,
 			Rectangle currentView) {
 
 		if (thumbnail.getBounds().intersects(currentView)) {

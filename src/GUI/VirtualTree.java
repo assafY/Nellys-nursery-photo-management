@@ -58,11 +58,18 @@ public class VirtualTree extends JTree {
 	
 	private void removeRepeatedValuesFromLists() {
 		for (int i = 0; i < dates.size(); i++) {
-			addOnlyNewValuesToList(dates.get(i).substring(6, 10), years);
-			addOnlyNewValuesToList(dates.get(i).substring(3, 5), months);
-			addOnlyNewValuesToList(dates.get(i).substring(0,2), days);
-			addOnlyNewValuesToList(dates.get(i).substring(3, 10), filteredMonthAndYearDates);
-			addOnlyNewValuesToList(dates.get(i), filteredDayMonthYearDates);
+
+            if (dates.get(i) != null) {
+                try {
+                    addOnlyNewValuesToList(dates.get(i).substring(10, 14), years);
+                    addOnlyNewValuesToList(dates.get(i).substring(7, 9), months);
+                    addOnlyNewValuesToList(dates.get(i).substring(0, 6), days);
+                    addOnlyNewValuesToList(dates.get(i).substring(7, 14), filteredMonthAndYearDates);
+                    addOnlyNewValuesToList(dates.get(i), filteredDayMonthYearDates);
+                } catch (StringIndexOutOfBoundsException e) {
+                    // Empty date
+                }
+            }
 		}
 	}
 	
@@ -119,6 +126,10 @@ public class VirtualTree extends JTree {
 			}
 		}
 	}
+
+    public ArrayList<String> getFilteredDates() {
+        return filteredDayMonthYearDates;
+    }
 	
 	private void sortArrayValues(ArrayList<String> list) {
 		Collections.sort(list, new Comparator<String>() {
@@ -168,7 +179,7 @@ public class VirtualTree extends JTree {
 	}
 	
 	private void addOnlyNewValuesToList(String date, ArrayList<String> list) {
-		if (list.contains(date) == false)
+		if (!list.contains(date))
 			list.add(date);
 	}
 	

@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Library implements Serializable {
@@ -174,7 +175,8 @@ public class Library implements Serializable {
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
-		PICTURE_LIBRARY.add(picture);
+        if (!PICTURE_LIBRARY.contains(picture))
+            PICTURE_LIBRARY.add(picture);
 	}
 	
 	public static void deletePictureLibrary()
@@ -196,14 +198,17 @@ public class Library implements Serializable {
 	}
 
 	public static String getFormattedDate(Date date) {
-		String d = "" + date.getDate();
-		if (d.length() == 1)
-			d = "0" + d;
-		String m = "" + (date.getMonth() + 1);
-		if (m.length() == 1)
-			m = "0" + m;
-		String y = "" + (date.getYear() + 1900);
-		return "" + d + "/" + m + "/" + y;
+        if (date != null) {
+            String d = "" + date.getDate();
+            if (d.length() == 1)
+                d = "0" + d;
+            String m = "" + (date.getMonth() + 1);
+            if (m.length() == 1)
+                m = "0" + m;
+            String y = "" + (date.getYear() + 1900);
+            return (new SimpleDateFormat("EE").format(date))+ " " + d + "/" + m + "/" + y;
+        }
+        return "";
 	}
 
 }
