@@ -196,14 +196,18 @@ public class Library implements Serializable {
 	}
 
 	public static String getFormattedDate(Date date) {
-		String d = "" + date.getDate();
-		if (d.length() == 1)
-			d = "0" + d;
-		String m = "" + (date.getMonth() + 1);
-		if (m.length() == 1)
-			m = "0" + m;
-		String y = "" + (date.getYear() + 1900);
-		return "" + d + "/" + m + "/" + y;
+        if (date != null) {
+            String d = "" + date.getDate();
+            if (d.length() == 1)
+                d = "0" + d;
+            String m = "" + (date.getMonth() + 1);
+            if (m.length() == 1)
+                m = "0" + m;
+            String y = "" + (date.getYear() + 1900);
+            System.out.println("" + d + "/" + m + "/" + y);
+            return "" + d + "/" + m + "/" + y;
+        }
+        return "";
 	}
 
 }
