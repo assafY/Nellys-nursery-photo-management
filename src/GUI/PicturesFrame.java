@@ -267,13 +267,24 @@ public class PicturesFrame extends JPanel {
                     moveSingleInner(-1, 0);
                 }
                 else {
-
+                    if (thumbsOnDisplay2DArray[currentRow - 1][currentColumn] != null) {
+                        shiftMouseClick(thumbsOnDisplay2DArray[currentRow - 1][currentColumn]);
+                        refresh();
+                    }
                 }
 			}
 		}
 		if (row == 1) {
 			if (currentRow < thumbsOnDisplay2DArray.length - 1) {
-				moveSingleInner(1, 0);
+                if (!shiftIsPressed) {
+                    moveSingleInner(1, 0);
+                }
+                else {
+                    if (thumbsOnDisplay2DArray[currentRow + 1][currentColumn] != null) {
+                        shiftMouseClick(thumbsOnDisplay2DArray[currentRow + 1][currentColumn]);
+                        refresh();
+                    }
+                }
 			}
 		}
 		if (col == -1) {
@@ -304,27 +315,45 @@ public class PicturesFrame extends JPanel {
 
 	private void moveMultiple(int row, int col) {
 		if (row == -1) {
-			if (currentRow > 0) {
-				moveMultipleInner(-1, 0);
-			} else {
-				if (!controlIsPressed) {
-					removeAllSelectedThumbs();
-					getMostRecentSelection().toggleSelection();
-					addSelectedThumb(getMostRecentSelection());
-				}
-			}
+            if (currentRow > 0) {
+                if (!shiftIsPressed) {
+                    moveSingleInner(-1, 0);
+                } else {
+                    shiftMouseClick(thumbsOnDisplay2DArray[currentRow - 1][currentColumn]);
+                    refresh();
+                }
+            }
+            else {
+                if (!controlIsPressed) {
+                    removeAllSelectedThumbs();
+                    getMostRecentSelection().toggleSelection();
+                    addSelectedThumb(getMostRecentSelection());
+                }
+            }
+
+
+
 		}
 		if (row == 1) {
-			if (currentRow < thumbsOnDisplay2DArray.length - 1) {
-				moveSingleInner(1, 0);
-			} else {
-				if (!controlIsPressed) {
-					removeAllSelectedThumbs();
-					getMostRecentSelection().toggleSelection();
-					addSelectedThumb(getMostRecentSelection());
-				}
-			}
-		}
+                if (currentRow < thumbsOnDisplay2DArray.length - 1) {
+                    if (!shiftIsPressed) {
+                        moveSingleInner(1, 0);
+                    }
+                    else {
+                        if (thumbsOnDisplay2DArray[currentRow + 1][currentColumn] != null) {
+                            shiftMouseClick(thumbsOnDisplay2DArray[currentRow + 1][currentColumn]);
+                            refresh();
+                        }
+                    }
+                } else {
+                    if (!controlIsPressed) {
+                        removeAllSelectedThumbs();
+                        getMostRecentSelection().toggleSelection();
+                        addSelectedThumb(getMostRecentSelection());
+                    }
+                }
+            }
+
 		if (col == -1) {
 			if (currentColumn > 0) {
 				moveMultipleInner(0, -1);
