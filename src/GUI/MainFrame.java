@@ -781,6 +781,11 @@ public class MainFrame extends JFrame {
 
     		@Override
     		public void valueChanged(TreeSelectionEvent e) {
+
+                for (Thread t: Library.getRunningThreads()) {
+                    t.interrupt();
+                }
+
     			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
     			TreeNode[] date = selectedNode.getPath();
     			String dateToFind = "";
