@@ -200,7 +200,8 @@ public class Library implements Serializable {
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
-		PICTURE_LIBRARY.add(picture);
+        if (!PICTURE_LIBRARY.contains(picture))
+            PICTURE_LIBRARY.add(picture);
 	}
 
 	public static void deletePictureLibrary() {

@@ -176,7 +176,7 @@ public class VirtualTree extends JTree {
 	}
 	
 	private void addOnlyNewValuesToList(String date, ArrayList<String> list) {
-		if (list.contains(date) == false)
+		if (!list.contains(date))
 			list.add(date);
 	}
 	
