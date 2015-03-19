@@ -21,18 +21,15 @@ public class Picture implements Serializable{
     private File imageFile;
     private transient PictureLabel pictureLabel = null;
 
-    private transient Object imageKey;
-
     public Picture(File pictureFile) {
 
         this.imageFile = pictureFile;
         metadata = new Tag();
         createPictureLabel();
-        getDateAndKey();
+        getDate();
     }
 
-    //TODO what if there is no date and key? boolean maybe?
-    private void getDateAndKey() {
+    private void getDate() {
         BasicFileAttributes attr = null;
         Metadata originalPictureMetadata = null;
 
@@ -45,8 +42,6 @@ public class Picture implements Serializable{
             //TODO: Handle exception
         }
 
-        // store unique file key
-        //imageKey = attr.fileKey();
         Date pictureTakenDate;
         // get original date and time picture was taken and add to metadata
         ExifSubIFDDirectory directory = originalPictureMetadata.getDirectory(ExifSubIFDDirectory.class);
@@ -70,9 +65,6 @@ public class Picture implements Serializable{
     public PictureLabel getPictureLabel() {
         createPictureLabel();
         return pictureLabel;
-    }
-    public Object getImageKey() {
-        return imageKey;
     }
     public String getImagePath() {
         return imageFile.getPath();
