@@ -220,6 +220,7 @@ public class PictureLabel extends JLabel{
                 }
             }
             else if (clickCount == 2) {
+            	PictureLabel.this.setAsOnlySelection();
             	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());
 				picturePanel.getCenterPanel().removeAll();
 				picturePanel.getCenterPanel().add(frame,BorderLayout.CENTER);
