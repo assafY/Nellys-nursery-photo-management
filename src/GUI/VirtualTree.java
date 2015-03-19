@@ -128,6 +128,10 @@ public class VirtualTree extends JTree {
 		}
 	}
 
+    public ArrayList<String> getFilteredDates() {
+        return filteredDayMonthYearDates;
+    }
+    
 	private void sortArrayValues(ArrayList<String> list) {
 		Collections.sort(list, new Comparator<String>() {
 			public int compare(String firstValue, String nextValue) {

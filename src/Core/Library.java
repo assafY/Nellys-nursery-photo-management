@@ -230,7 +230,6 @@ public class Library implements Serializable {
             if (m.length() == 1)
                 m = "0" + m;
             String y = "" + (date.getYear() + 1900);
-            System.out.println("" + d + "/" + m + "/" + y);
             return (new SimpleDateFormat("EE").format(date))+ " " + d + "/" + m + "/" + y;
         }
         return "";

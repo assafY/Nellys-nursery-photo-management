@@ -760,10 +760,13 @@ public class MainFrame extends JFrame {
     			String dateToFind = "";
     			if(date.length == 4){
     				dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                    System.out.println(dateToFind);
     			} else if(date.length == 3){
     				dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                    System.out.println(dateToFind);
     			} else if(date.length == 2){
     				dateToFind = date[1].toString();
+                    System.out.println(dateToFind);
     			}
 				filterPictureLibrary(dateToFind);
     			
@@ -803,12 +806,44 @@ public class MainFrame extends JFrame {
 				picturePanel.repaint();
 				picturePanel.removeAllThumbsFromDisplay();
 				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-    			for(Picture p:Library.getPictureLibrary()){
-    				if(Library.getFormattedDate(p.getTag().getDate()).contains(date)){
-						picturesToDisplay.add(p);
-						picturePanel.addThumbToDisplay(p.getPictureLabel());
-    				}
-    			}
+                if (date.length() == 4) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            System.out.println(Library.getFormattedDate(p.getTag().getDate()).substring(7));
+                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(10)).equals(date)) {
+                                System.out.println(date);
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                else if (date.length() == 7) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(7)).equals(date)) {
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                else if (date.length() == 14) {
+                    for (Picture p : Library.getPictureLibrary()) {
+                        try {
+                            if ((Library.getFormattedDate(p.getTag().getDate())).equals(date)) {
+                                picturesToDisplay.add(p);
+                            }
+                        } catch (StringIndexOutOfBoundsException e) {
+                            // empty date
+                        }
+                    }
+                }
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
 				picturePanel.createThumbnailArray();
 				Library.importPicture(picturesToDisplay);
     		}   		
@@ -1245,9 +1280,17 @@ public class MainFrame extends JFrame {
                 ArrayList<Picture> newPictureSet = currentSearchTags.get(0).getTaggedPictures();
                 allPictureSet = new ArrayList<Picture>();
                 for (Picture p: newPictureSet) {
-                    if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                        allPictureSet.add(p);
+                    if (tabbedPane.getSelectedIndex() == 0) {
+                        if (Settings.LAST_VISITED_DIR != null && p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                            allPictureSet.add(p);
+                        }
                     }
+                    else {
+                        for (String date: virtualTree.getFilteredDates()) {
+
+                        }
+                    }
+
                 }
                 searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
             }
