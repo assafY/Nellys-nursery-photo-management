@@ -158,5 +158,6 @@ public class OptionsFrame extends JFrame {
 
 	public static void main(String[] args) {
 		new OptionsFrame();
+		// only works with mainframe on duh jeez
 	}
 }
