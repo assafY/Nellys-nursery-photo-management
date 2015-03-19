@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -28,6 +29,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -175,58 +177,15 @@ public class MainFrame extends JFrame {
 	private void startUpChecks() {
 		// if the site of the machine was not set, prompt user to set it.
 		if (Settings.NURSERY_LOCATION == null) {
-
-			String selectedSite = null;
-			while (selectedSite == null) {
-				selectedSite = (String) JOptionPane.showInputDialog(this,
-						"In which nursery site is this computer?",
-						"Select Site", JOptionPane.PLAIN_MESSAGE, null,
-						Library.getNurserySites(), "Rosendale");
-
-				if ((selectedSite != null) && (selectedSite.length() > 0)) {
-					Settings.NURSERY_LOCATION = selectedSite;
-					break;
-				}
-			}
+			Library.promptSelectSite(this);
 		}
 
 		if (Library.getTaggableComponentsList().size() == 0 && Settings.CSV_PATH == null) {
-			final JFileChooser csvFileChooser = new JFileChooser();
-			csvFileChooser.setDialogTitle("Select children list CSV file");
-			csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
-					"CSV File", "csv"));
-			csvFileChooser.setAcceptAllFileFilterUsed(false);
-			int wasFileSelected = csvFileChooser.showOpenDialog(this);
-
-			if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
-				Settings.CSV_PATH = csvFileChooser.getSelectedFile().getPath();
-			} else {
-				JOptionPane.showMessageDialog(this,
-						"Without importing a CSV file, it is not possible to tag pictures.\n"
-								+ "You can import a CSV from the file menu.");
-			}
+			Library.promptSelectCSV(this);
 		}
 
 		if (Settings.PICTURE_HOME_DIR == null) {
-
-			new JFXPanel();
-			final CountDownLatch latch = new CountDownLatch(1);
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					DirectoryChooser directoryChooser = new DirectoryChooser();
-					directoryChooser
-							.setTitle("Select root directory of all pictures");
-					Settings.PICTURE_HOME_DIR = directoryChooser
-							.showDialog(new Stage());
-					latch.countDown();
-				}
-			});
-			try {
-				latch.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			Library.promptSelectHomeDir();
 		}
 	}
 
@@ -335,6 +294,16 @@ public class MainFrame extends JFrame {
 		tagMenuItem = new MenuItem("Tag");
 		deleteMenuItem = new MenuItem("Delete");
 		printMenuItem = new MenuItem("Print");
+		//
+		MenuItem asdfg = new MenuItem("Options");
+		asdfg.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new OptionsFrame();
+				
+			}
+		});
 
 		menuBar.add(fileMenu);
 		fileMenu.add(impMenuItem);
@@ -353,6 +322,8 @@ public class MainFrame extends JFrame {
 		toolsMenu.add(tagMenuItem);
 		toolsMenu.add(deleteMenuItem);
 		toolsMenu.add(printMenuItem);
+		//
+		toolsMenu.add(asdfg);
 
 		menuBar.add(helpMenu);
 
