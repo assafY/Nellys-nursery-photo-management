@@ -232,7 +232,7 @@ public class Library implements Serializable {
 
 	public static void promptSelectSite(JFrame frame) {
 		String selectedSite = null;
-//		while (selectedSite == null) {
+		while (selectedSite == null) {
 			selectedSite = (String) JOptionPane.showInputDialog(frame,
 					"In which nursery site is this computer?", "Select Site",
 					JOptionPane.PLAIN_MESSAGE, null, Library.getNurserySites(),
@@ -240,9 +240,9 @@ public class Library implements Serializable {
 
 			if ((selectedSite != null) && (selectedSite.length() > 0)) {
 				Settings.NURSERY_LOCATION = selectedSite;
-//				break;
+				break;
 			}
-//		}
+		}
 	}
 
 	public static void promptSelectCSV(JFrame frame) {

@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -28,6 +29,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -292,6 +294,16 @@ public class MainFrame extends JFrame {
 		tagMenuItem = new MenuItem("Tag");
 		deleteMenuItem = new MenuItem("Delete");
 		printMenuItem = new MenuItem("Print");
+		//
+		MenuItem asdfg = new MenuItem("Options");
+		asdfg.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new OptionsFrame();
+				
+			}
+		});
 
 		menuBar.add(fileMenu);
 		fileMenu.add(impMenuItem);
@@ -310,6 +322,8 @@ public class MainFrame extends JFrame {
 		toolsMenu.add(tagMenuItem);
 		toolsMenu.add(deleteMenuItem);
 		toolsMenu.add(printMenuItem);
+		//
+		toolsMenu.add(asdfg);
 
 		menuBar.add(helpMenu);
 

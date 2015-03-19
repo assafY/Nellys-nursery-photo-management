@@ -29,7 +29,7 @@ public class OptionsFrame extends JFrame {
 		super();
 		initComponents();
 		createStructure();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		addListeners();
 		pack();
 		setVisible(true);
 	}
@@ -39,6 +39,10 @@ public class OptionsFrame extends JFrame {
 		grid.setVgap(10);
 		mainPanel = new JPanel(grid);
 
+		initiateFields();
+	}
+	
+	private void initiateFields() {
 		locationOption = new OptionSlab("Location", Settings.NURSERY_LOCATION);
 		homeDirOption = new OptionSlab("Home Directory",
 				Settings.PICTURE_HOME_DIR);
@@ -57,34 +61,43 @@ public class OptionsFrame extends JFrame {
 
 	private void addComponents() {
 		mainPanel.add(locationOption);
+		mainPanel.add(homeDirOption);
+		mainPanel.add(csvOption);
+	}
+	
+	private void addListeners() {
+		
 		locationOption.addListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Library.promptSelectSite(OptionsFrame.this);
-				locationOption.updatePath();
+				updateView();
 			}
 		});
 
-		mainPanel.add(homeDirOption);
 		homeDirOption.addListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Library.promptSelectHomeDir();
-				locationOption.updatePath();
+				updateView();
 			}
 		});
 
-		mainPanel.add(csvOption);
 		csvOption.addListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Library.promptSelectCSV(OptionsFrame.this);
-				locationOption.updatePath();
+				updateView();
 			}
 		});
+	}
+	
+	public void updateView() {
+		new OptionsFrame().setLocation(this.getX(), this.getY());
+		this.dispose();
 	}
 
 	private class OptionSlab extends JPanel {
@@ -113,13 +126,13 @@ public class OptionsFrame extends JFrame {
 		public OptionSlab(String title, String path) {
 			this(title);
 			this.path = path;
-			updatePath();
+			setPath();
 		}
 
 		public OptionSlab(String title, File pathf) {
 			this(title);
 			this.pathf = pathf;
-			updatePath();
+			setPath();
 		}
 
 		private void initComponentsInner() {
@@ -146,7 +159,7 @@ public class OptionsFrame extends JFrame {
 			button.addActionListener(l);
 		}
 
-		public void updatePath() {
+		public void setPath() {
 
 			if (pathf != null) {
 				path = pathf.getAbsolutePath();
@@ -156,8 +169,4 @@ public class OptionsFrame extends JFrame {
 		}
 	}
 
-	public static void main(String[] args) {
-		new OptionsFrame();
-		// only works with mainframe on duh jeez
-	}
 }
