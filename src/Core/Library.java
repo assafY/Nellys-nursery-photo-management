@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Library implements Serializable {
@@ -205,7 +206,7 @@ public class Library implements Serializable {
                 m = "0" + m;
             String y = "" + (date.getYear() + 1900);
             System.out.println("" + d + "/" + m + "/" + y);
-            return "" + d + "/" + m + "/" + y;
+            return (new SimpleDateFormat("EE").format(date))+ " " + d + "/" + m + "/" + y;
         }
         return "";
 	}

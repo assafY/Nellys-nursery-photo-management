@@ -60,10 +60,10 @@ public class VirtualTree extends JTree {
 		for (int i = 0; i < dates.size(); i++) {
             if (dates.get(i) != null) {
                 try {
-                    addOnlyNewValuesToList(dates.get(i).substring(6, 10), years);
-                    addOnlyNewValuesToList(dates.get(i).substring(3, 5), months);
-                    addOnlyNewValuesToList(dates.get(i).substring(0, 2), days);
-                    addOnlyNewValuesToList(dates.get(i).substring(3, 10), filteredMonthAndYearDates);
+                    addOnlyNewValuesToList(dates.get(i).substring(10, 14), years);
+                    addOnlyNewValuesToList(dates.get(i).substring(7, 9), months);
+                    addOnlyNewValuesToList(dates.get(i).substring(0, 6), days);
+                    addOnlyNewValuesToList(dates.get(i).substring(7, 14), filteredMonthAndYearDates);
                     addOnlyNewValuesToList(dates.get(i), filteredDayMonthYearDates);
                 } catch (StringIndexOutOfBoundsException e) {
                     // Empty date
