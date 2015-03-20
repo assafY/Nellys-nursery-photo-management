@@ -20,6 +20,7 @@ public class Library implements Serializable {
     private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
     private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
     private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
+    private static ArrayList<Picture> LAST_VISITED_VIRTUAL_DIR = new ArrayList<Picture>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
     private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
     private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
@@ -57,6 +58,14 @@ public class Library implements Serializable {
 
     public static ArrayList<PictureLabel> getThumbnailCache() {
         return THUMBNAIL_CACHE;
+    }
+
+    public static ArrayList<Picture> getLastVisitedVirtualDir() {
+        return LAST_VISITED_VIRTUAL_DIR;
+    }
+
+    public static void setLastVisitedVirtualDir(ArrayList<Picture> newLastVirtualDir) {
+        LAST_VISITED_VIRTUAL_DIR = newLastVirtualDir;
     }
 
     public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
