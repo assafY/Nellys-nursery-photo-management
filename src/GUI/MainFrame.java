@@ -128,7 +128,6 @@ public class MainFrame extends JFrame {
 	public TagPanel storedTagsPanel;
 	private JSuggestField tagField;
 
-	private Listeners.ThumbnailClickListener tcl;
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
     private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
@@ -288,10 +287,6 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
-
-
-
-
 
 	private void createMenuBar() {
 
@@ -555,11 +550,9 @@ public class MainFrame extends JFrame {
 
 		Listeners l = new Listeners();
 
-		tcl = l.new ThumbnailClickListener();
-
 		// add key listener for thumbnail selection using keyboard
 		picturePanel.addKeyListener(l.new KeysListener());
-		picturePanel.addKeyListener(tcl);
+		picturePanel.addKeyListener(l.new ThumbnailClickListener());
 
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
@@ -585,7 +578,7 @@ public class MainFrame extends JFrame {
         });
 
 		//Key Stroke Listeners
-		picturePanel.addKeyListener(l. new keyStrokes());
+		picturePanel.addKeyListener(l.new keyStrokes());
 		picturePanel.setFocusTraversalKeysEnabled(false);
 		searchField.addKeyListener(l.new keyStrokes());
 		searchField.setFocusTraversalKeysEnabled(false);
@@ -675,6 +668,7 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+		
 		/*
 		 * Whenever the scroll pane is scrolled, generates thumbnails coming
 		 * into view and deletes thumbnails exiting view.
@@ -776,7 +770,7 @@ public class MainFrame extends JFrame {
     			String[] months = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
     			if (month.equals("January")) {
     				return months[0];
-    			} else if (month.equals("Faburay")) {
+    			} else if (month.equals("February")) {
     				return months[1];
     			} else if (month.equals("March")) {
     				return months[2];
@@ -968,7 +962,7 @@ public class MainFrame extends JFrame {
 		}
 
 		/**
-		 * This method
+		 * This method...
 		 */
 		private class TagListener implements ActionListener {
 			@Override
@@ -1345,24 +1339,6 @@ public class MainFrame extends JFrame {
         }
     }
 
-	/**
-	 * Call this method when the display needs to be updated
-	 */
-	public static void updateViews() {
-		for (MainFrame mainFrame : frames) {
-			mainFrame.updateView();
-		}
-	}
-
-	/**
-	 * This method is being called when refreshing the display. Put here all
-	 * reconstructors.
-	 */
-	private void updateView() {
-		// TODO maybe have multiple methods for pics, tags etc that run in
-		// separate threads
-	}
-
     public void addSearchTag(Taggable t) {
         if (!currentSearchTags.contains(t)) {
             currentSearchTags.add(t);
@@ -1390,6 +1366,11 @@ public class MainFrame extends JFrame {
 		return controlIsPressed;
 	}
 
+	public void releaseKeys() {
+		shiftIsPressed = false;
+		controlIsPressed = false;
+	}
+	
 	public void createTagLabels() {
 		storedTagsPanel.resetTagLabels();
 	}

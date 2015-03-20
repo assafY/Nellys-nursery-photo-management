@@ -237,6 +237,7 @@ public class PictureLabel extends JLabel{
 				picturePanel.getCenterPanel().add(frame,BorderLayout.CENTER);
 				picturePanel.getCenterPanel().revalidate();
 				picturePanel.getCenterPanel().repaint();
+				picturePanel.getMainFrame().releaseKeys();
             }
         }
 
