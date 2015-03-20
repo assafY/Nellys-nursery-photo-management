@@ -480,7 +480,12 @@ public class PicturesFrame extends JPanel {
         }
     }
 
-
+    /**
+     * paint method draws a selection rectangle when the mouse is pressed
+     * and dragged and selects thumbnails which intersect it.
+     *
+     * @param g
+     */
     @Override
     public void paint(Graphics g) {
         super.paint(g);
