@@ -756,19 +756,21 @@ public class MainFrame extends JFrame {
                 }
 
     			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
-    			TreeNode[] date = selectedNode.getPath();
-    			String dateToFind = "";
-    			if(date.length == 4){
-    				dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
-                    System.out.println(dateToFind);
-    			} else if(date.length == 3){
-    				dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
-                    System.out.println(dateToFind);
-    			} else if(date.length == 2){
-    				dateToFind = date[1].toString();
-                    System.out.println(dateToFind);
-    			}
-				filterPictureLibrary(dateToFind);
+                if (selectedNode != null) {
+                    TreeNode[] date = selectedNode.getPath();
+                    String dateToFind = "";
+                    if (date.length == 4) {
+                        dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                        System.out.println(dateToFind);
+                    } else if (date.length == 3) {
+                        dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
+                        System.out.println(dateToFind);
+                    } else if (date.length == 2) {
+                        dateToFind = date[1].toString();
+                        System.out.println(dateToFind);
+                    }
+                    filterPictureLibrary(dateToFind);
+                }
     			
     		}
     		
