@@ -71,9 +71,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		}
 		if (resizedPicture != null) {
 			if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
-				resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getWidth() / 3);
+				resizedPicture = Scalr.resize(resizedPicture, 560);
 			} else {
-                resizedPicture = Scalr.resize(resizedPicture, resizedPicture.getHeight() / 3);
+                resizedPicture = Scalr.resize(resizedPicture, 800);
 			}
 		}
 	}
