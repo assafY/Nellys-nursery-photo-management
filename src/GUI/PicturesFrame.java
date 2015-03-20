@@ -329,7 +329,7 @@ public class PicturesFrame extends JPanel {
                 }
             }
             else {
-                if (!controlIsPressed) {
+                if (!controlIsPressed && !shiftIsPressed) {
                     removeAllSelectedThumbs();
                     getMostRecentSelection().toggleSelection();
                     addSelectedThumb(getMostRecentSelection());
@@ -368,7 +368,7 @@ public class PicturesFrame extends JPanel {
 			if (currentColumn > 0) {
 				moveMultipleInner(0, -1);
 			} else {
-				if (!controlIsPressed) {
+				if (!controlIsPressed && !shiftIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -379,7 +379,7 @@ public class PicturesFrame extends JPanel {
 			if (currentColumn < thumbsOnDisplay2DArray[currentRow].length - 1) {
 				moveMultipleInner(0, 1);
 			} else {
-				if (!controlIsPressed) {
+				if (!controlIsPressed && !shiftIsPressed) {
 					removeAllSelectedThumbs();
 					getMostRecentSelection().toggleSelection();
 					addSelectedThumb(getMostRecentSelection());
@@ -394,7 +394,7 @@ public class PicturesFrame extends JPanel {
             currentRow += row;
             currentColumn += col;
             setMostRecentSelection(thumbsOnDisplay2DArray[currentRow][currentColumn]);
-            if (!controlIsPressed) {
+            if (!controlIsPressed && !shiftIsPressed) {
                 removeAllSelectedThumbs();
                 getMostRecentSelection().toggleSelection();
                 addSelectedThumb(getMostRecentSelection());
@@ -405,7 +405,7 @@ public class PicturesFrame extends JPanel {
                 }
             }
 		} else {
-			if (!controlIsPressed) {
+			if (!controlIsPressed && !shiftIsPressed) {
 				removeAllSelectedThumbs();
 				getMostRecentSelection().toggleSelection();
 				addSelectedThumb(getMostRecentSelection());
