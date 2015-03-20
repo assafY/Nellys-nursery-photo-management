@@ -35,12 +35,7 @@ import java.awt.event.WindowListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 
-import javafx.application.Platform;
-import javafx.embed.swing.JFXPanel;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Stage;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -52,14 +47,14 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
+
 import javax.swing.filechooser.FileSystemView;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
 
 
 public class MainFrame extends JFrame {
@@ -199,58 +194,15 @@ public class MainFrame extends JFrame {
 	private void startUpChecks() {
 		// if the site of the machine was not set, prompt user to set it.
 		if (Settings.NURSERY_LOCATION == null) {
-
-			String selectedSite = null;
-			while (selectedSite == null) {
-				selectedSite = (String) JOptionPane.showInputDialog(this,
-						"In which nursery site is this computer?",
-						"Select Site", JOptionPane.PLAIN_MESSAGE, null,
-						Library.getNurserySites(), "Rosendale");
-
-				if ((selectedSite != null) && (selectedSite.length() > 0)) {
-					Settings.NURSERY_LOCATION = selectedSite;
-					break;
-				}
-			}
+			Library.promptSelectSite(this);
 		}
 
 		if (Library.getTaggableComponentsList().size() == 0 && Settings.CSV_PATH == null) {
-			final JFileChooser csvFileChooser = new JFileChooser();
-			csvFileChooser.setDialogTitle("Select children list CSV file");
-			csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
-					"CSV File", "csv"));
-			csvFileChooser.setAcceptAllFileFilterUsed(false);
-			int wasFileSelected = csvFileChooser.showOpenDialog(this);
-
-			if (wasFileSelected == JFileChooser.APPROVE_OPTION) {
-				Settings.CSV_PATH = csvFileChooser.getSelectedFile().getPath();
-			} else {
-				JOptionPane.showMessageDialog(this,
-						"Without importing a CSV file, it is not possible to tag pictures.\n"
-								+ "You can import a CSV from the file menu.");
-			}
+			Library.promptSelectCSV(this);
 		}
 
 		if (Settings.PICTURE_HOME_DIR == null) {
-
-			new JFXPanel();
-			final CountDownLatch latch = new CountDownLatch(1);
-			Platform.runLater(new Runnable() {
-				@Override
-				public void run() {
-					DirectoryChooser directoryChooser = new DirectoryChooser();
-					directoryChooser
-							.setTitle("Select root directory of all pictures");
-					Settings.PICTURE_HOME_DIR = directoryChooser
-							.showDialog(new Stage());
-					latch.countDown();
-				}
-			});
-			try {
-				latch.await();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			Library.promptSelectHomeDir();
 		}
 	}
 
@@ -366,6 +318,18 @@ public class MainFrame extends JFrame {
 		fileMenu.add(expMenuItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitMenuItem);
+		
+		MenuItem asdfg = new MenuItem("Options");
+		asdfg.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new OptionsFrame();
+
+			}
+		});
+
+		toolsMenu.add(asdfg);
 
 		menuBar.add(editMenu);
 		editMenu.add(rotateMenuItem);
@@ -1103,9 +1067,18 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
+                
+				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+				ArrayList<Picture> allPicsInFolder = new ArrayList<Picture>();
+				if (tabbedPane.getSelectedIndex() == 0) {
+					if (Settings.LAST_VISITED_DIR != null) {
+						allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
+					}
+				} else {
+					allPicsInFolder = Library.getLastVisitedVirtualDir();
+				}
+
                 if (Settings.LAST_VISITED_DIR != null) {
-                    ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
                     if (e.getActionCommand().equals("TAGGED")) {
                         for (Picture p : allPicsInFolder) {
                             if (p.getTag().isFullyTagged()) {
