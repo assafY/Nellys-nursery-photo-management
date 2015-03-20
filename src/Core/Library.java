@@ -123,21 +123,20 @@ public class Library implements Serializable {
 
 			public void run() {
 				Library.addRunningThread(this);
+                ArrayList<PictureLabel> thumbnailsForImport = new ArrayList<PictureLabel>();
 				try {
 					if (importedPictures.size() > 0) {
 						for (Picture p : importedPictures) {
-							while (Library.getRunningThreads().size() > 2) {
-								sleep(200);
-							}
-							if (isInterrupted()) {
-								break;
-							}
-							new ThumbnailImportThread(p.getPictureLabel())
+                            if (isInterrupted()) {
+                                break;
+                            }
+                            thumbnailsForImport.add(p.getPictureLabel());
+                        }
+						new ThumbnailImportThread(thumbnailsForImport)
 									.start();
-						}
-					}
-				} catch (InterruptedException e) {
 
+
+					}
 				} finally {
 					Library.removeRunningThread(this);
 					picturesPanel.createThumbnailArray();

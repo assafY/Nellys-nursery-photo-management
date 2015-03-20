@@ -56,7 +56,7 @@ public class PictureLabel extends JLabel{
         }
 
         if (newThumbnail != null) {
-            thumbnail = Scalr.resize(newThumbnail, Scalr.Method.BALANCED, DEFAULT_SIZE);
+            thumbnail = Scalr.resize(newThumbnail, Scalr.Method.SPEED, DEFAULT_SIZE);
         }
     }
 

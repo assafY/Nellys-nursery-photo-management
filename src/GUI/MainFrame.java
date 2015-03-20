@@ -759,21 +759,22 @@ public class MainFrame extends JFrame {
 				Settings.LAST_VISITED_DIR = (File) fileSystemTree
 						.getLastSelectedPathComponent();
 
-				picturePanel.removeAll();
-				picturePanel.repaint();
-				picturePanel.removeAllThumbsFromDisplay();
+                if (Settings.LAST_VISITED_DIR == null) {
+                    return;
+                }
 
-				if (Settings.LAST_VISITED_DIR == null) {
-					return;
-				}
+                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
 
-				ArrayList<Picture> picturesToDisplay = MainFrame.this
-						.getAllSubPictures(Settings.LAST_VISITED_DIR);
-				for (Picture p : picturesToDisplay) {
-					picturePanel.addThumbToDisplay(p.getPictureLabel());
-				}
-				picturePanel.createThumbnailArray();
-				Library.importPicture(picturesToDisplay);
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+
+                picturePanel.createThumbnailArray();
+                Library.importPicture(picturesToDisplay);
 
 			}
 		});
