@@ -784,7 +784,9 @@ public class MainFrame extends JFrame {
     		@Override
     		public void valueChanged(TreeSelectionEvent e) {
                 for (Thread t: Library.getRunningThreads()) {
-                    t.interrupt();
+                	if(t != null) {
+                		t.interrupt();
+                	}
                 }
 
     			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
