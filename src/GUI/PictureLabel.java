@@ -1,15 +1,26 @@
 package GUI;
 
-import Core.Settings;
-import Data.Picture;
-import org.imgscalr.Scalr;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.event.MouseInputAdapter;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.SwingUtilities;
+
+import org.imgscalr.Scalr;
+
+import Core.Settings;
+import Data.Picture;
 
 public class PictureLabel extends JLabel{
 

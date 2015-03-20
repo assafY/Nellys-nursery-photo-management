@@ -27,18 +27,20 @@ import GUI.MainFrame;
 import GUI.PictureLabel;
 import GUI.PicturesFrame;
 
+import java.text.SimpleDateFormat;
+
 public class Library implements Serializable {
 
 	public static BufferedImage DELETE_BUTTON;
 
-	private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
-	private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
-	private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
-	private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
-	private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
-	private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
-	private static final Object[] nurserySites = { "Dulwich", "Lancaster",
-			"Rosendale", "Turney" };
+    private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
+    private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
+    private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
+    private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
+    private static ArrayList<Picture> LAST_VISITED_VIRTUAL_DIR = new ArrayList<Picture>();
+    private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
+    private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
+    private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
 
 	public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
 		return taggableComponents;
@@ -76,8 +78,7 @@ public class Library implements Serializable {
 		return THUMBNAIL_CACHE;
 	}
 
-	public static void setDirectoryPictureMap(
-			Map<File, ArrayList<Picture>> newMap) {
+	public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
 		directoryPictureMap = newMap;
 	}
 
@@ -95,6 +96,14 @@ public class Library implements Serializable {
 		RUNNING_THREADS.remove(t);
 	}
 
+    public static ArrayList<Picture> getLastVisitedVirtualDir() {
+        return LAST_VISITED_VIRTUAL_DIR;
+    }
+
+    public static void setLastVisitedVirtualDir(ArrayList<Picture> newLastVirtualDir) {
+        LAST_VISITED_VIRTUAL_DIR = newLastVirtualDir;
+    }
+
 	/**
 	 *
 	 *
@@ -111,6 +120,7 @@ public class Library implements Serializable {
 
 		Thread thumbnailImport = new Thread() {
 
+
 			public void run() {
 				Library.addRunningThread(this);
 				try {
@@ -122,7 +132,6 @@ public class Library implements Serializable {
 							if (isInterrupted()) {
 								break;
 							}
-
 							new ThumbnailImportThread(p.getPictureLabel())
 									.start();
 						}
@@ -199,7 +208,8 @@ public class Library implements Serializable {
 	}
 
 	public static synchronized void addPictureToLibrary(Picture picture) {
-		PICTURE_LIBRARY.add(picture);
+        if (!PICTURE_LIBRARY.contains(picture))
+            PICTURE_LIBRARY.add(picture);
 	}
 
 	public static void deletePictureLibrary() {
@@ -220,14 +230,17 @@ public class Library implements Serializable {
 	}
 
 	public static String getFormattedDate(Date date) {
-		String d = "" + date.getDate();
-		if (d.length() == 1)
-			d = "0" + d;
-		String m = "" + (date.getMonth() + 1);
-		if (m.length() == 1)
-			m = "0" + m;
-		String y = "" + (date.getYear() + 1900);
-		return "" + d + "/" + m + "/" + y;
+        if (date != null) {
+            String d = "" + date.getDate();
+            if (d.length() == 1)
+                d = "0" + d;
+            String m = "" + (date.getMonth() + 1);
+            if (m.length() == 1)
+                m = "0" + m;
+            String y = "" + (date.getYear() + 1900);
+            return (new SimpleDateFormat("EE").format(date))+ " " + d + "/" + m + "/" + y;
+        }
+        return "";
 	}
 
 	public static void promptSelectSite(JFrame frame) {
