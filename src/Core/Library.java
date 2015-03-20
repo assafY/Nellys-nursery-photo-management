@@ -32,14 +32,14 @@ public class Library implements Serializable {
 
 	public static BufferedImage DELETE_BUTTON;
 
-	private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
-	private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
-	private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
-	private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
-	private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
-	private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
-	private static final Object[] nurserySites = { "Dulwich", "Lancaster",
-			"Rosendale", "Turney" };
+    private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
+    private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
+    private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
+    private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
+    private static ArrayList<Picture> LAST_VISITED_VIRTUAL_DIR = new ArrayList<Picture>();
+    private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
+    private static ArrayList<Taggable> areaList = new ArrayList<Taggable>();
+    private static final Object[] nurserySites = {"Dulwich", "Lancaster", "Rosendale", "Turney"};
 
 	public static synchronized ArrayList<Taggable> getTaggableComponentsList() {
 		return taggableComponents;
@@ -77,8 +77,7 @@ public class Library implements Serializable {
 		return THUMBNAIL_CACHE;
 	}
 
-	public static void setDirectoryPictureMap(
-			Map<File, ArrayList<Picture>> newMap) {
+	public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {
 		directoryPictureMap = newMap;
 	}
 
@@ -95,6 +94,14 @@ public class Library implements Serializable {
 	public static void removeRunningThread(Thread t) {
 		RUNNING_THREADS.remove(t);
 	}
+
+    public static ArrayList<Picture> getLastVisitedVirtualDir() {
+        return LAST_VISITED_VIRTUAL_DIR;
+    }
+
+    public static void setLastVisitedVirtualDir(ArrayList<Picture> newLastVirtualDir) {
+        LAST_VISITED_VIRTUAL_DIR = newLastVirtualDir;
+    }
 
 	/**
 	 *

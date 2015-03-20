@@ -847,6 +847,7 @@ public class MainFrame extends JFrame {
                     picturePanel.addThumbToDisplay(p.getPictureLabel());
                 }
 				picturePanel.createThumbnailArray();
+                Library.setLastVisitedVirtualDir(picturesToDisplay);
 				Library.importPicture(picturesToDisplay);
     		}   		
     		
@@ -1250,9 +1251,15 @@ public class MainFrame extends JFrame {
 
             picturePanel.removeAll();
             picturePanel.revalidate();
+
             // if there are no search tags
             if (currentSearchTags.size() == 0) {
-                allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                if (tabbedPane.getSelectedIndex() == 0) {
+                    allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                }
+                else {
+                    allPictureSet = Library.getLastVisitedVirtualDir();
+                }
             }
             else if (currentSearchTags.size() > 1) {
                 ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
@@ -1272,8 +1279,18 @@ public class MainFrame extends JFrame {
                     // if the picture is tagged with all search tags
                     // and the new picture set does not already contain it
                     if (pictureInAllLists && !allPictureSet.contains(p)) {
-                        if (p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                            allPictureSet.add(p);
+                        if (tabbedPane.getSelectedIndex() == 0) {
+                            if (Settings.LAST_VISITED_DIR != null && p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
+                                allPictureSet.add(p);
+                            }
+                        }
+                        else {
+                            for (Picture p1: Library.getLastVisitedVirtualDir()) {
+                                if (p.getImagePath().equals(p1.getImagePath())) {
+                                    allPictureSet.add(p);
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -1288,8 +1305,11 @@ public class MainFrame extends JFrame {
                         }
                     }
                     else {
-                        for (String date: virtualTree.getFilteredDates()) {
-
+                        for (Picture p1: Library.getLastVisitedVirtualDir()) {
+                            if (p.getImagePath().equals(p1.getImagePath())) {
+                                allPictureSet.add(p);
+                                break;
+                            }
                         }
                     }
 
