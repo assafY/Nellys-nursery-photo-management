@@ -1071,9 +1071,17 @@ public class MainFrame extends JFrame {
                 storedTagsPanel.removeTagLabels();
                 currentSearchTags.clear();
                 refreshSearch();
-                if (Settings.LAST_VISITED_DIR != null) {
-                    ArrayList<Picture> allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                    ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
+                ArrayList<Picture> allPicsInFolder = new ArrayList<Picture>();
+                    if (tabbedPane.getSelectedIndex() == 0) {
+                        if (Settings.LAST_VISITED_DIR != null) {
+                            allPicsInFolder = getAllSubPictures(Settings.LAST_VISITED_DIR);
+                        }
+                    }
+                else {
+                        allPicsInFolder = Library.getLastVisitedVirtualDir();
+                    }
+
                     if (e.getActionCommand().equals("TAGGED")) {
                         for (Picture p : allPicsInFolder) {
                             if (p.getTag().isFullyTagged()) {
@@ -1104,7 +1112,7 @@ public class MainFrame extends JFrame {
                     }
                     Library.importPicture(picturesToDisplay);
                 }
-            }
+
         }
         
 		public class ThumbnailClickListener implements KeyListener {
