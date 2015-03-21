@@ -235,6 +235,9 @@ public class PicturesFrame extends JPanel {
 				case KeyEvent.VK_DOWN:
 					moveSingle(1, 0);
 					break;
+				case KeyEvent.VK_ENTER:
+					getMostRecentSelection().openFullScreen();
+					break;
 				}
 				break;
 			default:
@@ -251,7 +254,9 @@ public class PicturesFrame extends JPanel {
 				case KeyEvent.VK_DOWN:
 					moveMultiple(1, 0);
 					break;
-
+				case KeyEvent.VK_ENTER:
+					getMostRecentSelection().openFullScreen();
+					break;
 				}
 				break;
 
