@@ -860,6 +860,9 @@ public class MainFrame extends JFrame {
 
 		}
 
+		/**
+		 * for shift ctrl
+		 */
 		public class KeysListener implements KeyListener {
 
 			public KeysListener() {
@@ -894,6 +897,9 @@ public class MainFrame extends JFrame {
 
 		}
 
+		/**
+		 * for tab and other shortcuts
+		 */
 		public class keyStrokes implements KeyListener {
 			@Override
 			public void keyPressed(KeyEvent e) {
