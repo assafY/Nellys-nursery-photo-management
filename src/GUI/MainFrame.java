@@ -39,12 +39,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import javafx.stage.FileChooser;
+
 import javax.imageio.ImageIO;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -548,6 +551,7 @@ public class MainFrame extends JFrame {
 		//fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
+		
 		/*
 		 * Open options frame.
 		 */
@@ -557,6 +561,44 @@ public class MainFrame extends JFrame {
 				OptionsFrame optionsFrame = new OptionsFrame();
 				optionsFrame.setVisible(true);
 			}
+		});
+		
+		/*
+		 * Export pictures in a selected directory.
+		 */
+		exportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int saveChoise = fileChooser.showSaveDialog(null);
+				int pictureCount = 0;
+				if(saveChoise == JFileChooser.APPROVE_OPTION) {
+					for(int i = 0;i < picturePanel.getThumbsOnDisplay().size();i++) {
+						if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						else {
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+			
 		});
 		
 		// change picture thumbnail size when slider is used
