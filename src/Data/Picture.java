@@ -1,6 +1,6 @@
 package Data;
 
-import Core.Settings;
+
 import GUI.MainFrame;
 import GUI.PictureLabel;
 import com.drew.imaging.ImageMetadataReader;
@@ -56,7 +56,7 @@ public class Picture implements Serializable{
     }
 
     private void createPictureLabel() {
-        if (MainFrame.getMainFrames().size() > 0) {
+        if (MainFrame.getMainFrames().size() > 0 && imageFile.exists()) {
             if (pictureLabel == null) {
                 pictureLabel = new PictureLabel(this, MainFrame.getMainFrames().get(0).getPicturesPanel());
             }

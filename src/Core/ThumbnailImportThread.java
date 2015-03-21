@@ -20,7 +20,7 @@ public class ThumbnailImportThread extends Thread {
         try {
             Library.addRunningThread(this);
 
-            if (!isInterrupted()) {
+            if (!isInterrupted() && pictureToDisplay != null) {
                 if (pictureToDisplay.getThumbnail() == null) {
                     pictureToDisplay.createThumbnail();
                 }
