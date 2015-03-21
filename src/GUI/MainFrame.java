@@ -286,60 +286,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void createMenuBar() {
-
-		// menu bar component assignment
-		fileMenu = new Menu("File");
-		editMenu = new Menu("Edit");
-		toolsMenu = new Menu("Tools");
-		helpMenu = new Menu("Help");
-		impMenuItem = new MenuItem("Import");
-		expMenuItem = new MenuItem("Export");
-		backupMenuItem = new MenuItem("Backup");
-		exitMenuItem = new MenuItem("Exit");
-		rotateMenuItem = new MenuItem("Rotate");
-		resizeMenuItem = new MenuItem("Resize");
-		cropMenuItem = new MenuItem("Crop");
-		selMenuItem = new MenuItem("Select");
-		tagMenuItem = new MenuItem("Tag");
-		deleteMenuItem = new MenuItem("Delete");
-		printMenuItem = new MenuItem("Print");
-
-		menuBar.add(fileMenu);
-		fileMenu.add(impMenuItem);
-		fileMenu.add(backupMenuItem);
-		fileMenu.add(expMenuItem);
-		fileMenu.addSeparator();
-		fileMenu.add(exitMenuItem);
-
-		MenuItem asdfg = new MenuItem("Options");
-		asdfg.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new OptionsFrame();
-
-			}
-		});
-
-		toolsMenu.add(asdfg);
-
-		menuBar.add(editMenu);
-		editMenu.add(rotateMenuItem);
-		editMenu.add(resizeMenuItem);
-		editMenu.add(cropMenuItem);
-
-		menuBar.add(toolsMenu);
-		toolsMenu.add(selMenuItem);
-		toolsMenu.add(tagMenuItem);
-		toolsMenu.add(deleteMenuItem);
-		toolsMenu.add(printMenuItem);
-
-		menuBar.add(helpMenu);
-
-		setMenuBar(menuBar);
-
-	}
 
 	private void createPanels() {
 
@@ -419,9 +365,9 @@ public class MainFrame extends JFrame {
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			exportButton = new JButton("Export");
-			exportButton.setFont(biggerFont);
-			backupButton = new JButton("Backup");
-			backupButton.setFont(biggerFont);
+            exportButton.setFont(biggerFont);
+            optionsButton = new JButton("Options");
+            optionsButton.setFont(biggerFont);
 			rotateButton = new JButton("Rotate");
 			rotateButton.setFont(biggerFont);
 			deleteButton = new JButton("Delete");
@@ -1670,7 +1616,7 @@ public class MainFrame extends JFrame {
 			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
 			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-				
+			
 				File savedFile = new File(savedPictureLibraryData.get(i).getImagePath());
 				if (savedFile.exists()) {
 					Picture recreatedPicture = new Picture(savedFile);
