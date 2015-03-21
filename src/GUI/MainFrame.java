@@ -55,8 +55,6 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
-
-
 public class MainFrame extends JFrame {
 	// menu bar component declaration
 	private MenuBar menuBar = new MenuBar();
@@ -82,14 +80,14 @@ public class MainFrame extends JFrame {
 	// north component declaration
 	private JPanel northPanel;
 	private JPanel searchPanel;
-    private JPanel searchLabelPanel;
+	private JPanel searchLabelPanel;
 	private JSuggestField searchField;
-    private ArrayList<Taggable> currentSearchTags;
+	private ArrayList<Taggable> currentSearchTags;
 	private JRadioButton taggedRadioButton;
 	private JRadioButton untaggedRadioButton;
 	private JRadioButton incompleteRadioButton;
 	private JRadioButton allRadioButton;
-    private ButtonGroup radioButtonGroup;
+	private ButtonGroup radioButtonGroup;
 	private JPanel sortByPanel;
 	private JLabel sortByLabel;
 
@@ -130,34 +128,33 @@ public class MainFrame extends JFrame {
 
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
-    private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
-    private boolean noPicturesFound = false;
+	private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
+	private boolean noPicturesFound = false;
 
-    /**
+	/**
 	 * Constructor for the application
 	 */
-	public MainFrame()  {
+	public MainFrame() {
 
-        try {
-            Class.forName("java.awt.color.ICC_ColorSpace");
-            Class.forName("sun.java2d.cmm.lcms.LCMS");
-        } catch (ClassNotFoundException e) {
+		try {
+			Class.forName("java.awt.color.ICC_ColorSpace");
+			Class.forName("sun.java2d.cmm.lcms.LCMS");
+		} catch (ClassNotFoundException e) {
 
-        }
+		}
 
 		// root panel assignment
 		mainPanel = new JPanel(new BorderLayout());
 
 		addSavedData();
-        startUpChecks();
-        loadTaggableComponents();
-        loadTagDeleteButton();
+		startUpChecks();
+		loadTaggableComponents();
+		loadTagDeleteButton();
 		createMenuBar();
 		createPanels();
 		addListeners();
 		createVirtualTree();
 		saveData();
-
 
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		add(mainPanel);
@@ -169,24 +166,24 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 		frames.add(this);
 
-        if (Settings.PICTURE_HOME_DIR != null) {
-            Library.importFolder(Settings.PICTURE_HOME_DIR);
-        }
+		if (Settings.PICTURE_HOME_DIR != null) {
+			Library.importFolder(Settings.PICTURE_HOME_DIR);
+		}
 	}
-	
+
 	/*
-	 * Automatically adds the saved picture library ArrayList, the taggable components ArrayList, the Nursery Location and
-	 * the Pictures home directory to the application.
+	 * Automatically adds the saved picture library ArrayList, the taggable
+	 * components ArrayList, the Nursery Location and the Pictures home
+	 * directory to the application.
 	 */
 	private void addSavedData() {
 		getSavedPictureLibrary();
 		getSavedTaggableComponents();
 		getSavedNurseryLocation();
 		getSavedPicturesHomeDIR();
-        getSavedLastVisitedDIR();
-        getSavedDirectoryFileMap();
+		getSavedLastVisitedDIR();
+		getSavedDirectoryFileMap();
 	}
-
 
 	// for csv file, location and picture library, if any has not
 	// been initialised, prompt the user on startup
@@ -196,7 +193,8 @@ public class MainFrame extends JFrame {
 			Library.promptSelectSite(this);
 		}
 
-		if (Library.getTaggableComponentsList().size() == 0 && Settings.CSV_PATH == null) {
+		if (Library.getTaggableComponentsList().size() == 0
+				&& Settings.CSV_PATH == null) {
 			Library.promptSelectCSV(this);
 		}
 
@@ -313,7 +311,7 @@ public class MainFrame extends JFrame {
 		fileMenu.add(expMenuItem);
 		fileMenu.addSeparator();
 		fileMenu.add(exitMenuItem);
-		
+
 		MenuItem asdfg = new MenuItem("Options");
 		asdfg.addActionListener(new ActionListener() {
 
@@ -350,58 +348,58 @@ public class MainFrame extends JFrame {
 			// north panel component assignment
 			northPanel = new JPanel(new BorderLayout());
 			searchPanel = new JPanel();
-            searchLabelPanel = new JPanel();
-            searchLabelPanel.setName("Search");
-            currentSearchTags = new ArrayList<Taggable>();
+			searchLabelPanel = new JPanel();
+			searchLabelPanel.setName("Search");
+			currentSearchTags = new ArrayList<Taggable>();
 			searchField = new JSuggestField(MainFrame.this,
 					Library.getTaggableComponentNamesVector(true));
 			searchField.setPreferredSize(new Dimension(210, 30));
-            searchField.setFocusable(false);
+			searchField.setFocusable(false);
 			taggedRadioButton = new JRadioButton("Tagged");
 			untaggedRadioButton = new JRadioButton("Untagged");
 			incompleteRadioButton = new JRadioButton("Incomplete");
 			allRadioButton = new JRadioButton("All");
-            radioButtonGroup = new ButtonGroup();
+			radioButtonGroup = new ButtonGroup();
 			sortByPanel = new JPanel();
 			sortByLabel = new JLabel("Filter: ");
-            sortByLabel.setFont(biggerFont);
+			sortByLabel.setFont(biggerFont);
 
-            taggedRadioButton.setMnemonic(KeyEvent.VK_T);
-            taggedRadioButton.setSelected(false);
-            taggedRadioButton.setActionCommand("TAGGED");
-            taggedRadioButton.setFont(biggerFont);
-            untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
+			taggedRadioButton.setMnemonic(KeyEvent.VK_T);
+			taggedRadioButton.setSelected(false);
+			taggedRadioButton.setActionCommand("TAGGED");
+			taggedRadioButton.setFont(biggerFont);
+			untaggedRadioButton.setMnemonic(KeyEvent.VK_U);
 			untaggedRadioButton.setSelected(false);
-            untaggedRadioButton.setActionCommand("UNTAGGED");
-            untaggedRadioButton.setFont(biggerFont);
-            incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
+			untaggedRadioButton.setActionCommand("UNTAGGED");
+			untaggedRadioButton.setFont(biggerFont);
+			incompleteRadioButton.setMnemonic(KeyEvent.VK_I);
 			incompleteRadioButton.setSelected(false);
-            incompleteRadioButton.setActionCommand("INCOMPLETE");
-            incompleteRadioButton.setFont(biggerFont);
+			incompleteRadioButton.setActionCommand("INCOMPLETE");
+			incompleteRadioButton.setFont(biggerFont);
 			allRadioButton.setMnemonic(KeyEvent.VK_A);
 			allRadioButton.setSelected(true);
-            allRadioButton.setActionCommand("ALL");
-            allRadioButton.setFont(biggerFont);
+			allRadioButton.setActionCommand("ALL");
+			allRadioButton.setFont(biggerFont);
 
 			searchPanel.add(sortByLabel);
 			searchPanel.add(searchField);
-            radioButtonGroup.add(taggedRadioButton);
-            radioButtonGroup.add(untaggedRadioButton);
-            radioButtonGroup.add(incompleteRadioButton);
-            radioButtonGroup.add(allRadioButton);
-            sortByPanel.add(taggedRadioButton);
-            sortByPanel.add(untaggedRadioButton);
-            sortByPanel.add(incompleteRadioButton);
-            sortByPanel.add(allRadioButton);
+			radioButtonGroup.add(taggedRadioButton);
+			radioButtonGroup.add(untaggedRadioButton);
+			radioButtonGroup.add(incompleteRadioButton);
+			radioButtonGroup.add(allRadioButton);
+			sortByPanel.add(taggedRadioButton);
+			sortByPanel.add(untaggedRadioButton);
+			sortByPanel.add(incompleteRadioButton);
+			sortByPanel.add(allRadioButton);
 
 			mainPanel.add(northPanel, BorderLayout.NORTH);
 			northPanel.add(searchPanel, BorderLayout.WEST);
 			northPanel.add(sortByPanel, BorderLayout.EAST);
-            northPanel.add(searchLabelPanel, BorderLayout.CENTER);
+			northPanel.add(searchLabelPanel, BorderLayout.CENTER);
 
 			TitledBorder titledBorder = new TitledBorder("Search: ");
-            titledBorder.setTitleFont(biggerFont);
-            EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
+			titledBorder.setTitleFont(biggerFont);
+			EmptyBorder emptyBorder = new EmptyBorder(3, 3, 3, 3);
 			CompoundBorder compoundBorder = new CompoundBorder(emptyBorder,
 					titledBorder);
 			northPanel.setBorder(compoundBorder);
@@ -413,45 +411,54 @@ public class MainFrame extends JFrame {
 			// west component assignment
 			westPanel = new JPanel(new BorderLayout());
 			fileTreePanel = new JPanel(new BorderLayout());
-			fileTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			fileTreePanel
+					.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			virtualTreePanel = new JPanel(new BorderLayout());
-			virtualTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			virtualTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
+					5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
 			exportButton = new JButton("Export");
-            exportButton.setFont(biggerFont);
-            backupButton = new JButton("Backup");
-            backupButton.setFont(biggerFont);
+			exportButton.setFont(biggerFont);
+			backupButton = new JButton("Backup");
+			backupButton.setFont(biggerFont);
 			rotateButton = new JButton("Rotate");
-            rotateButton.setFont(biggerFont);
+			rotateButton.setFont(biggerFont);
 			deleteButton = new JButton("Delete");
-            deleteButton.setFont(biggerFont);
+			deleteButton.setFont(biggerFont);
 			printButton = new JButton("Print");
-            printButton.setFont(biggerFont);
+			printButton.setFont(biggerFont);
 
-            if (Settings.PICTURE_HOME_DIR != null) {
-                fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
-            }
-            else {
-                fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
-            }
-			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-            fileSystemTree.setExpandsSelectedPaths(true);
-            if (Settings.LAST_VISITED_PATH != null) {
-                fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
-            }
-            // use tree cell renderer to set tree node names
-            // to the folder name, rather than the whole path
-            fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
-                @Override
-                public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-                    setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
-                    return this;
-                }
-            });
+			if (Settings.PICTURE_HOME_DIR != null) {
+				fileSystemTree = new JTree(new SystemTreeModel(
+						Settings.PICTURE_HOME_DIR));
+			} else {
+				fileSystemTree = new JTree(new SystemTreeModel(FileSystemView
+						.getFileSystemView().getHomeDirectory()));
+			}
+			fileSystemTree.getSelectionModel().setSelectionMode(
+					TreeSelectionModel.SINGLE_TREE_SELECTION);
+			fileSystemTree.setExpandsSelectedPaths(true);
+			if (Settings.LAST_VISITED_PATH != null) {
+				fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
+			}
+			// use tree cell renderer to set tree node names
+			// to the folder name, rather than the whole path
+			fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
+				@Override
+				public Component getTreeCellRendererComponent(JTree tree,
+						Object value, boolean selected, boolean expanded,
+						boolean leaf, int row, boolean hasFocus) {
+					super.getTreeCellRendererComponent(tree, value, selected,
+							expanded, leaf, row, hasFocus);
+					setText(value.toString().substring(
+							value.toString().lastIndexOf(File.separator) + 1,
+							value.toString().length()));
+					return this;
+				}
+			});
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
-			
+
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
 			tabbedPane.addTab("File Tree", fileTreePanel);
 			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
@@ -486,8 +493,8 @@ public class MainFrame extends JFrame {
 			buttonPanel.add(printButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
-            titledBorder.setTitleFont(biggerFont);
-            westPanel.setBorder(titledBorder);
+			titledBorder.setTitleFont(biggerFont);
+			westPanel.setBorder(titledBorder);
 
 		}
 
@@ -536,10 +543,11 @@ public class MainFrame extends JFrame {
 			tagPanel.add(tagField, BorderLayout.NORTH);
 
 			eastPanel = new JPanel(new BorderLayout());
-            eastPanel.setBorder(BorderFactory.createTitledBorder(null, "Add Tag: ",
-                    TitledBorder.LEFT, TitledBorder.ABOVE_TOP, biggerFont));
+			eastPanel.setBorder(BorderFactory.createTitledBorder(null,
+					"Add Tag: ", TitledBorder.LEFT, TitledBorder.ABOVE_TOP,
+					biggerFont));
 
-            eastPanel.add(tagPanel, BorderLayout.NORTH);
+			eastPanel.add(tagPanel, BorderLayout.NORTH);
 
 			mainPanel.add(eastPanel, BorderLayout.EAST);
 
@@ -557,27 +565,29 @@ public class MainFrame extends JFrame {
 		searchField.addSelectionListener(l.new SearchListener());
 		tagField.addSelectionListener(l.new TagListener());
 
-        taggedRadioButton.addActionListener(l.new RadioButtonListener());
-        untaggedRadioButton.addActionListener(l.new RadioButtonListener());
-        incompleteRadioButton.addActionListener(l.new RadioButtonListener());
-        allRadioButton.addActionListener(l.new RadioButtonListener());
+		taggedRadioButton.addActionListener(l.new RadioButtonListener());
+		untaggedRadioButton.addActionListener(l.new RadioButtonListener());
+		incompleteRadioButton.addActionListener(l.new RadioButtonListener());
+		allRadioButton.addActionListener(l.new RadioButtonListener());
 
-        /* listener for the search field - the drop down menu is supposed to show up after one click
-           sometimes it's coming up after 2 clicks tho, probably coz I set the focus to false
-           will try to fix this by creating our own listener
-           leaving it as it is for the time being coz it's annoying as fungi
-         */
+		/*
+		 * listener for the search field - the drop down menu is supposed to
+		 * show up after one click sometimes it's coming up after 2 clicks tho,
+		 * probably coz I set the focus to false will try to fix this by
+		 * creating our own listener leaving it as it is for the time being coz
+		 * it's annoying as fungi
+		 */
 
-        searchField.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount()==1) {
-                    searchField.setFocusable(true);
-                }
-            }
-        });
+		searchField.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 1) {
+					searchField.setFocusable(true);
+				}
+			}
+		});
 
-		//Key Stroke Listeners
+		// Key Stroke Listeners
 		picturePanel.addKeyListener(l.new keyStrokes());
 		picturePanel.setFocusTraversalKeysEnabled(false);
 		searchField.addKeyListener(l.new keyStrokes());
@@ -585,10 +595,10 @@ public class MainFrame extends JFrame {
 		tagField.addKeyListener(l.new keyStrokes());
 		tagField.setFocusTraversalKeysEnabled(false);
 
-		//virtualTreePanel.addKeyListener((l.new keyStrokes()));
-		//virtualTreePanel.setFocusTraversalKeysEnabled(false);
-		//fileTreePanel.addKeyListener((l.new keyStrokes()));
-		//fileTreePanel.setFocusTraversalKeysEnabled(false);
+		// virtualTreePanel.addKeyListener((l.new keyStrokes()));
+		// virtualTreePanel.setFocusTraversalKeysEnabled(false);
+		// fileTreePanel.addKeyListener((l.new keyStrokes()));
+		// fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
 
@@ -619,12 +629,10 @@ public class MainFrame extends JFrame {
 						try {
 							for (PictureLabel currentThumbnail : thumbs) {
 								currentThumbnail
-										.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-												.getValue()]);
+										.showThumbnail(Settings.THUMBNAIL_SIZES[getZoomValue()]);
 							}
 						} finally {
-							picturePanel.adjustColumnCount(zoomSlider
-									.getValue());
+							picturePanel.adjustColumnCount(getZoomValue());
 						}
 					}
 				};
@@ -637,7 +645,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void componentResized(ComponentEvent e) {
 
-				picturePanel.adjustColumnCount(zoomSlider.getValue());
+				picturePanel.adjustColumnCount(getZoomValue());
 				// TODO: Fix this method !
 				/*
 				 * int currentPanelSize = (int)
@@ -668,7 +676,6 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		
 		/*
 		 * Whenever the scroll pane is scrolled, generates thumbnails coming
 		 * into view and deletes thumbnails exiting view.
@@ -684,8 +691,7 @@ public class MainFrame extends JFrame {
 								if (isInView(currentThumbnail, currentView)) {
 									if (currentThumbnail.getIcon() == null) {
 										currentThumbnail
-												.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                                                        .getValue()]);
+												.showThumbnail(Settings.THUMBNAIL_SIZES[getZoomValue()]);
 									}
 								} else {
 									currentThumbnail.hideThumbnail();
@@ -695,156 +701,168 @@ public class MainFrame extends JFrame {
 					}
 				});
 
-        fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
+		fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
 
-                for (Thread t: Library.getRunningThreads()) {
-                	if(t != null) {
-                		t.interrupt();
-                	}
-                }
+				for (Thread t : Library.getRunningThreads()) {
+					if (t != null) {
+						t.interrupt();
+					}
+				}
 
-                Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
-                Settings.LAST_VISITED_DIR = (File)
-                        fileSystemTree.getLastSelectedPathComponent();
+				Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
+				Settings.LAST_VISITED_DIR = (File) fileSystemTree
+						.getLastSelectedPathComponent();
 
-                picturePanel.removeAll();
-                picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
+				picturePanel.removeAll();
+				picturePanel.repaint();
+				picturePanel.removeAllThumbsFromDisplay();
 
-                if (Settings.LAST_VISITED_DIR == null) {
-                    return;
-                }
+				if (Settings.LAST_VISITED_DIR == null) {
+					return;
+				}
 
-                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
-                for (Picture p: picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
-                }
-                picturePanel.createThumbnailArray();
-                Library.importPicture(picturesToDisplay);
+				ArrayList<Picture> picturesToDisplay = MainFrame.this
+						.getAllSubPictures(Settings.LAST_VISITED_DIR);
+				for (Picture p : picturesToDisplay) {
+					picturePanel.addThumbToDisplay(p.getPictureLabel());
+				}
+				picturePanel.createThumbnailArray();
+				Library.importPicture(picturesToDisplay);
 
-            }
-        });
-        
-        tabbedPane.addMouseListener(new MouseAdapter() {
-        	public void mouseClicked(MouseEvent e) {
-        		if(tabbedPane.getSelectedIndex() == 1) {
-        			createVirtualTree();
-        		}
-        	}
+			}
+		});
+
+		tabbedPane.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (tabbedPane.getSelectedIndex() == 1) {
+					createVirtualTree();
+				}
+			}
 		});
 	}
 
 	private class Listeners {
-		
+
 		class NodeListener implements TreeSelectionListener {
 
-    		@Override
-    		public void valueChanged(TreeSelectionEvent e) {
-                for (Thread t: Library.getRunningThreads()) {
-                	if(t != null) {
-                		t.interrupt();
-                	}
-                }
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				for (Thread t : Library.getRunningThreads()) {
+					if (t != null) {
+						t.interrupt();
+					}
+				}
 
-    			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree.getLastSelectedPathComponent();
-                if (selectedNode != null) {
-                    TreeNode[] date = selectedNode.getPath();
-                    String dateToFind = "";
-                    if (date.length == 4) {
-                        dateToFind = date[3] + "/" + getMonthAsNumber(date[2].toString()) + "/" + date[1];
-                        System.out.println(dateToFind);
-                    } else if (date.length == 3) {
-                        dateToFind = getMonthAsNumber(date[2].toString()) + "/" + date[1];
-                        System.out.println(dateToFind);
-                    } else if (date.length == 2) {
-                        dateToFind = date[1].toString();
-                        System.out.println(dateToFind);
-                    }
-                    filterPictureLibrary(dateToFind);
-                }
-    			
-    		}
-    		
-    		private String getMonthAsNumber(String month){
-    			String[] months = { "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
-    			if (month.equals("January")) {
-    				return months[0];
-    			} else if (month.equals("February")) {
-    				return months[1];
-    			} else if (month.equals("March")) {
-    				return months[2];
-    			} else if (month.equals("April")) {
-    				return months[3];
-    			} else if (month.equals("May")) {
-    				return months[4];
-    			} else if (month.equals("June")) {
-    				return months[5];
-    			} else if (month.equals("July")) {
-    				return months[6];
-    			} else if (month.equals("August")) {
-    				return months[7];
-    			} else if (month.equals("September")) {
-    				return months[8];
-    			} else if (month.equals("October")) {
-    				return months[9];
-    			} else if (month.equals("November")) {
-    				return months[10];
-    			} else if (month.equals("December")) {
-    				return months[11];
-    			}
-    			return "";
-    		}
-    		private void filterPictureLibrary(String date){
+				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) virtualTree
+						.getLastSelectedPathComponent();
+				if (selectedNode != null) {
+					TreeNode[] date = selectedNode.getPath();
+					String dateToFind = "";
+					if (date.length == 4) {
+						dateToFind = date[3] + "/"
+								+ getMonthAsNumber(date[2].toString()) + "/"
+								+ date[1];
+						System.out.println(dateToFind);
+					} else if (date.length == 3) {
+						dateToFind = getMonthAsNumber(date[2].toString()) + "/"
+								+ date[1];
+						System.out.println(dateToFind);
+					} else if (date.length == 2) {
+						dateToFind = date[1].toString();
+						System.out.println(dateToFind);
+					}
+					filterPictureLibrary(dateToFind);
+				}
+
+			}
+
+			private String getMonthAsNumber(String month) {
+				String[] months = { "01", "02", "03", "04", "05", "06", "07",
+						"08", "09", "10", "11", "12" };
+				if (month.equals("January")) {
+					return months[0];
+				} else if (month.equals("February")) {
+					return months[1];
+				} else if (month.equals("March")) {
+					return months[2];
+				} else if (month.equals("April")) {
+					return months[3];
+				} else if (month.equals("May")) {
+					return months[4];
+				} else if (month.equals("June")) {
+					return months[5];
+				} else if (month.equals("July")) {
+					return months[6];
+				} else if (month.equals("August")) {
+					return months[7];
+				} else if (month.equals("September")) {
+					return months[8];
+				} else if (month.equals("October")) {
+					return months[9];
+				} else if (month.equals("November")) {
+					return months[10];
+				} else if (month.equals("December")) {
+					return months[11];
+				}
+				return "";
+			}
+
+			private void filterPictureLibrary(String date) {
 				picturePanel.removeAll();
 				picturePanel.repaint();
 				picturePanel.removeAllThumbsFromDisplay();
 				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
-                if (date.length() == 4) {
-                    for (Picture p : Library.getPictureLibrary()) {
-                        try {
-                            System.out.println(Library.getFormattedDate(p.getTag().getDate()).substring(7));
-                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(10)).equals(date)) {
-                                System.out.println(date);
-                                picturesToDisplay.add(p);
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
-                            // empty date
-                        }
-                    }
-                }
-                else if (date.length() == 7) {
-                    for (Picture p : Library.getPictureLibrary()) {
-                        try {
-                            if ((Library.getFormattedDate(p.getTag().getDate()).substring(7)).equals(date)) {
-                                picturesToDisplay.add(p);
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
-                            // empty date
-                        }
-                    }
-                }
-                else if (date.length() == 14) {
-                    for (Picture p : Library.getPictureLibrary()) {
-                        try {
-                            if ((Library.getFormattedDate(p.getTag().getDate())).equals(date)) {
-                                picturesToDisplay.add(p);
-                            }
-                        } catch (StringIndexOutOfBoundsException e) {
-                            // empty date
-                        }
-                    }
-                }
-                for (Picture p: picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
-                }
+				if (date.length() == 4) {
+					for (Picture p : Library.getPictureLibrary()) {
+						try {
+							System.out.println(Library.getFormattedDate(
+									p.getTag().getDate()).substring(7));
+							if ((Library.getFormattedDate(p.getTag().getDate())
+									.substring(10)).equals(date)) {
+								System.out.println(date);
+								picturesToDisplay.add(p);
+							}
+						} catch (StringIndexOutOfBoundsException e) {
+							// empty date
+						}
+					}
+				} else if (date.length() == 7) {
+					for (Picture p : Library.getPictureLibrary()) {
+						try {
+							if ((Library.getFormattedDate(p.getTag().getDate())
+									.substring(7)).equals(date)) {
+								picturesToDisplay.add(p);
+							}
+						} catch (StringIndexOutOfBoundsException e) {
+							// empty date
+						}
+					}
+				} else if (date.length() == 14) {
+					for (Picture p : Library.getPictureLibrary()) {
+						try {
+							if ((Library.getFormattedDate(p.getTag().getDate()))
+									.equals(date)) {
+								picturesToDisplay.add(p);
+							}
+						} catch (StringIndexOutOfBoundsException e) {
+							// empty date
+						}
+					}
+				}
+				for (Picture p : picturesToDisplay) {
+					picturePanel.addThumbToDisplay(p.getPictureLabel());
+				}
 				picturePanel.createThumbnailArray();
-                Library.setLastVisitedVirtualDir(picturesToDisplay);
+				Library.setLastVisitedVirtualDir(picturesToDisplay);
 				Library.importPicture(picturesToDisplay);
-    		}   		
-    		
-    	}
-		
+			}
+
+		}
+
+		/**
+		 * for shift ctrl
+		 */
 		public class KeysListener implements KeyListener {
 
 			public KeysListener() {
@@ -879,12 +897,15 @@ public class MainFrame extends JFrame {
 
 		}
 
-		public class keyStrokes implements  KeyListener {
+		/**
+		 * for tab and other shortcuts
+		 */
+		public class keyStrokes implements KeyListener {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_TAB) {
 
-					if(tagField.hasFocus()|| tagPanel.hasFocus()) {
+					if (tagField.hasFocus() || tagPanel.hasFocus()) {
 						searchField.requestFocus();
 					}
 
@@ -896,13 +917,14 @@ public class MainFrame extends JFrame {
 						picturePanel.requestFocus();
 					}
 
-					if(fileSystemTree.hasFocus())
-					{
+					if (fileSystemTree.hasFocus()) {
 						picturePanel.requestFocus();
 					}
 
-					if(allRadioButton.hasFocus()|| incompleteRadioButton.hasFocus()||taggedRadioButton.hasFocus()|| untaggedRadioButton.hasFocus())
-					{
+					if (allRadioButton.hasFocus()
+							|| incompleteRadioButton.hasFocus()
+							|| taggedRadioButton.hasFocus()
+							|| untaggedRadioButton.hasFocus()) {
 						tagField.requestFocus();
 						System.out.print("test ignore this if");
 					}
@@ -911,28 +933,35 @@ public class MainFrame extends JFrame {
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_T) {
 					tagField.requestFocus();
 				}
-				//TODO: Fix print shortcut, find graphic workaround
+				// TODO: Fix print shortcut, find graphic workaround
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 
 					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
 					PrinterJob printJob = PrinterJob.getPrinterJob();
 					printJob.setPrintable(new Printable() {
-						public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+						public int print(Graphics graphics,
+								PageFormat pageFormat, int pageIndex)
+								throws PrinterException {
 							if (pageIndex != 0) {
 								return NO_SUCH_PAGE;
 							}
-                            ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
-                            for (int i = 0; i < allSelectedPictures.size(); ++i) {
-                                try {
-                                    BufferedImage sourceImage;
-                                    sourceImage = ImageIO.read(allSelectedPictures.get(i).getImageFile());
-                                    graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+							ArrayList<Picture> allSelectedPictures = picturePanel
+									.getSelectedPictures();
+							for (int i = 0; i < allSelectedPictures.size(); ++i) {
+								try {
+									BufferedImage sourceImage;
+									sourceImage = ImageIO
+											.read(allSelectedPictures.get(i)
+													.getImageFile());
+									graphics.drawImage(sourceImage, 0, 0,
+											(int) pageFormat.getWidth(),
+											(int) pageFormat.getHeight(), null);
 
-                                } catch (IOException e) {
+								} catch (IOException e) {
 
-                                }
-                            }
+								}
+							}
 
 							return PAGE_EXISTS;
 						}
@@ -947,7 +976,6 @@ public class MainFrame extends JFrame {
 				}
 
 			}
-
 
 			@Override
 			public void keyTyped(KeyEvent e) {
@@ -967,101 +995,109 @@ public class MainFrame extends JFrame {
 		private class TagListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-                if (picturePanel.getThumbsOnDisplay().size() > 0) {
-                    ArrayList<Picture> picturesToTag = picturePanel
-                            .getSelectedPictures();
-                    if (picturesToTag.size() != 0) {
-                        for (Taggable t : Library.getTaggableComponentsList()) {
-                            if (tagField.getText().toLowerCase()
-                                    .equals(t.getName().toLowerCase())) {
-                                for (Picture p : picturesToTag) {
-                                    if (!p.getTag().getTaggedComponents()
-                                            .contains(t)) {
-                                        // if this is an area tag and pictures already
-                                        // has an area tag, replace it with new one
-                                        if ((t.getType() == Settings.AREA_TAG && p
-                                                .getTag().isAreaSet())) {
-                                            p.getTag().getArea().removeTaggedPicture(p);
-                                            p.getTag().removeTag(p.getTag().getArea());
-                                        }
-                                        p.getTag().addTag(t);
-                                        t.addTaggedPicture(p);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    createTagLabels();
-                }
-                tagField.setText("");
+				if (picturePanel.getThumbsOnDisplay().size() > 0) {
+					ArrayList<Picture> picturesToTag = picturePanel
+							.getSelectedPictures();
+					if (picturesToTag.size() != 0) {
+						for (Taggable t : Library.getTaggableComponentsList()) {
+							if (tagField.getText().toLowerCase()
+									.equals(t.getName().toLowerCase())) {
+								for (Picture p : picturesToTag) {
+									if (!p.getTag().getTaggedComponents()
+											.contains(t)) {
+										// if this is an area tag and pictures
+										// already
+										// has an area tag, replace it with new
+										// one
+										if ((t.getType() == Settings.AREA_TAG && p
+												.getTag().isAreaSet())) {
+											p.getTag().getArea()
+													.removeTaggedPicture(p);
+											p.getTag().removeTag(
+													p.getTag().getArea());
+										}
+										p.getTag().addTag(t);
+										t.addTaggedPicture(p);
+									}
+								}
+							}
+						}
+					}
+					createTagLabels();
+				}
+				tagField.setText("");
 			}
 		}
 
 		/**
 		 * Listener for the search suggestion field. When a selection is made,
-         * the tag being searched for is found in the full tag list. If it wasn't
-         * already searched for, a search label is added for it. If it is a room
-         * tag and a room has already been searched for, the previous room tag is
-         * removed before the new one is added. The method calls the refresh
-         * search method to update the display of pictures when search is made.
+		 * the tag being searched for is found in the full tag list. If it
+		 * wasn't already searched for, a search label is added for it. If it is
+		 * a room tag and a room has already been searched for, the previous
+		 * room tag is removed before the new one is added. The method calls the
+		 * refresh search method to update the display of pictures when search
+		 * is made.
 		 */
 		private class SearchListener implements ActionListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-                radioButtonGroup.setSelected(allRadioButton.getModel(), true);
+				radioButtonGroup.setSelected(allRadioButton.getModel(), true);
 
 				if (searchField.getText().equals("View All")) {
-                    currentSearchTags.clear();
+					currentSearchTags.clear();
 				} else {
-                    ArrayList<Taggable> allTaggableComponents = Library
-                            .getTaggableComponentsList();
+					ArrayList<Taggable> allTaggableComponents = Library
+							.getTaggableComponentsList();
 
-                    // gets text from GUI to a string
-                    String searchString = searchField.getText();
+					// gets text from GUI to a string
+					String searchString = searchField.getText();
 
-                    // loops over all taggable components
-                    for (int i = 0; i < allTaggableComponents.size(); ++i) {
-                        // if the search selection is a taggable component
-                        if (searchString.equalsIgnoreCase(allTaggableComponents
-                                .get(i).getName())) {
-                            // if there isn't already a search tag
-                            if (!currentSearchTags.contains(allTaggableComponents.get(i))) {
-                                // if the tag is a room
-                                if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
-                                    // check if a room is already tagged and needs to be replaced
-                                    Taggable toRemove = null;
-                                    for (Taggable t: currentSearchTags) {
-                                        if (t.getType() == Settings.AREA_TAG) {
-                                            toRemove = t;
-                                            break;
-                                        }
-                                    }
-                                    // if there already was a search tag for a room, remove it
-                                    if (toRemove != null) {
-                                        currentSearchTags.remove(toRemove);
-                                    }
-                                }
-                                // add the search label
-                                addSearchTag(allTaggableComponents.get(i));
-                                searchPanel.revalidate();
-                            }
-                        }
-                    }
+					// loops over all taggable components
+					for (int i = 0; i < allTaggableComponents.size(); ++i) {
+						// if the search selection is a taggable component
+						if (searchString.equalsIgnoreCase(allTaggableComponents
+								.get(i).getName())) {
+							// if there isn't already a search tag
+							if (!currentSearchTags
+									.contains(allTaggableComponents.get(i))) {
+								// if the tag is a room
+								if (allTaggableComponents.get(i).getType() == Settings.AREA_TAG) {
+									// check if a room is already tagged and
+									// needs to be replaced
+									Taggable toRemove = null;
+									for (Taggable t : currentSearchTags) {
+										if (t.getType() == Settings.AREA_TAG) {
+											toRemove = t;
+											break;
+										}
+									}
+									// if there already was a search tag for a
+									// room, remove it
+									if (toRemove != null) {
+										currentSearchTags.remove(toRemove);
+									}
+								}
+								// add the search label
+								addSearchTag(allTaggableComponents.get(i));
+								searchPanel.revalidate();
+							}
+						}
+					}
 				}
-                refreshSearch();
-                storedTagsPanel.removeTagLabels();
-                searchField.setText("");
+				refreshSearch();
+				storedTagsPanel.removeTagLabels();
+				searchField.setText("");
 			}
 		}
 
-        private class RadioButtonListener implements ActionListener {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                storedTagsPanel.removeTagLabels();
-                currentSearchTags.clear();
-                refreshSearch();
-                
+		private class RadioButtonListener implements ActionListener {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				storedTagsPanel.removeTagLabels();
+				currentSearchTags.clear();
+				refreshSearch();
+
 				ArrayList<Picture> picturesToDisplay = new ArrayList<Picture>();
 				ArrayList<Picture> allPicsInFolder = new ArrayList<Picture>();
 				if (tabbedPane.getSelectedIndex() == 0) {
@@ -1072,40 +1108,40 @@ public class MainFrame extends JFrame {
 					allPicsInFolder = Library.getLastVisitedVirtualDir();
 				}
 
-                if (Settings.LAST_VISITED_DIR != null) {
-                    if (e.getActionCommand().equals("TAGGED")) {
-                        for (Picture p : allPicsInFolder) {
-                            if (p.getTag().isFullyTagged()) {
-                                picturesToDisplay.add(p);
-                            }
-                        }
-                    } else if (e.getActionCommand().equals("UNTAGGED")) {
-                        for (Picture p : allPicsInFolder) {
-                            if (p.getTag().isUntagged()) {
-                                picturesToDisplay.add(p);
-                            }
-                        }
-                    } else if (e.getActionCommand().equals("INCOMPLETE")) {
-                        for (Picture p : allPicsInFolder) {
-                            if (p.getTag().isPartiallyTagged()) {
-                                picturesToDisplay.add(p);
-                            }
-                        }
-                    } else if (e.getActionCommand().equals("ALL")) {
-                        picturesToDisplay = allPicsInFolder;
-                    }
+				if (Settings.LAST_VISITED_DIR != null) {
+					if (e.getActionCommand().equals("TAGGED")) {
+						for (Picture p : allPicsInFolder) {
+							if (p.getTag().isFullyTagged()) {
+								picturesToDisplay.add(p);
+							}
+						}
+					} else if (e.getActionCommand().equals("UNTAGGED")) {
+						for (Picture p : allPicsInFolder) {
+							if (p.getTag().isUntagged()) {
+								picturesToDisplay.add(p);
+							}
+						}
+					} else if (e.getActionCommand().equals("INCOMPLETE")) {
+						for (Picture p : allPicsInFolder) {
+							if (p.getTag().isPartiallyTagged()) {
+								picturesToDisplay.add(p);
+							}
+						}
+					} else if (e.getActionCommand().equals("ALL")) {
+						picturesToDisplay = allPicsInFolder;
+					}
 
-                    picturePanel.removeAll();
-                    picturePanel.repaint();
-                    picturePanel.removeAllThumbsFromDisplay();
-                    for (Picture p : picturesToDisplay) {
-                        picturePanel.addThumbToDisplay(p.getPictureLabel());
-                    }
-                    Library.importPicture(picturesToDisplay);
-                }
-            }
-        }
-        
+					picturePanel.removeAll();
+					picturePanel.repaint();
+					picturePanel.removeAllThumbsFromDisplay();
+					for (Picture p : picturesToDisplay) {
+						picturePanel.addThumbToDisplay(p.getPictureLabel());
+					}
+					Library.importPicture(picturesToDisplay);
+				}
+			}
+		}
+
 		public class ThumbnailClickListener implements KeyListener {
 
 			@Override
@@ -1126,82 +1162,83 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-    private ArrayList<Picture> getAllSubPictures(File currentFolder) {
-        ArrayList<Picture> allSubPictures = new ArrayList<Picture>();
-        for (File f: currentFolder.listFiles()) {
+	private ArrayList<Picture> getAllSubPictures(File currentFolder) {
+		ArrayList<Picture> allSubPictures = new ArrayList<Picture>();
+		for (File f : currentFolder.listFiles()) {
 
-            if (f.isDirectory()) {
-                allSubPictures.addAll(getAllSubPictures(f));
-            }
-        }
-        if (Library.getDirectoryPictureMap().get(currentFolder) != null) {
-            allSubPictures.addAll(Library.getDirectoryPictureMap().get(currentFolder));
-        }
-        return allSubPictures;
-    }
+			if (f.isDirectory()) {
+				allSubPictures.addAll(getAllSubPictures(f));
+			}
+		}
+		if (Library.getDirectoryPictureMap().get(currentFolder) != null) {
+			allSubPictures.addAll(Library.getDirectoryPictureMap().get(
+					currentFolder));
+		}
+		return allSubPictures;
+	}
 
-    private void loadTagDeleteButton() {
-        try {
-            Library.DELETE_BUTTON = ImageIO.read(MainFrame.class.getResource("/images/delete_button.png"));
-        } catch (IOException e) {
-            //TODO: Handle exception
-        }
-    }
-	
+	private void loadTagDeleteButton() {
+		try {
+			Library.DELETE_BUTTON = ImageIO.read(MainFrame.class
+					.getResource("/images/delete_button.png"));
+		} catch (IOException e) {
+			// TODO: Handle exception
+		}
+	}
+
 	/*
 	 * Creates the File Tree Model
 	 */
 	private class SystemTreeModel implements TreeModel {
 
 		private File rootFile;
-        private ArrayList<TreeModelListener> listeners;
+		private ArrayList<TreeModelListener> listeners;
 
 		public SystemTreeModel(File rootFile) {
 			this.rootFile = rootFile;
-            listeners = new ArrayList<TreeModelListener>();
+			listeners = new ArrayList<TreeModelListener>();
 		}
 
 		@Override
 		public void addTreeModelListener(TreeModelListener l) {
-            if (l != null && !listeners.contains(l)) {
-                listeners.add(l);
-            }
+			if (l != null && !listeners.contains(l)) {
+				listeners.add(l);
+			}
 		}
 
-        private File[] getFiles(File parent) {
-            File[] files = parent.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File file) {
-                    return file.isDirectory();
-                }
-            });
-            if (files != null) {
-                return files;
-            }
-            else {
-                return new File[]{};
-            }
-        }
+		private File[] getFiles(File parent) {
+			File[] files = parent.listFiles(new FileFilter() {
+				@Override
+				public boolean accept(File file) {
+					return file.isDirectory();
+				}
+			});
+			if (files != null) {
+				return files;
+			} else {
+				return new File[] {};
+			}
+		}
 
-        @Override
-        public int getChildCount(Object parent) {
-            return getFiles((File) parent).length;
-        }
+		@Override
+		public int getChildCount(Object parent) {
+			return getFiles((File) parent).length;
+		}
 
-        @Override
-        public Object getChild(Object parent, int index) {
-            return getFiles((File) parent)[index];
-        }
+		@Override
+		public Object getChild(Object parent, int index) {
+			return getFiles((File) parent)[index];
+		}
 
-        @Override
-        public int getIndexOfChild(Object parent, Object child) {
-            File[] files = getFiles((File) parent);
-            for (int i = 0; i < files.length; ++i) {
-                if (files[i].equals(child))
-                    return i;
-            }
-            return -1;
-        }
+		@Override
+		public int getIndexOfChild(Object parent, Object child) {
+			File[] files = getFiles((File) parent);
+			for (int i = 0; i < files.length; ++i) {
+				if (files[i].equals(child))
+					return i;
+			}
+			return -1;
+		}
 
 		@Override
 		public Object getRoot() {
@@ -1210,15 +1247,15 @@ public class MainFrame extends JFrame {
 
 		@Override
 		public boolean isLeaf(Object node) {
-            File f = (File) node;
-            return !f.isDirectory();
+			File f = (File) node;
+			return !f.isDirectory();
 		}
 
 		@Override
 		public void removeTreeModelListener(TreeModelListener l) {
-            if (l != null) {
-                listeners.remove(l);
-            }
+			if (l != null) {
+				listeners.remove(l);
+			}
 
 		}
 
@@ -1228,126 +1265,133 @@ public class MainFrame extends JFrame {
 
 		}
 
-        public void fireTreeStructureChanged(TreeModelEvent e) {
-            for (TreeModelListener l: listeners) {
-                l.treeStructureChanged(e);
-            }
-        }
-
+		public void fireTreeStructureChanged(TreeModelEvent e) {
+			for (TreeModelListener l : listeners) {
+				l.treeStructureChanged(e);
+			}
+		}
 
 	}
 
-    /**
-     * Search label panel is cleared of all components and is
-     * reset using the list of current chosen tags to search by.
-     * Finally the thumbnail display is reset to show pictures
-     * which are tagged with all tags chosen in the search.
-     */
-    public void refreshSearch() {
-        if (picturePanel.getThumbsOnDisplay().size() > 0 || noPicturesFound) {
-            noPicturesFound = false;
-            ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
-            searchLabelPanel.removeAll();
-            searchLabelPanel.repaint();
+	/**
+	 * Search label panel is cleared of all components and is reset using the
+	 * list of current chosen tags to search by. Finally the thumbnail display
+	 * is reset to show pictures which are tagged with all tags chosen in the
+	 * search.
+	 */
+	public void refreshSearch() {
+		if (picturePanel.getThumbsOnDisplay().size() > 0 || noPicturesFound) {
+			noPicturesFound = false;
+			ArrayList<Picture> allPictureSet = new ArrayList<Picture>();
+			searchLabelPanel.removeAll();
+			searchLabelPanel.repaint();
 
-            picturePanel.removeAll();
-            picturePanel.revalidate();
+			picturePanel.removeAll();
+			picturePanel.revalidate();
 
-            // if there are no search tags
-            if (currentSearchTags.size() == 0) {
-                if (tabbedPane.getSelectedIndex() == 0) {
-                    allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
-                }
-                else {
-                    allPictureSet = Library.getLastVisitedVirtualDir();
-                }
-            }
-            else if (currentSearchTags.size() > 1) {
-                ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
-                for (int i = 0; i < currentSearchTags.size(); ++i) {
-                    searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(i), searchLabelPanel, MainFrame.this));
-                    allPictureListsList.add(currentSearchTags.get(i).getTaggedPictures());
-                }
-                // for every picture in the first picture list
-                for (Picture p : allPictureListsList.get(0)) {
-                    boolean pictureInAllLists = true;
-                    // if the picture is not in all tag lists set boolean to false
-                    for (int i = 1; i < allPictureListsList.size(); ++i) {
-                        if (!allPictureListsList.get(i).contains(p)) {
-                            pictureInAllLists = false;
-                        }
-                    }
-                    // if the picture is tagged with all search tags
-                    // and the new picture set does not already contain it
-                    if (pictureInAllLists && !allPictureSet.contains(p)) {
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            if (Settings.LAST_VISITED_DIR != null && p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                                allPictureSet.add(p);
-                            }
-                        }
-                        else {
-                            for (Picture p1: Library.getLastVisitedVirtualDir()) {
-                                if (p.getImagePath().equals(p1.getImagePath())) {
-                                    allPictureSet.add(p);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                ArrayList<Picture> newPictureSet = currentSearchTags.get(0).getTaggedPictures();
-                allPictureSet = new ArrayList<Picture>();
-                for (Picture p: newPictureSet) {
-                    if (tabbedPane.getSelectedIndex() == 0) {
-                        if (Settings.LAST_VISITED_DIR != null && p.getImagePath().startsWith(Settings.LAST_VISITED_DIR.getPath())) {
-                            allPictureSet.add(p);
-                        }
-                    }
-                    else {
-                        for (Picture p1: Library.getLastVisitedVirtualDir()) {
-                            if (p.getImagePath().equals(p1.getImagePath())) {
-                                allPictureSet.add(p);
-                                break;
-                            }
-                        }
-                    }
+			// if there are no search tags
+			if (currentSearchTags.size() == 0) {
+				if (tabbedPane.getSelectedIndex() == 0) {
+					allPictureSet = getAllSubPictures(Settings.LAST_VISITED_DIR);
+				} else {
+					allPictureSet = Library.getLastVisitedVirtualDir();
+				}
+			} else if (currentSearchTags.size() > 1) {
+				ArrayList<ArrayList<Picture>> allPictureListsList = new ArrayList<ArrayList<Picture>>();
+				for (int i = 0; i < currentSearchTags.size(); ++i) {
+					searchLabelPanel.add(new TagPanel.TagTextLabel(true,
+							currentSearchTags.get(i), searchLabelPanel,
+							MainFrame.this));
+					allPictureListsList.add(currentSearchTags.get(i)
+							.getTaggedPictures());
+				}
+				// for every picture in the first picture list
+				for (Picture p : allPictureListsList.get(0)) {
+					boolean pictureInAllLists = true;
+					// if the picture is not in all tag lists set boolean to
+					// false
+					for (int i = 1; i < allPictureListsList.size(); ++i) {
+						if (!allPictureListsList.get(i).contains(p)) {
+							pictureInAllLists = false;
+						}
+					}
+					// if the picture is tagged with all search tags
+					// and the new picture set does not already contain it
+					if (pictureInAllLists && !allPictureSet.contains(p)) {
+						if (tabbedPane.getSelectedIndex() == 0) {
+							if (Settings.LAST_VISITED_DIR != null
+									&& p.getImagePath()
+											.startsWith(
+													Settings.LAST_VISITED_DIR
+															.getPath())) {
+								allPictureSet.add(p);
+							}
+						} else {
+							for (Picture p1 : Library
+									.getLastVisitedVirtualDir()) {
+								if (p.getImagePath().equals(p1.getImagePath())) {
+									allPictureSet.add(p);
+									break;
+								}
+							}
+						}
+					}
+				}
+			} else {
+				ArrayList<Picture> newPictureSet = currentSearchTags.get(0)
+						.getTaggedPictures();
+				allPictureSet = new ArrayList<Picture>();
+				for (Picture p : newPictureSet) {
+					if (tabbedPane.getSelectedIndex() == 0) {
+						if (Settings.LAST_VISITED_DIR != null
+								&& p.getImagePath().startsWith(
+										Settings.LAST_VISITED_DIR.getPath())) {
+							allPictureSet.add(p);
+						}
+					} else {
+						for (Picture p1 : Library.getLastVisitedVirtualDir()) {
+							if (p.getImagePath().equals(p1.getImagePath())) {
+								allPictureSet.add(p);
+								break;
+							}
+						}
+					}
 
-                }
-                searchLabelPanel.add(new TagPanel.TagTextLabel(true, currentSearchTags.get(0), searchLabelPanel, MainFrame.this));
-            }
+				}
+				searchLabelPanel.add(new TagPanel.TagTextLabel(true,
+						currentSearchTags.get(0), searchLabelPanel,
+						MainFrame.this));
+			}
 
-            if (Settings.IMPORT_IN_PROGRESS) {
-                for (Thread t: Library.getRunningThreads()) {
-                    if (t != null) {
-                        t.interrupt();
-                    }
-                }
-            }
-            searchLabelPanel.repaint();
-            picturePanel.removeAllThumbsFromDisplay();
-            if (allPictureSet.size() == 0) {
-                noPicturesFound = true;
-            }
-            else {
-                for (Picture p : allPictureSet) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
-                }
-            }
-            Library.importPicture(allPictureSet);
-        }
-    }
+			if (Settings.IMPORT_IN_PROGRESS) {
+				for (Thread t : Library.getRunningThreads()) {
+					if (t != null) {
+						t.interrupt();
+					}
+				}
+			}
+			searchLabelPanel.repaint();
+			picturePanel.removeAllThumbsFromDisplay();
+			if (allPictureSet.size() == 0) {
+				noPicturesFound = true;
+			} else {
+				for (Picture p : allPictureSet) {
+					picturePanel.addThumbToDisplay(p.getPictureLabel());
+				}
+			}
+			Library.importPicture(allPictureSet);
+		}
+	}
 
-    public void addSearchTag(Taggable t) {
-        if (!currentSearchTags.contains(t)) {
-            currentSearchTags.add(t);
-        }
-    }
+	public void addSearchTag(Taggable t) {
+		if (!currentSearchTags.contains(t)) {
+			currentSearchTags.add(t);
+		}
+	}
 
-    public void removeSearchTag(Taggable t) {
-            currentSearchTags.remove(t);
-    }
+	public void removeSearchTag(Taggable t) {
+		currentSearchTags.remove(t);
+	}
 
 	/**
 	 * Gets the MainFrame objects. In general a list with one window - the app
@@ -1370,17 +1414,18 @@ public class MainFrame extends JFrame {
 		shiftIsPressed = false;
 		controlIsPressed = false;
 	}
-	
+
 	public void createTagLabels() {
 		storedTagsPanel.resetTagLabels();
 	}
-	
+
 	private void createVirtualTree() {
 		virtualTreePanel.removeAll();
 		virtualTreeDatesList = new ArrayList<String>();
-		if(!Library.getPictureLibrary().isEmpty()) {
-			for(int i = 0;i < Library.getPictureLibrary().size();i++){
-				virtualTreeDatesList.add(Library.getFormattedDate(Library.getPictureLibrary().get(i).getTag().getDate()));
+		if (!Library.getPictureLibrary().isEmpty()) {
+			for (int i = 0; i < Library.getPictureLibrary().size(); i++) {
+				virtualTreeDatesList.add(Library.getFormattedDate(Library
+						.getPictureLibrary().get(i).getTag().getDate()));
 			}
 			virtualTree = new VirtualTree(virtualTreeDatesList);
 		} else {
@@ -1392,10 +1437,11 @@ public class MainFrame extends JFrame {
 		virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 		virtualTree.updateTreeModel();
 	}
-	
+
 	/**
-	 * Automatically saves the picture library ArrayList, the taggable components ArrayList, the Nursery Location and
-	 * the Pictures home directory, when the application is closed.
+	 * Automatically saves the picture library ArrayList, the taggable
+	 * components ArrayList, the Nursery Location and the Pictures home
+	 * directory, when the application is closed.
 	 */
 	private void saveData() {
 		this.addWindowListener(new WindowListener() {
@@ -1416,8 +1462,8 @@ public class MainFrame extends JFrame {
 				saveAllTaggableComponents();
 				saveNurseryLocation();
 				savePicturesHomeDIR();
-                saveLastVisitedDIR();
-                saveDirectoryFileMap();
+				saveLastVisitedDIR();
+				saveDirectoryFileMap();
 			}
 
 			public void windowClosed(WindowEvent e) {
@@ -1428,8 +1474,10 @@ public class MainFrame extends JFrame {
 		});
 	}
 
-    // returns searchField
-    public JSuggestField getSearchField(){ return searchField; }
+	// returns searchField
+	public JSuggestField getSearchField() {
+		return searchField;
+	}
 
 	// returns CenterPanel
 	public JPanel getCenterPanel() {
@@ -1445,17 +1493,16 @@ public class MainFrame extends JFrame {
 		return picturePanel;
 	}
 
-    public int getSidePanelsWidth() {
-        return eastPanel.getWidth() + westPanel.getWidth();
-    }
+	public int getSidePanelsWidth() {
+		return eastPanel.getWidth() + westPanel.getWidth();
+	}
 
-    public JPanel getSearchPanel() {
-        return searchPanel;
-    }
+	public JPanel getSearchPanel() {
+		return searchPanel;
+	}
 
 	/* returns true if a pictureLabel is in view in the scroll pane */
-	public static boolean isInView(PictureLabel thumbnail,
-			Rectangle currentView) {
+	public static boolean isInView(PictureLabel thumbnail, Rectangle currentView) {
 
 		if (thumbnail.getBounds().intersects(currentView)) {
 			return true;
@@ -1489,7 +1536,7 @@ public class MainFrame extends JFrame {
 	 */
 
 	public int getZoomValue() {
-		return zoomSlider.getValue();
+		return zoomSlider.getMaximum() - zoomSlider.getValue();
 	}
 
 	/*
@@ -1499,7 +1546,7 @@ public class MainFrame extends JFrame {
 		try {
 			FileOutputStream savedPictureLibraryFile = new FileOutputStream(
 					"savedPictureLibrary.ser");
-            FSTObjectOutput savedPictureLibraryObject = new FSTObjectOutput(
+			FSTObjectOutput savedPictureLibraryObject = new FSTObjectOutput(
 					savedPictureLibraryFile);
 			savedPictureLibraryObject.writeObject(Library.getPictureLibrary());
 			savedPictureLibraryObject.close();
@@ -1511,17 +1558,18 @@ public class MainFrame extends JFrame {
 		}
 		Library.deletePictureLibrary();
 	}
-	
+
 	/*
 	 * Saves the taggable components ArrayList.
 	 */
 	private void saveAllTaggableComponents() {
-		try{
+		try {
 			FileOutputStream savedAllTaggableComponentSFile = new FileOutputStream(
 					"savedAllTaggableComponents.ser");
-            FSTObjectOutput savedAllTaggableComponentsObject = new FSTObjectOutput(
+			FSTObjectOutput savedAllTaggableComponentsObject = new FSTObjectOutput(
 					savedAllTaggableComponentSFile);
-			savedAllTaggableComponentsObject.writeObject(Library.getTaggableComponentsList());
+			savedAllTaggableComponentsObject.writeObject(Library
+					.getTaggableComponentsList());
 			savedAllTaggableComponentsObject.close();
 			System.out.println("All Taggable Components Saved");
 		} catch (FileNotFoundException ex1) {
@@ -1529,16 +1577,18 @@ public class MainFrame extends JFrame {
 		} catch (IOException ex2) {
 			ex2.printStackTrace();
 		}
-		Library.deleteTaggableComponentsList();	
+		Library.deleteTaggableComponentsList();
 	}
-	
+
 	/*
 	 * Saves the NurseryLocation.
 	 */
 	private void saveNurseryLocation() {
-		try{
-			FileOutputStream savedNurseryLocation = new FileOutputStream("savedNurseryLocation.ser");
-            FSTObjectOutput savedNurseryLocationObject = new FSTObjectOutput(savedNurseryLocation);
+		try {
+			FileOutputStream savedNurseryLocation = new FileOutputStream(
+					"savedNurseryLocation.ser");
+			FSTObjectOutput savedNurseryLocationObject = new FSTObjectOutput(
+					savedNurseryLocation);
 			savedNurseryLocationObject.writeObject(Settings.NURSERY_LOCATION);
 			savedNurseryLocationObject.close();
 			System.out.println("Nursery Location Saved");
@@ -1549,14 +1599,16 @@ public class MainFrame extends JFrame {
 		}
 		Settings.NURSERY_LOCATION = "";
 	}
-	
+
 	/*
 	 * Saves the pictures Home Directory.
 	 */
 	private void savePicturesHomeDIR() {
-		try{
-			FileOutputStream savedPicturesHomeDIR = new FileOutputStream("savedPicturesHomeDIR.ser");
-            FSTObjectOutput savedPicturesHomeDIRObject = new FSTObjectOutput(savedPicturesHomeDIR);
+		try {
+			FileOutputStream savedPicturesHomeDIR = new FileOutputStream(
+					"savedPicturesHomeDIR.ser");
+			FSTObjectOutput savedPicturesHomeDIRObject = new FSTObjectOutput(
+					savedPicturesHomeDIR);
 			savedPicturesHomeDIRObject.writeObject(Settings.PICTURE_HOME_DIR);
 			savedPicturesHomeDIRObject.close();
 			System.out.println("Pictures Home Directory Saved");
@@ -1568,53 +1620,63 @@ public class MainFrame extends JFrame {
 		Settings.PICTURE_HOME_DIR = null;
 	}
 
-    /*
+	/*
 	 * Saves the last visited Directory.
 	 */
-    private void saveLastVisitedDIR() {
-        try{
-            FileOutputStream savedLastVisitedDIR = new FileOutputStream("savedLastVisitedDIR.ser");
-            FSTObjectOutput savedLastVisitedDIRObject = new FSTObjectOutput(savedLastVisitedDIR);
-            savedLastVisitedDIRObject.writeObject(Settings.LAST_VISITED_PATH);
-            savedLastVisitedDIRObject.close();
-            System.out.println("Last Visited Directory Saved");
-        } catch (FileNotFoundException ex1) {
-            ex1.printStackTrace();
-        } catch (IOException ex2) {
-            ex2.printStackTrace();
-        }
-        Settings.LAST_VISITED_PATH = null;
-    }
+	private void saveLastVisitedDIR() {
+		try {
+			FileOutputStream savedLastVisitedDIR = new FileOutputStream(
+					"savedLastVisitedDIR.ser");
+			FSTObjectOutput savedLastVisitedDIRObject = new FSTObjectOutput(
+					savedLastVisitedDIR);
+			savedLastVisitedDIRObject.writeObject(Settings.LAST_VISITED_PATH);
+			savedLastVisitedDIRObject.close();
+			System.out.println("Last Visited Directory Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Settings.LAST_VISITED_PATH = null;
+	}
 
-    /*
+	/*
 	 * Saves the directory file hashmap.
 	 */
-    private void saveDirectoryFileMap() {
-        try{
-            FileOutputStream savedDirectoryFileMap = new FileOutputStream("savedDirectoryFileMap.ser");
-            FSTObjectOutput savedDirectoryFileMapObject = new FSTObjectOutput(savedDirectoryFileMap);
-            savedDirectoryFileMapObject.writeObject(Library.getDirectoryPictureMap());
-            savedDirectoryFileMapObject.close();
-            System.out.println("Directory File Map Saved");
-        } catch (FileNotFoundException ex1) {
-            ex1.printStackTrace();
-        } catch (IOException ex2) {
-            ex2.printStackTrace();
-        }
-        Library.setDirectoryPictureMap(null);
-    }
-	
+	private void saveDirectoryFileMap() {
+		try {
+			FileOutputStream savedDirectoryFileMap = new FileOutputStream(
+					"savedDirectoryFileMap.ser");
+			FSTObjectOutput savedDirectoryFileMapObject = new FSTObjectOutput(
+					savedDirectoryFileMap);
+			savedDirectoryFileMapObject.writeObject(Library
+					.getDirectoryPictureMap());
+			savedDirectoryFileMapObject.close();
+			System.out.println("Directory File Map Saved");
+		} catch (FileNotFoundException ex1) {
+			ex1.printStackTrace();
+		} catch (IOException ex2) {
+			ex2.printStackTrace();
+		}
+		Library.setDirectoryPictureMap(null);
+	}
+
 	/*
 	 * Returns the saved Picture Library ArrayList.
 	 */
 	private void getSavedPictureLibrary() {
 		try {
-			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
-            FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
-			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
+			FileInputStream savedPictureLibraryFile = new FileInputStream(
+					"savedPictureLibrary.ser");
+			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(
+					savedPictureLibraryFile);
+			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject
+					.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-				Picture recreatedPicture = new Picture(new File(savedPictureLibraryData.get(i).getImagePath()));
-				recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
+				Picture recreatedPicture = new Picture(new File(
+						savedPictureLibraryData.get(i).getImagePath()));
+				recreatedPicture
+						.setTag(savedPictureLibraryData.get(i).getTag());
 				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
 				savedPictures.add(recreatedPicture);
 				Library.getPictureLibrary().add(recreatedPicture);
@@ -1624,103 +1686,120 @@ public class MainFrame extends JFrame {
 			exception.printStackTrace();
 		} catch (ClassNotFoundException ex2) {
 			ex2.printStackTrace();
-		}  catch (IOException ex1) {
+		} catch (IOException ex1) {
 			System.out.println("File savedPictureLibrary.ser not found!");
 		}
 	}
-	
+
 	/*
 	 * Returns the saved taggable components ArrayList.
 	 */
 	private void getSavedTaggableComponents() {
-		try{
-			FileInputStream savedTaggableComponents = new FileInputStream("savedAllTaggableComponents.ser");
-            FSTObjectInput restoredTaggableComponentsObject = new FSTObjectInput(savedTaggableComponents);
-			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject.readObject();
-			for(int i = 0; i < savedTaggableComponentsData.size(); i++) {
-				Library.getTaggableComponentsList().add(savedTaggableComponentsData.get(i));
+		try {
+			FileInputStream savedTaggableComponents = new FileInputStream(
+					"savedAllTaggableComponents.ser");
+			FSTObjectInput restoredTaggableComponentsObject = new FSTObjectInput(
+					savedTaggableComponents);
+			ArrayList<Taggable> savedTaggableComponentsData = (ArrayList<Taggable>) restoredTaggableComponentsObject
+					.readObject();
+			for (int i = 0; i < savedTaggableComponentsData.size(); i++) {
+				Library.getTaggableComponentsList().add(
+						savedTaggableComponentsData.get(i));
 			}
 			restoredTaggableComponentsObject.close();
 		} catch (EOFException ex) {
 			ex.printStackTrace();
 		} catch (ClassNotFoundException ex2) {
 			ex2.printStackTrace();
-		}  catch (IOException ex1) {
-			System.out.println("File savedAllTaggableComponents.ser not found!");
+		} catch (IOException ex1) {
+			System.out
+					.println("File savedAllTaggableComponents.ser not found!");
 		}
 	}
-	
+
 	/*
 	 * Returns the saved Nursery Location.
 	 */
 	private void getSavedNurseryLocation() {
-		try{
-			FileInputStream savedNurseryName = new FileInputStream("savedNurseryLocation.ser");
-            FSTObjectInput restoredNurseryName = new FSTObjectInput(savedNurseryName);
-			Settings.NURSERY_LOCATION = (String)restoredNurseryName.readObject();
+		try {
+			FileInputStream savedNurseryName = new FileInputStream(
+					"savedNurseryLocation.ser");
+			FSTObjectInput restoredNurseryName = new FSTObjectInput(
+					savedNurseryName);
+			Settings.NURSERY_LOCATION = (String) restoredNurseryName
+					.readObject();
 			restoredNurseryName.close();
 		} catch (EOFException ex) {
 			ex.printStackTrace();
 		} catch (ClassNotFoundException ex2) {
 			ex2.printStackTrace();
-		}  catch (IOException ex1) {
+		} catch (IOException ex1) {
 			System.out.println("File savedNurseryLocation.ser not found!");
 		}
 	}
-	
+
 	/*
 	 * Returns the saved Pictures Home Directory.
 	 */
 	private void getSavedPicturesHomeDIR() {
-		try{
-			FileInputStream savedPicturesHomeDIR = new FileInputStream("savedPicturesHomeDIR.ser");
-            FSTObjectInput restoredPicturesHomeDIR = new FSTObjectInput(savedPicturesHomeDIR);
-			Settings.PICTURE_HOME_DIR = (File)restoredPicturesHomeDIR.readObject();
+		try {
+			FileInputStream savedPicturesHomeDIR = new FileInputStream(
+					"savedPicturesHomeDIR.ser");
+			FSTObjectInput restoredPicturesHomeDIR = new FSTObjectInput(
+					savedPicturesHomeDIR);
+			Settings.PICTURE_HOME_DIR = (File) restoredPicturesHomeDIR
+					.readObject();
 			restoredPicturesHomeDIR.close();
 		} catch (EOFException ex) {
 			ex.printStackTrace();
 		} catch (ClassNotFoundException ex2) {
 			ex2.printStackTrace();
-		}  catch (IOException ex1) {
+		} catch (IOException ex1) {
 			System.out.println("File savedPicturesHomeDIR.ser not found!");
 		}
 	}
 
-    /*
+	/*
 	 * Returns the saved last visited directory.
 	 */
-    private void getSavedLastVisitedDIR() {
-        try{
-            FileInputStream savedLastVisitedDIR = new FileInputStream("savedLastVisitedDIR.ser");
-            FSTObjectInput restoredLastVisitedDIR = new FSTObjectInput(savedLastVisitedDIR);
-            Settings.LAST_VISITED_PATH = (TreePath) restoredLastVisitedDIR.readObject();
-            restoredLastVisitedDIR.close();
-        } catch (EOFException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex2) {
-            ex2.printStackTrace();
-        }  catch (IOException ex1) {
-            System.out.println("File savedLastVisitedDIR.ser not found!");
-        }
-    }
+	private void getSavedLastVisitedDIR() {
+		try {
+			FileInputStream savedLastVisitedDIR = new FileInputStream(
+					"savedLastVisitedDIR.ser");
+			FSTObjectInput restoredLastVisitedDIR = new FSTObjectInput(
+					savedLastVisitedDIR);
+			Settings.LAST_VISITED_PATH = (TreePath) restoredLastVisitedDIR
+					.readObject();
+			restoredLastVisitedDIR.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		} catch (IOException ex1) {
+			System.out.println("File savedLastVisitedDIR.ser not found!");
+		}
+	}
 
-    /*
+	/*
 	 * Returns the saved directory file hashmap.
 	 */
-    private void getSavedDirectoryFileMap() {
-        try{
-            FileInputStream savedDirectoryFileMap = new FileInputStream("savedDirectoryFileMap.ser");
-            FSTObjectInput restoredDirectoryFileMap = new FSTObjectInput(savedDirectoryFileMap);
-            Library.setDirectoryPictureMap((Map<File, ArrayList<Picture>>) restoredDirectoryFileMap.readObject());
-            restoredDirectoryFileMap.close();
-        } catch (EOFException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex2) {
-            ex2.printStackTrace();
-        }  catch (IOException ex1) {
-            System.out.println("File savedDirectoryFileMap.ser not found!");
-        }
-    }
+	private void getSavedDirectoryFileMap() {
+		try {
+			FileInputStream savedDirectoryFileMap = new FileInputStream(
+					"savedDirectoryFileMap.ser");
+			FSTObjectInput restoredDirectoryFileMap = new FSTObjectInput(
+					savedDirectoryFileMap);
+			Library.setDirectoryPictureMap((Map<File, ArrayList<Picture>>) restoredDirectoryFileMap
+					.readObject());
+			restoredDirectoryFileMap.close();
+		} catch (EOFException ex) {
+			ex.printStackTrace();
+		} catch (ClassNotFoundException ex2) {
+			ex2.printStackTrace();
+		} catch (IOException ex1) {
+			System.out.println("File savedDirectoryFileMap.ser not found!");
+		}
+	}
 
 	public static void main(String[] args) {
 

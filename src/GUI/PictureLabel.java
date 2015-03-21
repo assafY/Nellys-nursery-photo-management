@@ -186,6 +186,43 @@ public class PictureLabel extends JLabel{
     public boolean isFirstDrag() {
         return firstDrag;
     }
+    
+    public void setSelected() {
+    	if (picturePanel.isShiftPressed()) {
+            picturePanel.shiftMouseClick(PictureLabel.this);
+        }
+        else {
+            if (!picturePanel.isControlPressed()) {
+                picturePanel.removeAllSelectedThumbs();
+            }
+
+            if (isSelected) {
+                picturePanel.removeSelectedThumb(PictureLabel.this);
+                picturePanel.setMostRecentSelection(null);
+                picturePanel.refresh();
+                picturePanel.createTagLabels();
+                if (!picturePanel.isControlPressed()) {
+                    toggleSelection();
+                }
+            } else {
+                picturePanel.addSelectedThumb(PictureLabel.this);
+                picturePanel.setMostRecentSelection(PictureLabel.this);
+                picturePanel.refresh();
+                picturePanel.createTagLabels();
+            }
+            toggleSelection();
+        }
+    }
+    
+    public void openFullScreen() {
+    	PictureLabel.this.setAsOnlySelection();
+    	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());
+		picturePanel.getCenterPanel().removeAll();
+		picturePanel.getCenterPanel().add(frame,BorderLayout.CENTER);
+		picturePanel.getCenterPanel().revalidate();
+		picturePanel.getCenterPanel().repaint();
+		picturePanel.getMainFrame().releaseKeys();
+    }
 
     public class ThumbnailMouseListener extends MouseAdapter {
 
@@ -204,40 +241,10 @@ public class PictureLabel extends JLabel{
             }
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
-
-                if (picturePanel.isShiftPressed()) {
-                    picturePanel.shiftMouseClick(PictureLabel.this);
-                }
-                else {
-                    if (!picturePanel.isControlPressed()) {
-                        picturePanel.removeAllSelectedThumbs();
-                    }
-
-                    if (isSelected) {
-                        picturePanel.removeSelectedThumb(PictureLabel.this);
-                        picturePanel.setMostRecentSelection(null);
-                        picturePanel.refresh();
-                        picturePanel.createTagLabels();
-                        if (!picturePanel.isControlPressed()) {
-                            toggleSelection();
-                        }
-                    } else {
-                        picturePanel.addSelectedThumb(PictureLabel.this);
-                        picturePanel.setMostRecentSelection(PictureLabel.this);
-                        picturePanel.refresh();
-                        picturePanel.createTagLabels();
-                    }
-                    toggleSelection();
-                }
+            	setSelected();
             }
             else if (clickCount == 2) {
-            	PictureLabel.this.setAsOnlySelection();
-            	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());
-				picturePanel.getCenterPanel().removeAll();
-				picturePanel.getCenterPanel().add(frame,BorderLayout.CENTER);
-				picturePanel.getCenterPanel().revalidate();
-				picturePanel.getCenterPanel().repaint();
-				picturePanel.getMainFrame().releaseKeys();
+            	openFullScreen();
             }
         }
 
