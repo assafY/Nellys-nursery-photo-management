@@ -1629,21 +1629,22 @@ public class MainFrame extends JFrame {
 	private void getSavedPictureLibrary() {
 		try {
 			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
-            FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
+			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
 			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-				Picture recreatedPicture = new Picture(new File(savedPictureLibraryData.get(i).getImagePath()));
-				recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
-				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
-				savedPictures.add(recreatedPicture);
-				Library.getPictureLibrary().add(recreatedPicture);
+				File savedFile = new File(savedPictureLibraryData.get(i).getImagePath());
+				if (savedFile.exists()) {
+					Picture recreatedPicture = new Picture(savedFile);
+					recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
+					Library.getPictureLibrary().add(savedPictureLibraryData.get(i));
+				}
 			}
 			restoredPictureLibraryObject.close();
 		} catch (EOFException exception) {
 			exception.printStackTrace();
 		} catch (ClassNotFoundException ex2) {
 			ex2.printStackTrace();
-		}  catch (IOException ex1) {
+		} catch (IOException ex1) {
 			System.out.println("File savedPictureLibrary.ser not found!");
 		}
 	}
