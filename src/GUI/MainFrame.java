@@ -39,13 +39,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import javafx.stage.FileChooser;
-
 import javax.imageio.ImageIO;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -383,11 +382,11 @@ public class MainFrame extends JFrame {
             optionsButton = new JButton("Options");
             optionsButton.setFont(biggerFont);
 			rotateButton = new JButton("Rotate");
-            rotateButton.setFont(biggerFont);
+			rotateButton.setFont(biggerFont);
 			deleteButton = new JButton("Delete");
             deleteButton.setFont(biggerFont);
 			printButton = new JButton("Print");
-            printButton.setFont(biggerFont);
+			printButton.setFont(biggerFont);
 
             if (Settings.PICTURE_HOME_DIR != null) {
                 fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
@@ -560,6 +559,15 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				OptionsFrame optionsFrame = new OptionsFrame();
 				optionsFrame.setVisible(true);
+			}
+		});
+		
+		/*
+		 * Print pictures.
+		 */
+		printButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				printPictures();
 			}
 		});
 		
@@ -910,38 +918,8 @@ public class MainFrame extends JFrame {
 				//TODO: Fix print shortcut, find graphic workaround
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
-
-					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-					PrinterJob printJob = PrinterJob.getPrinterJob();
-					printJob.setPrintable(new Printable() {
-						public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-							if (pageIndex != 0) {
-								return NO_SUCH_PAGE;
-							}
-                            ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
-                            for (int i = 0; i < allSelectedPictures.size(); ++i) {
-                                try {
-                                    BufferedImage sourceImage;
-                                    sourceImage = ImageIO.read(allSelectedPictures.get(i).getImageFile());
-                                    graphics.drawImage(sourceImage,0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
-
-                                } catch (IOException e) {
-
-                                }
-                            }
-
-							return PAGE_EXISTS;
-						}
-					});
-
-					if (printJob.printDialog(aset))
-						try {
-							printJob.print(aset);
-						} catch (PrinterException e1) {
-							e1.printStackTrace();
-						}
+					printPictures();
 				}
-
 			}
 
 
@@ -1387,6 +1365,42 @@ public class MainFrame extends JFrame {
 		virtualTreeScrollPane = new JScrollPane(virtualTree);
 		virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 		virtualTree.updateTreeModel();
+	}
+	
+	private void printPictures() {
+		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+		PrinterJob printJob = PrinterJob.getPrinterJob();
+		ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+        for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
+        	if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+        		allSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i).getPicture());
+        	}
+        }
+		printJob.setPrintable(new Printable() {
+			public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+				System.out.println(allSelectedPictures.size());
+				if(pageIndex < (allSelectedPictures.size() / 2)) {
+					try {
+						//System.out.println(pageIndex);
+						graphics.drawImage(ImageIO.read(new File(allSelectedPictures.get(pageIndex).getImagePath())),0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+               	 return PAGE_EXISTS;
+				}
+				else {
+					return NO_SUCH_PAGE;
+				}
+			}
+		});
+
+		if (printJob.printDialog(aset))
+			try {
+				printJob.print(aset);
+			} catch (PrinterException e1) {
+				e1.printStackTrace();
+			}
 	}
 	
 	/**

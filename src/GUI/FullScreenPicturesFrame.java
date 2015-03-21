@@ -2,6 +2,7 @@ package GUI;
 
 import Core.Library;
 import Data.Picture;
+
 import org.imgscalr.Scalr;
 
 import javax.imageio.IIOImage;
@@ -13,6 +14,7 @@ import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -100,9 +102,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the buttons.
 	 */
 	private void createButtons() {
-		rotateLeftButton = new JButton("RotateLeft");
-		rotateRightButton = new JButton("RotateRight");
-		previousButton = new JButton("previous");
+		rotateLeftButton = new JButton("Rotate Left");
+		rotateRightButton = new JButton("Rotate Right");
+		previousButton = new JButton("Previous");
 		nextButton = new JButton("Next");
 	}
 	
@@ -309,7 +311,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         if(!writersBySuffix.hasNext()){
             throw new IllegalStateException("No writers");
         }
-
         ImageWriter writer = (ImageWriter) writersBySuffix.next();
         ImageWriteParam imageWriteParam = writer.getDefaultWriteParam();
         imageWriteParam.setCompressionMode(ImageWriteParam.MODE_COPY_FROM_METADATA);
