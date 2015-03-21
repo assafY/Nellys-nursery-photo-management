@@ -883,42 +883,7 @@ public class MainFrame extends JFrame {
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
 
-					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-					PrinterJob printJob = PrinterJob.getPrinterJob();
-					printJob.setPrintable(new Printable() {
-						public int print(Graphics graphics,
-								PageFormat pageFormat, int pageIndex)
-								throws PrinterException {
-							if (pageIndex != 0) {
-								return NO_SUCH_PAGE;
-							}
-							ArrayList<Picture> allSelectedPictures = picturePanel
-									.getSelectedPictures();
-							for (int i = 0; i < allSelectedPictures.size(); ++i) {
-								try {
-									BufferedImage sourceImage;
-									sourceImage = ImageIO
-											.read(allSelectedPictures.get(i)
-													.getImageFile());
-									graphics.drawImage(sourceImage, 0, 0,
-											(int) pageFormat.getWidth(),
-											(int) pageFormat.getHeight(), null);
-
-								} catch (IOException e) {
-
-								}
-							}
-
-							return PAGE_EXISTS;
-						}
-					});
-
-					if (printJob.printDialog(aset))
-						try {
-							printJob.print(aset);
-						} catch (PrinterException e1) {
-							e1.printStackTrace();
-						}
+					printPictures();
 				}
 
 			}
@@ -1384,6 +1349,42 @@ public class MainFrame extends JFrame {
 		virtualTree.updateTreeModel();
 	}
 
+	private void printPictures() {
+		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+		PrinterJob printJob = PrinterJob.getPrinterJob();
+		ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+        for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
+        	if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+        		allSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i).getPicture());
+        	}
+        }
+		printJob.setPrintable(new Printable() {
+			public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+				System.out.println(allSelectedPictures.size());
+				if(pageIndex < (allSelectedPictures.size() / 2)) {
+					try {
+						//System.out.println(pageIndex);
+						graphics.drawImage(ImageIO.read(new File(allSelectedPictures.get(pageIndex).getImagePath())),0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+               	 return PAGE_EXISTS;
+				}
+				else {
+					return NO_SUCH_PAGE;
+				}
+			}
+		});
+
+		if (printJob.printDialog(aset))
+			try {
+				printJob.print(aset);
+			} catch (PrinterException e1) {
+				e1.printStackTrace();
+			}
+	}
+	
 	/**
 	 * Automatically saves the picture library ArrayList, the taggable
 	 * components ArrayList, the Nursery Location and the Pictures home
