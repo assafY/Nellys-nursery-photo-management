@@ -1,6 +1,81 @@
 package GUI;
 
-import javax.swing.tree.*;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
+import java.awt.Adjustable;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 import Core.Library;
 import Core.Settings;
@@ -9,73 +84,11 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Rectangle;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
-
-import javax.imageio.ImageIO;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
-
-import javax.swing.filechooser.FileSystemView;
-import java.awt.image.BufferedImage;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 
 
 
 public class MainFrame extends JFrame {
-	// menu bar component declaration
-	private MenuBar menuBar = new MenuBar();
-	Menu fileMenu;
-	Menu editMenu;
-	Menu toolsMenu;
-	Menu helpMenu;
-	MenuItem impMenuItem;
-	MenuItem expMenuItem;
-	MenuItem backupMenuItem;
-	MenuItem exitMenuItem;
-	MenuItem rotateMenuItem;
-	MenuItem resizeMenuItem;
-	MenuItem cropMenuItem;
-	MenuItem selMenuItem;
-	MenuItem tagMenuItem;
-	MenuItem deleteMenuItem;
-	MenuItem printMenuItem;
-
+	
 	// root panel declaration
 	private JPanel mainPanel;
 
@@ -99,7 +112,7 @@ public class MainFrame extends JFrame {
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
 	private JButton exportButton;
-	private JButton backupButton;
+	private JButton optionsButton;
 	private JButton rotateButton;
 	private JButton deleteButton;
 	private JButton printButton;
@@ -152,7 +165,6 @@ public class MainFrame extends JFrame {
         startUpChecks();
         loadTaggableComponents();
         loadTagDeleteButton();
-		createMenuBar();
 		createPanels();
 		addListeners();
 		createVirtualTree();
@@ -288,61 +300,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void createMenuBar() {
-
-		// menu bar component assignment
-		fileMenu = new Menu("File");
-		editMenu = new Menu("Edit");
-		toolsMenu = new Menu("Tools");
-		helpMenu = new Menu("Help");
-		impMenuItem = new MenuItem("Import");
-		expMenuItem = new MenuItem("Export");
-		backupMenuItem = new MenuItem("Backup");
-		exitMenuItem = new MenuItem("Exit");
-		rotateMenuItem = new MenuItem("Rotate");
-		resizeMenuItem = new MenuItem("Resize");
-		cropMenuItem = new MenuItem("Crop");
-		selMenuItem = new MenuItem("Select");
-		tagMenuItem = new MenuItem("Tag");
-		deleteMenuItem = new MenuItem("Delete");
-		printMenuItem = new MenuItem("Print");
-
-		menuBar.add(fileMenu);
-		fileMenu.add(impMenuItem);
-		fileMenu.add(backupMenuItem);
-		fileMenu.add(expMenuItem);
-		fileMenu.addSeparator();
-		fileMenu.add(exitMenuItem);
-		
-		MenuItem asdfg = new MenuItem("Options");
-		asdfg.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new OptionsFrame();
-
-			}
-		});
-
-		toolsMenu.add(asdfg);
-
-		menuBar.add(editMenu);
-		editMenu.add(rotateMenuItem);
-		editMenu.add(resizeMenuItem);
-		editMenu.add(cropMenuItem);
-
-		menuBar.add(toolsMenu);
-		toolsMenu.add(selMenuItem);
-		toolsMenu.add(tagMenuItem);
-		toolsMenu.add(deleteMenuItem);
-		toolsMenu.add(printMenuItem);
-
-		menuBar.add(helpMenu);
-
-		setMenuBar(menuBar);
-
-	}
-
 	private void createPanels() {
 
 		/* private void createNorthPanel() */{
@@ -420,8 +377,8 @@ public class MainFrame extends JFrame {
 			buttonPanel = new JPanel();
 			exportButton = new JButton("Export");
             exportButton.setFont(biggerFont);
-            backupButton = new JButton("Backup");
-            backupButton.setFont(biggerFont);
+            optionsButton = new JButton("Options");
+            optionsButton.setFont(biggerFont);
 			rotateButton = new JButton("Rotate");
             rotateButton.setFont(biggerFont);
 			deleteButton = new JButton("Delete");
@@ -464,12 +421,12 @@ public class MainFrame extends JFrame {
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.insets = new Insets(2, 2, 2, 2);
-			c.gridx = 1;
+			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
 			c.gridx = 2;
 			c.gridy = 0;
-			buttonPanel.add(backupButton, c);
+			buttonPanel.add(optionsButton, c);
 			c.gridwidth = 3;
 			c.gridx = 0;
 			c.gridy = 1;
@@ -591,20 +548,17 @@ public class MainFrame extends JFrame {
 		//fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
-
-		// exit menu item listener
-		exitMenuItem.addActionListener(new ActionListener() {
+		/*
+		 * Open options frame.
+		 */
+		optionsButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				int dialogButton = JOptionPane.showConfirmDialog(null,
-						"Are you sure you want to quit?", "Warning!",
-						JOptionPane.YES_NO_OPTION);
-				if (dialogButton == JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
+			public void actionPerformed(ActionEvent arg0) {
+				OptionsFrame optionsFrame = new OptionsFrame();
+				optionsFrame.setVisible(true);
 			}
 		});
-
+		
 		// change picture thumbnail size when slider is used
 		zoomSlider.addChangeListener(new ChangeListener() {
 			@Override
