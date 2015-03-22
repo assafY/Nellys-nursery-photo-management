@@ -208,7 +208,7 @@ public class PicturesFrame extends JPanel {
 
     public void addThumbnailToView(PictureLabel currentThumb,
                                     int zoomSize) {
-            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize]);
+            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize], false);
     }
 
 	public void keyAction(KeyEvent e, boolean shiftIsPressed, boolean controlIsPressed) {

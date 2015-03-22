@@ -14,15 +14,16 @@ public class PictureImportThread extends Thread {
     public PictureImportThread(File[] importedPictures){
         this.importedPictures = importedPictures;
     }
-    public void run(){
+
+    public void run() {
         try {
             // for evey file path sent from importing in GUI
-            for (int i = 0; i < importedPictures.length; ++i) {
+            for (File f: importedPictures) {
 
                 // check if it is already imported into library
                 boolean exists = false;
                 for (int j = 0; j < Library.getPictureLibrary().size(); ++j) {
-                    if (importedPictures[i].getPath().equals(
+                    if (f.getPath().equals(
                             Library.getPictureLibrary().get(j).getImagePath())) {
                         exists = true;
                         break;
@@ -31,7 +32,7 @@ public class PictureImportThread extends Thread {
                 // if it doesn't exist in library
                 if (!exists) {
                     // add picture to library
-                    Picture currentPicture = new Picture(importedPictures[i]);
+                    Picture currentPicture = new Picture(f);
                     picturesToDisplay.add(currentPicture);
                 }
 
@@ -41,10 +42,8 @@ public class PictureImportThread extends Thread {
 
                 public void run() {
                     if (picturesToDisplay.size() > 0) {
-                        ArrayList<Picture> picturesInCurrentFolder = new ArrayList<Picture>();
-                        for (int i = 0; i < picturesToDisplay.size(); ++i) {
-                            Library.addPictureToLibrary(picturesToDisplay.get(i));
-                            picturesInCurrentFolder.add(picturesToDisplay.get(i));
+                        for (Picture p: picturesToDisplay) {
+                            Library.addPictureToLibrary(p);
                         }
 
                         String parentDirPath = picturesToDisplay.get(0).getImagePath();
@@ -62,7 +61,7 @@ public class PictureImportThread extends Thread {
                     }
 
                     importedPictures = null;
-                    picturesToDisplay = null;
+                    picturesToDisplay.clear();
                 }
             };
             SwingUtilities.invokeLater(displayPictures);

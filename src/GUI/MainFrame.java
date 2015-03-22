@@ -12,16 +12,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
@@ -131,6 +122,7 @@ public class MainFrame extends JFrame {
 	private JScrollPane picturePanelScrollPane;
 	private JPanel scrollPanel;
 	private JSlider zoomSlider;
+    private int lastZoomSliderValue;
 
 	// selection stuff
 	private boolean shiftIsPressed = false;
@@ -144,8 +136,10 @@ public class MainFrame extends JFrame {
 
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
-	private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
-	private boolean noPicturesFound = false;
+    private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
+    private boolean noPicturesFound = false;
+    private boolean zoomInProgress = false;
+    private Thread pictureReloadThread = null;
 
 	/**
 	 * Constructor for the application
@@ -502,7 +496,8 @@ public class MainFrame extends JFrame {
 			picturePanelScrollPane
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
 
-			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 2);
+			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 3, 9, 7);
+            lastZoomSliderValue = 7;
 			scrollPanel = new JPanel();
 			scrollPanel.add(zoomSlider);
 
@@ -659,95 +654,64 @@ public class MainFrame extends JFrame {
 			}
 			
 		});
-		
-		// change picture thumbnail size when slider is used
-		zoomSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
 
-				final ArrayList<PictureLabel> thumbs = picturePanel
-						.getThumbsOnDisplay();
+       zoomSlider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                if (pictureReloadThread != null) {
+                    pictureReloadThread.interrupt();
+                }
+                Thread sliderChangeThread = new Thread() {
+                    public void run() {
+                        try {
+                            zoomInProgress = true;
+                            refreshThumbnailSize();
 
-				Thread sliderChangeThread = new Thread() {
-					public void run() {
+                        } finally {
+                            zoomInProgress = false;
+                        }
+                    }
+                };
+                sliderChangeThread.start();
 
-						try {
-							for (PictureLabel currentThumbnail : thumbs) {
-								currentThumbnail
-										.showThumbnail(Settings.THUMBNAIL_SIZES[getZoomValue()]);
-							}
-						} finally {
-							picturePanel.adjustColumnCount(getZoomValue());
-						}
-					}
-				};
-				sliderChangeThread.start();
-			}
-		});
+                while (zoomInProgress) {}
+                if (zoomSlider.getValue() > lastZoomSliderValue) {
+                    try {
+                        pictureReloadThread = new Thread() {
+                            public void run() {
+                                for (PictureLabel currentThumbnail : picturePanel
+                                        .getThumbsOnDisplay()) {
+                                    if (isInterrupted()) {
+                                        break;
+                                    }
+                                    currentThumbnail.showThumbnail(zoomSlider.getValue(), true);
+                                }
+                            }
+                        };
+                        pictureReloadThread.start();
+                    } finally {
+                        pictureReloadThread = null;
+                    }
+                }
+
+
+                picturePanel.adjustColumnCount(zoomSlider
+                        .getValue());
+                lastZoomSliderValue = zoomSlider.getValue();
+            }
+        });
 
 		// adjust number of columns when window size changes
-		this.addComponentListener(new ComponentListener() {
-			@Override
-			public void componentResized(ComponentEvent e) {
+		this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                picturePanel.adjustColumnCount(zoomSlider.getValue());
+            }
+        });
 
-				picturePanel.adjustColumnCount(getZoomValue());
-				// TODO: Fix this method !
-				/*
-				 * int currentPanelSize = (int)
-				 * Math.round(picturePanel.getSize().getWidth()); int
-				 * currentWindowSize = (int)
-				 * Math.round(e.getComponent().getSize().getWidth()); int
-				 * framePanelGap = currentWindowSize - currentPanelSize;
-				 * 
-				 * if (framePanelGap < 450) { picturePanelBiggerThanFrame =
-				 * true;
-				 * 
-				 * 
-				 * } else { picturePanelBiggerThanFrame = false;
-				 * picturePanel.adjustColumnCount(zoomSlider.getValue()); }
-				 */
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-			}
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
-			}
-		});
-
-		/*
-		 * Whenever the scroll pane is scrolled, generates thumbnails coming
-		 * into view and deletes thumbnails exiting view.
-		 */
-		picturePanelScrollPane.getViewport().addChangeListener(
-				new ChangeListener() {
-
-					public void stateChanged(ChangeEvent e) {
-						Rectangle currentView = picturePanel.getVisibleRect();
-						for (PictureLabel currentThumbnail : picturePanel
-								.getThumbsOnDisplay()) {
-							if (currentThumbnail.isHorizontal()) {
-								if (isInView(currentThumbnail, currentView)) {
-									if (currentThumbnail.getIcon() == null) {
-										currentThumbnail
-												.showThumbnail(Settings.THUMBNAIL_SIZES[getZoomValue()]);
-									}
-								} else {
-									currentThumbnail.hideThumbnail();
-								}
-							}
-						}
-					}
-				});
-
-		fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
-			public void valueChanged(TreeSelectionEvent e) {
+        fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
 
 				for (Thread t : Library.getRunningThreads()) {
 					if (t != null) {
@@ -759,21 +723,27 @@ public class MainFrame extends JFrame {
 				Settings.LAST_VISITED_DIR = (File) fileSystemTree
 						.getLastSelectedPathComponent();
 
-				picturePanel.removeAll();
-				picturePanel.repaint();
-				picturePanel.removeAllThumbsFromDisplay();
+                if (Settings.LAST_VISITED_DIR == null) {
+                    return;
+                }
 
-				if (Settings.LAST_VISITED_DIR == null) {
-					return;
-				}
+                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
 
-				ArrayList<Picture> picturesToDisplay = MainFrame.this
-						.getAllSubPictures(Settings.LAST_VISITED_DIR);
-				for (Picture p : picturesToDisplay) {
-					picturePanel.addThumbToDisplay(p.getPictureLabel());
-				}
-				picturePanel.createThumbnailArray();
-				Library.importPicture(picturesToDisplay);
+                for (PictureLabel p: picturePanel.getThumbsOnDisplay()) {
+                    p.setIcon(null);
+                }
+                Library.getThumbnailProcessor().removeAllThumbnails();
+
+                picturePanel.removeAll();
+                picturePanel.repaint();
+                picturePanel.removeAllThumbsFromDisplay();
+
+                for (Picture p: picturesToDisplay) {
+                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                }
+
+                picturePanel.createThumbnailArray();
+                Library.importPicture(picturesToDisplay);
 
 			}
 		});
@@ -786,6 +756,15 @@ public class MainFrame extends JFrame {
 			}
 		});
 	}
+
+    public void refreshThumbnailSize() {
+        for (PictureLabel currentThumbnail : picturePanel
+                .getThumbsOnDisplay()) {
+            currentThumbnail
+                    .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+                            .getValue()], false);
+        }
+    }
 
 	private class Listeners {
 
@@ -1264,21 +1243,12 @@ public class MainFrame extends JFrame {
 			if (l != null) {
 				listeners.remove(l);
 			}
-
 		}
 
 		@Override
 		public void valueForPathChanged(TreePath arg0, Object arg1) {
-			// TODO Auto-generated method stub
 
 		}
-
-		public void fireTreeStructureChanged(TreeModelEvent e) {
-			for (TreeModelListener l : listeners) {
-				l.treeStructureChanged(e);
-			}
-		}
-
 	}
 
 	/**
@@ -1580,7 +1550,7 @@ public class MainFrame extends JFrame {
 	 */
 
 	public int getZoomValue() {
-		return zoomSlider.getMaximum() - zoomSlider.getValue();
+		return zoomSlider.getValue();
 	}
 
 	/*
