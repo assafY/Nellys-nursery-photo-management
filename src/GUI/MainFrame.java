@@ -115,7 +115,8 @@ public class MainFrame extends JFrame {
 	private JPanel virtualTreePanel;
 	private JButton exportButton;
 	private JButton optionsButton;
-	private JButton rotateButton;
+	private JButton rotateLeftButton;
+	private JButton rotateRightButton;
 	private JButton deleteButton;
 	private JButton printButton;
 	private JTabbedPane tabbedPane;
@@ -377,16 +378,13 @@ public class MainFrame extends JFrame {
 			virtualTreePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-			exportButton = new JButton("Export");
-            exportButton.setFont(biggerFont);
-            optionsButton = new JButton("Options");
-            optionsButton.setFont(biggerFont);
-			rotateButton = new JButton("Rotate");
-			rotateButton.setFont(biggerFont);
-			deleteButton = new JButton("Delete");
-            deleteButton.setFont(biggerFont);
-			printButton = new JButton("Print");
-			printButton.setFont(biggerFont);
+			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
+            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
+			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
+			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
+			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
+			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
+			
 
             if (Settings.PICTURE_HOME_DIR != null) {
                 fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
@@ -412,8 +410,8 @@ public class MainFrame extends JFrame {
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 			
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
-			tabbedPane.addTab("File Tree", fileTreePanel);
-			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
+			tabbedPane.addTab("FileTree", fileTreePanel);
+			tabbedPane.addTab("Vitual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
 			mainPanel.add(westPanel, BorderLayout.WEST);
 			westPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -426,6 +424,9 @@ public class MainFrame extends JFrame {
 			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
+			c.gridx = 1;
+			c.gridy = 0;
+			buttonPanel.add(printButton, c);
 			c.gridx = 2;
 			c.gridy = 0;
 			buttonPanel.add(optionsButton, c);
@@ -436,13 +437,13 @@ public class MainFrame extends JFrame {
 			c.gridwidth = 1;
 			c.gridx = 0;
 			c.gridy = 2;
-			buttonPanel.add(rotateButton, c);
+			buttonPanel.add(rotateRightButton, c);
 			c.gridx = 1;
 			c.gridy = 2;
-			buttonPanel.add(deleteButton, c);
+			buttonPanel.add(rotateLeftButton, c);
 			c.gridx = 2;
 			c.gridy = 2;
-			buttonPanel.add(printButton, c);
+			buttonPanel.add(deleteButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
             titledBorder.setTitleFont(biggerFont);
