@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class ThumbnailImportThread extends Thread {
 
     ArrayList<PictureLabel> picturesToDisplay;
-    MainFrame mainFrame = MainFrame.getMainFrames().get(0);
 
     public ThumbnailImportThread(ArrayList<PictureLabel> picturesToDisplay){
         this.picturesToDisplay = picturesToDisplay;
@@ -26,7 +25,7 @@ public class ThumbnailImportThread extends Thread {
                         break;
                     }
                     if (p.getIcon() == null) {
-                        p.createThumbnail(mainFrame.getZoomValue());
+                        p.createThumbnail(MainFrame.getMainFrames().get(0).getZoomValue());
                     }
                     //mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
                     ++pictureCounter;
@@ -38,7 +37,6 @@ public class ThumbnailImportThread extends Thread {
                         p.getThumbnail().flush();
                 }*/
             picturesToDisplay.clear();
-            mainFrame = null;
             Library.removeRunningThread(this);
             System.gc();
         }
