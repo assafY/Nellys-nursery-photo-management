@@ -6,11 +6,14 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.TitledBorder;
 
@@ -20,13 +23,15 @@ import Core.Settings;
 public class OptionsFrame extends JFrame {
 
 	JPanel mainPanel;
+	MainFrame mainFrame;
 
 	OptionSlab locationOption;
 	OptionSlab homeDirOption;
 	OptionSlab csvOption;
 
-	public OptionsFrame() {
+	public OptionsFrame(MainFrame mainFrame) {
 		super();
+		this.mainFrame = mainFrame;
 		initComponents();
 		createStructure();
 		addListeners();
@@ -67,6 +72,52 @@ public class OptionsFrame extends JFrame {
 	
 	private void addListeners() {
 		
+		this.addWindowListener(new WindowListener() {
+			
+			@Override
+			public void windowOpened(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowIconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeiconified(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowDeactivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void windowClosing(WindowEvent arg0) {
+				JOptionPane.showMessageDialog(mainFrame,
+					    "Please restart the program for the changes to take effect.",
+					    "Message",
+					    JOptionPane.WARNING_MESSAGE);
+			}
+			
+			@Override
+			public void windowClosed(WindowEvent arg0) {
+				
+			}
+			
+			@Override
+			public void windowActivated(WindowEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		locationOption.addListener(new ActionListener() {
 
 			@Override
@@ -96,7 +147,7 @@ public class OptionsFrame extends JFrame {
 	}
 	
 	public void updateView() {
-		new OptionsFrame().setLocation(this.getX(), this.getY());
+		new OptionsFrame(mainFrame).setLocation(this.getX(), this.getY());
 		this.dispose();
 	}
 

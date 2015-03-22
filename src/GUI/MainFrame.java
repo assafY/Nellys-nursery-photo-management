@@ -623,7 +623,7 @@ public class MainFrame extends JFrame {
 		optionsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				OptionsFrame optionsFrame = new OptionsFrame();
+				OptionsFrame optionsFrame = new OptionsFrame(MainFrame.this);
 				optionsFrame.setVisible(true);
 			}
 		});
@@ -637,18 +637,30 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		exportButton.addFocusListener(new FocusListener() {
-			
+		optionsButton.addFocusListener(new FocusListener() {
+
 			@Override
 			public void focusLost(FocusEvent e) {
 			}
-			
+
 			@Override
 			public void focusGained(FocusEvent e) {
 				searchField.requestFocus();
 			}
 		});
 		
+		exportButton.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				searchField.requestFocus();
+			}
+		});
+
 		/*
 		 * Export pictures in a selected directory.
 		 */
