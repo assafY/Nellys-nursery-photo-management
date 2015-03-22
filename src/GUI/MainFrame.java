@@ -459,6 +459,7 @@ public class MainFrame extends JFrame {
 					return this;
 				}
 			});
+			fileSystemTree.clearSelection();
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
@@ -663,7 +664,6 @@ public class MainFrame extends JFrame {
 												+ pictureCount
 												+ ".jpeg"));
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 						} else {
@@ -687,7 +687,6 @@ public class MainFrame extends JFrame {
 												+ pictureCount
 												+ ".jpeg"));
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
 					}
@@ -765,11 +764,13 @@ public class MainFrame extends JFrame {
 				refreshSearch();
 			}
 		});
-
+//TODO marker
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (tabbedPane.getSelectedIndex() == 1) {
 					createVirtualTree();
+				} else if (tabbedPane.getSelectedIndex() == 0) {
+					fileSystemTree.clearSelection();
 				}
 			}
 		});
@@ -1510,7 +1511,6 @@ public class MainFrame extends JFrame {
 								(int) pageFormat.getWidth(),
 								(int) pageFormat.getHeight(), null);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					return PAGE_EXISTS;
