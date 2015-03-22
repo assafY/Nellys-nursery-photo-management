@@ -762,6 +762,7 @@ public class MainFrame extends JFrame {
 				picturePanel.createThumbnailArray();
 				Library.importPicture(picturesToDisplay);
 
+				refreshSearch();
 			}
 		});
 
@@ -786,7 +787,7 @@ public class MainFrame extends JFrame {
 		class ZoomListener extends MouseAdapter {
 			
 			public void reZoom() {
-				///////
+
 				if (pictureReloadThread != null) {
 					pictureReloadThread.interrupt();
 				}
@@ -866,7 +867,7 @@ public class MainFrame extends JFrame {
 					}
 					filterPictureLibrary(dateToFind);
 				}
-
+				refreshSearch();
 			}
 
 			private String getMonthAsNumber(String month) {
@@ -1427,6 +1428,7 @@ public class MainFrame extends JFrame {
 			}
 			Library.importPicture(allPictureSet);
 		}
+		searchLabelPanel.revalidate();
 	}
 
 	public void addSearchTag(Taggable t) {
