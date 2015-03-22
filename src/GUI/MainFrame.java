@@ -180,7 +180,7 @@ public class MainFrame extends JFrame {
 		if (Settings.PICTURE_HOME_DIR != null) {
 			Library.importFolder(Settings.PICTURE_HOME_DIR);
 		}
-		
+
 		setSize(1300, 700);
 	}
 
@@ -637,6 +637,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 
+		exportButton.addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				searchField.requestFocus();
+			}
+		});
+		
 		/*
 		 * Export pictures in a selected directory.
 		 */
@@ -698,25 +710,25 @@ public class MainFrame extends JFrame {
 		});
 
 		Listeners.ZoomListener zoomListener = l.new ZoomListener();
-		
+
 		zoomMinusButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zoomSlider.setValue(zoomSlider.getValue()-1);
+				zoomSlider.setValue(zoomSlider.getValue() - 1);
 				zoomListener.reZoom();
 			}
 		});
-		
+
 		zoomPlusButton.addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				zoomSlider.setValue(zoomSlider.getValue()+1);
+				zoomSlider.setValue(zoomSlider.getValue() + 1);
 				zoomListener.reZoom();
 			}
 		});
-		
+
 		zoomSlider.addMouseListener(zoomListener);
 
 		// adjust number of columns when window size changes
@@ -766,7 +778,7 @@ public class MainFrame extends JFrame {
 				refreshSearch();
 			}
 		});
-//TODO marker
+
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				if (tabbedPane.getSelectedIndex() == 1) {
@@ -786,9 +798,9 @@ public class MainFrame extends JFrame {
 	}
 
 	private class Listeners {
-		
+
 		class ZoomListener extends MouseAdapter {
-			
+
 			public void reZoom() {
 
 				if (pictureReloadThread != null) {
@@ -832,7 +844,7 @@ public class MainFrame extends JFrame {
 				picturePanel.adjustColumnCount(zoomSlider.getValue());
 				lastZoomSliderValue = zoomSlider.getValue();
 			}
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
@@ -1000,22 +1012,36 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_TAB) {
-
+					// TODO keystrokes marker
 					if (tagField.hasFocus() || tagPanel.hasFocus()) {
-						searchField.requestFocus();
+						picturePanel.requestFocus();
+						return;
 					}
 
 					if (picturePanel.hasFocus()) {
 						tagField.requestFocus();
+						return;
 					}
 
 					if (searchField.hasFocus()) {
-						picturePanel.requestFocus();
+						tabbedPane.requestFocus();
+						return;
 					}
 
-					if (fileSystemTree.hasFocus()) {
-						picturePanel.requestFocus();
+					if (tabbedPane.hasFocus()) {
+						searchField.requestFocus();
+						return;
 					}
+
+					if (tabbedPane.hasFocus() || fileSystemTree.hasFocus()
+							|| virtualTree.hasFocus()
+							|| virtualTreePanel.hasFocus()
+							|| virtualTreeScrollPane.hasFocus()) {
+						searchField.requestFocus();
+						return;
+					}
+
+					searchField.requestFocus();
 
 					if (allRadioButton.hasFocus()
 							|| incompleteRadioButton.hasFocus()
