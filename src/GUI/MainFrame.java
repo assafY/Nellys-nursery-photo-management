@@ -378,13 +378,23 @@ public class MainFrame extends JFrame {
 					5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
+            try {
+			exportButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/exportButtonPNG.png"))));
+            optionsButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/optionsButtonPNG.png"))));
+			rotateLeftButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/rotateLeftPNG.png"))));
+			rotateRightButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/rotateRightPNG.png"))));
+			deleteButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/binButtonPNG.png"))));
+			printButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/printButtonPNG.png"))));
+            }
+            catch (IOException e) {
 
-			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
-            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
-			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
-			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
-			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
-			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
+            }
 			
 
             if (Settings.PICTURE_HOME_DIR != null) {
@@ -409,13 +419,6 @@ public class MainFrame extends JFrame {
                 }
             });
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
-			
-			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
-            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
-			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
-			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
-			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
-			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
 			
 
 			if (Settings.PICTURE_HOME_DIR != null) {
@@ -1446,7 +1449,7 @@ public class MainFrame extends JFrame {
 	private void printPictures() {
 		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
 		PrinterJob printJob = PrinterJob.getPrinterJob();
-		ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+		final ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
         for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
         	if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
         		allSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i).getPicture());
