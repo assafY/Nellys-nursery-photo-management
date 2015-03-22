@@ -27,6 +27,7 @@ public class PictureLabel extends JLabel{
     private boolean firstDrag = true;
     private FullScreenPicturesFrame frame;
     private PicturesFrame picturePanel;
+    private BufferedImage updatedThumb;
 
     public PictureLabel(Picture picture, PicturesFrame mainFrame) {
         this.picture = picture;
@@ -43,7 +44,7 @@ public class PictureLabel extends JLabel{
         Library.getThumbnailProcessor().addThumbnail(picture, size);
     }
 
-    private BufferedImage getThumbnail() {
+    public BufferedImage getThumbnail() {
         if (getIcon() != null) {
             BufferedImage thumbnail = new BufferedImage(
                     picture.getPictureLabel().getIcon().getIconWidth(),
@@ -232,6 +233,66 @@ public class PictureLabel extends JLabel{
 		picturePanel.getCenterPanel().repaint();
 		picturePanel.getMainFrame().releaseKeys();
     }
+    
+    public void updateThumb(BufferedImage updatedThumbnail, int zoomValue) {
+    	//deleteThumbnail();
+    	//Settings.LOADED_THUMBNAILS_COUNT++;
+    	updatedThumb = updatedThumbnail;
+    	 if (updatedThumb != null) {
+             currentSize = zoomValue;
+             if (updatedThumb.getHeight() > updatedThumb.getWidth()) {
+                 switch (currentSize) {
+                     case 109:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 27)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 23, 0, 0));
+                         break;
+                     case 119:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 30)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 26, 0, 0));
+                         break;
+                     case 132:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 33)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 29, 0, 0));
+                         break;
+                     case 148:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 37)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 0));
+                         break;
+                     case 169:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 42)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 35, 0, 0));
+                         break;
+                     case 196:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 49)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 41, 0, 0));
+                         break;
+                     case 233:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 58)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
+                         break;
+                     case 288:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 72)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
+                         break;
+                     case 377:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 94)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
+                         break;
+                     case 545:
+                         setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize - 136)));
+                         this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
+                         break;
+                 }
+             } else {
+                 setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize)));
+             }
+         }
+    }
+    
+    public BufferedImage getUpdatedThumb() {
+    	return updatedThumb;
+    }
+
 
     public class ThumbnailMouseListener extends MouseAdapter {
 

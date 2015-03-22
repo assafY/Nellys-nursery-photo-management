@@ -1,22 +1,7 @@
 package GUI;
 
-import Core.Library;
-import Data.Picture;
-
-import org.imgscalr.Scalr;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
-import javax.swing.*;
-import javax.swing.event.InternalFrameAdapter;
-import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -25,6 +10,30 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
+import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.InputMap;
+import javax.swing.JButton;
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.event.InternalFrameEvent;
+import javax.swing.event.InternalFrameListener;
+
+import org.imgscalr.Scalr;
+
+import Core.Settings;
+import Data.Picture;
+
 /**
  * Creates a FullScreenPictures Inner Frame.
  */
@@ -32,9 +41,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
 	private String filePath;
-	//private BufferedImage resizedPicture;
-	//private BufferedImage actualPicture;
-    private boolean isHorizontal;
+	private BufferedImage resizedPicture;
+	private BufferedImage updatedPicture;
 	private JButton rotateLeftButton;
 	private JButton rotateRightButton;
 	private JButton nextButton;
@@ -186,6 +194,16 @@ public class FullScreenPicturesFrame extends JInternalFrame {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
+                if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
+                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
+                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null);
+                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                } else {
+                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
+                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null);
+                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                }
 				resizeFullScreenPicture();
 			}
 		});
@@ -198,6 +216,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
 		});
