@@ -9,10 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import Core.Library;
 import org.imgscalr.Scalr;
@@ -47,67 +44,80 @@ public class PictureLabel extends JLabel{
     }
 
     private BufferedImage getThumbnail() {
-        BufferedImage thumbnail = new BufferedImage(
-                picture.getPictureLabel().getIcon().getIconWidth(),
-                picture.getPictureLabel().getIcon().getIconHeight(),
-                BufferedImage.TYPE_INT_RGB);
-        picture.getPictureLabel().getIcon().paintIcon(null, thumbnail.createGraphics(), 0, 0);
-        System.gc();
-        return thumbnail;
+        if (getIcon() != null) {
+            BufferedImage thumbnail = new BufferedImage(
+                    picture.getPictureLabel().getIcon().getIconWidth(),
+                    picture.getPictureLabel().getIcon().getIconHeight(),
+                    BufferedImage.TYPE_INT_RGB);
+            picture.getPictureLabel().getIcon().paintIcon(null, thumbnail.createGraphics(), 0, 0);
+            System.gc();
+            return thumbnail;
+        }
+        return null;
     }
 
-    public void showThumbnail(int size) {
+    public void showThumbnail(int size, boolean readFromFile) {
 
-        BufferedImage thumbnail = getThumbnail();
-        if (thumbnail != null) {
-            currentSize = size;
-            if (thumbnail.getHeight() > thumbnail.getWidth()) {
-                switch (currentSize) {
-                    case 109:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 27)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 23, 0, 0));
-                        break;
-                    case 119:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 30)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 26, 0, 0));
-                        break;
-                    case 132:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 33)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 29, 0, 0));
-                        break;
-                    case 148:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 37)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 0));
-                        break;
-                    case 169:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 42)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 35, 0, 0));
-                        break;
-                    case 196:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 49)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 41, 0, 0));
-                        break;
-                    case 233:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 58)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
-                        break;
-                    case 288:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 72)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
-                        break;
-                    case 377:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 94)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
-                        break;
-                    case 545:
-                        setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 136)));
-                        this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
-                        break;
+        if (!readFromFile) {
+            BufferedImage thumbnail = null;
+            thumbnail = getThumbnail();
+            if (thumbnail != null) {
+                currentSize = size;
+                if (thumbnail.getHeight() > thumbnail.getWidth()) {
+                    switch (currentSize) {
+                        case 109:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 27)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 23, 0, 0));
+                            break;
+                        case 119:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 30)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 26, 0, 0));
+                            break;
+                        case 132:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 33)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 29, 0, 0));
+                            break;
+                        case 148:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 37)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 32, 0, 0));
+                            break;
+                        case 169:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 42)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 35, 0, 0));
+                            break;
+                        case 196:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 49)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 41, 0, 0));
+                            break;
+                        case 233:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 58)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
+                            break;
+                        case 288:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 72)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
+                            break;
+                        case 377:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 94)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
+                            break;
+                        case 545:
+                            setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 136)));
+                            this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
+                            break;
+                    }
+                } else {
+                    setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize)));
                 }
-            } else {
-                setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize)));
             }
         }
+        else {
+            Icon iconHolder = getIcon();
+            Library.getThumbnailProcessor().setThumbnail(this, picturePanel.getMainFrame().getZoomValue());
+            iconHolder = null;
+            System.gc();
+        }
+
     }
 
     public void hideThumbnail() {

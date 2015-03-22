@@ -34,7 +34,7 @@ public class ThumbnailImportThread extends Thread {
                 if (p.getIcon() == null) {
                     p.createThumbnail(mainFrame.getZoomValue());
                 }
-                mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
+                //mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
                 ++pictureCounter;
             }
             //}
@@ -43,7 +43,10 @@ public class ThumbnailImportThread extends Thread {
                     if (p.getThumbnail() != null)
                         p.getThumbnail().flush();
                 }*/
-                Library.removeRunningThread(this);
+            picturesToDisplay.clear();
+            mainFrame = null;
+            Library.removeRunningThread(this);
+            System.gc();
         }
     }
 }
