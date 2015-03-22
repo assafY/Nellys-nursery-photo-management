@@ -32,10 +32,10 @@ import java.text.SimpleDateFormat;
 public class Library implements Serializable {
 
 	public static BufferedImage DELETE_BUTTON;
+    private static ThumbnailProcessor PROCESSOR = new ThumbnailProcessor();
 
     private static ArrayList<Thread> RUNNING_THREADS = new ArrayList<Thread>();
     private static ArrayList<Picture> PICTURE_LIBRARY = new ArrayList<Picture>();
-    private static ArrayList<PictureLabel> THUMBNAIL_CACHE = new ArrayList<PictureLabel>();
     private static Map<File, ArrayList<Picture>> directoryPictureMap = new HashMap<File, ArrayList<Picture>>();
     private static ArrayList<Picture> LAST_VISITED_VIRTUAL_DIR = new ArrayList<Picture>();
     private static ArrayList<Taggable> taggableComponents = new ArrayList<Taggable>();
@@ -74,8 +74,8 @@ public class Library implements Serializable {
 		return directoryPictureMap;
 	}
 
-	public static ArrayList<PictureLabel> getThumbnailCache() {
-		return THUMBNAIL_CACHE;
+	public static ThumbnailProcessor getThumbnailProcessor() {
+		return PROCESSOR;
 	}
 
 	public static void setDirectoryPictureMap(Map<File, ArrayList<Picture>> newMap) {

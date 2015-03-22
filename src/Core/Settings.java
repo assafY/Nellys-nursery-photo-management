@@ -7,7 +7,7 @@ public class Settings {
 
     public static final int CHILD_TAG = 1;
     public static final int AREA_TAG = 2;
-    public static final int[] THUMBNAIL_SIZES = {377, 320, 288, 233, 196, 169, 148, 132, 119, 109};
+    public static final int[] THUMBNAIL_SIZES = {109, 119, 132, 148, 169, 196, 233, 288, 320, 377};
     public static final String[] AREA_NAMES = {"Babies Room", "Main Room", "Garden"};
     public static int THUMBNAIL_CACHE_SIZE = 100;
     public static int IMPORT_THREAD_COUNT = 0;

@@ -1,6 +1,5 @@
 package Data;
 
-
 import GUI.MainFrame;
 import GUI.PictureLabel;
 import com.drew.imaging.ImageMetadataReader;

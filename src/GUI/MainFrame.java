@@ -131,6 +131,7 @@ public class MainFrame extends JFrame {
 	private JScrollPane picturePanelScrollPane;
 	private JPanel scrollPanel;
 	private JSlider zoomSlider;
+    private int lastZoomSliderValue;
 
 	// selection stuff
 	private boolean shiftIsPressed = false;
@@ -502,7 +503,8 @@ public class MainFrame extends JFrame {
 			picturePanelScrollPane
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
 
-			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 0, 9, 2);
+			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 3, 9, 7);
+            lastZoomSliderValue = 7;
 			scrollPanel = new JPanel();
 			scrollPanel.add(zoomSlider);
 
@@ -665,25 +667,42 @@ public class MainFrame extends JFrame {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 
-				final ArrayList<PictureLabel> thumbs = picturePanel
-						.getThumbsOnDisplay();
+                    try {
+                        Thread sliderChangeThread = new Thread() {
+                            public void run() {
+                                for (final PictureLabel currentThumbnail : picturePanel
+                                        .getThumbsOnDisplay()) {
+                                    currentThumbnail
+                                            .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
+                                                    .getValue()]);
+                                }
+                            }
 
-				Thread sliderChangeThread = new Thread() {
-					public void run() {
+                        };
+                        sliderChangeThread.start();
 
-						try {
-							for (PictureLabel currentThumbnail : thumbs) {
-								currentThumbnail
-										.showThumbnail(Settings.THUMBNAIL_SIZES[getZoomValue()]);
-							}
-						} finally {
-							picturePanel.adjustColumnCount(getZoomValue());
-						}
-					}
-				};
-				sliderChangeThread.start();
+                    } finally {
+                        picturePanel.adjustColumnCount(zoomSlider
+                                .getValue());
+                    }
 			}
+
 		});
+
+       /*zoomSlider.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+                if (zoomSlider.getValue() > lastZoomSliderValue) {
+                    for (PictureLabel currentThumbnail : picturePanel
+                            .getThumbsOnDisplay()) {
+                        currentThumbnail
+                                .createThumbnail(zoomSlider.getValue());
+                    }
+                }
+                lastZoomSliderValue = zoomSlider.getValue();
+            }
+        });*/
 
 		// adjust number of columns when window size changes
 		this.addComponentListener(new ComponentListener() {
@@ -725,7 +744,7 @@ public class MainFrame extends JFrame {
 		 * Whenever the scroll pane is scrolled, generates thumbnails coming
 		 * into view and deletes thumbnails exiting view.
 		 */
-		picturePanelScrollPane.getViewport().addChangeListener(
+		/*picturePanelScrollPane.getViewport().addChangeListener(
 				new ChangeListener() {
 
 					public void stateChanged(ChangeEvent e) {
@@ -744,7 +763,7 @@ public class MainFrame extends JFrame {
 							}
 						}
 					}
-				});
+				});*/
 
 		fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
@@ -764,6 +783,11 @@ public class MainFrame extends JFrame {
                 }
 
                 ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
+
+                for (PictureLabel p: picturePanel.getThumbsOnDisplay()) {
+                    p.setIcon(null);
+                }
+                Library.getThumbnailProcessor().removeAllThumbnails();
 
                 picturePanel.removeAll();
                 picturePanel.repaint();
@@ -1265,21 +1289,12 @@ public class MainFrame extends JFrame {
 			if (l != null) {
 				listeners.remove(l);
 			}
-
 		}
 
 		@Override
 		public void valueForPathChanged(TreePath arg0, Object arg1) {
-			// TODO Auto-generated method stub
 
 		}
-
-		public void fireTreeStructureChanged(TreeModelEvent e) {
-			for (TreeModelListener l : listeners) {
-				l.treeStructureChanged(e);
-			}
-		}
-
 	}
 
 	/**
