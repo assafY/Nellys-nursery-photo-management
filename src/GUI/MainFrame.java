@@ -654,39 +654,6 @@ public class MainFrame extends JFrame {
 			}
 			
 		});
-		
-		// change picture thumbnail size when slider is used
-		/*zoomSlider.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-
-<<<<<<< HEAD
-                    try {
-                        Thread sliderChangeThread = new Thread() {
-                            public void run() {
-                                for (final PictureLabel currentThumbnail : picturePanel
-                                        .getThumbsOnDisplay()) {
-                                    currentThumbnail
-                                            .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                                                    .getValue()]);
-                                }
-                            }
-
-                        };
-                        sliderChangeThread.start();
-
-                    } finally {
-                        picturePanel.adjustColumnCount(zoomSlider
-                                .getValue());
-                    }
-=======
-                if (!zoomInProgress) {
-
-                }
->>>>>>> acheived best balance between memory and speed yet
-			}
-
-		});*/
 
        zoomSlider.addMouseListener(new MouseAdapter() {
             @Override
@@ -1583,7 +1550,7 @@ public class MainFrame extends JFrame {
 	 */
 
 	public int getZoomValue() {
-		return zoomSlider.getMaximum() - zoomSlider.getValue();
+		return zoomSlider.getValue();
 	}
 
 	/*

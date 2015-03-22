@@ -33,20 +33,22 @@ public class ThumbnailProcessor {
         }
     }
 
-    public void setThumbnail(PictureLabel p, int size) {
+    public synchronized void setThumbnail(PictureLabel p, int size) {
 
         for (Thumbnail t: loadedThumbnailList) {
             if (t.getPicture().equals(p.getPicture())) {
-                    t.createThumbnail(size);
+                t.createThumbnail(size);
+                break;
             }
         }
     }
 
     public void removeAllThumbnails() {
         for (Thumbnail t: loadedThumbnailList) {
-                t.getPicture().getPictureLabel().setIcon(null);
+            t.getPicture().getPictureLabel().setIcon(null);
         }
         loadedThumbnailList.clear();
+        System.gc();
     }
 
 

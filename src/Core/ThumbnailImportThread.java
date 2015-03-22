@@ -20,24 +20,18 @@ public class ThumbnailImportThread extends Thread {
         try {
             Library.addRunningThread(this);
             int pictureCounter = 0;
-            //if (!isInterrupted()) {
-            for (PictureLabel p: picturesToDisplay) {
-                /*if (pictureCounter % 25 == 0) {
-                    for (int i = 0; i < pictureCounter; ++i) {
-                        if (picturesToDisplay.get(i).getThumbnail() != null)
-                            picturesToDisplay.get(i).getThumbnail().flush();
+            if (!isInterrupted()) {
+                for (PictureLabel p: picturesToDisplay) {
+                    if (isInterrupted()) {
+                        break;
                     }
-                }*/
-                if (isInterrupted()) {
-                    break;
+                    if (p.getIcon() == null) {
+                        p.createThumbnail(mainFrame.getZoomValue());
+                    }
+                    //mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
+                    ++pictureCounter;
                 }
-                if (p.getIcon() == null) {
-                    p.createThumbnail(mainFrame.getZoomValue());
-                }
-                //mainFrame.getPicturesPanel().addThumbnailToView(p, mainFrame.getZoomValue());
-                ++pictureCounter;
             }
-            //}
         }  finally {
                 /*for (PictureLabel p: picturesToDisplay) {
                     if (p.getThumbnail() != null)
