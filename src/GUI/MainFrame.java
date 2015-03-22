@@ -624,6 +624,7 @@ public class MainFrame extends JFrame {
 				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				int saveChoise = fileChooser.showSaveDialog(null);
 				int pictureCount = 0;
+				ArrayList<PictureLabel> nonSelectedPictures = new ArrayList<PictureLabel>();
 				if(saveChoise == JFileChooser.APPROVE_OPTION) {
 					for(int i = 0;i < picturePanel.getThumbsOnDisplay().size();i++) {
 						if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
@@ -637,14 +638,18 @@ public class MainFrame extends JFrame {
 							}
 						}
 						else {
-							try {
-								pictureCount++;
-								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
-								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
+							nonSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i));
+						}
+					}
+					if(nonSelectedPictures.size() == picturePanel.getThumbsOnDisplay().size()) {
+						for(int i = 0;i < nonSelectedPictures.size();i++)
+						try {
+							pictureCount++;
+							BufferedImage selectedImage = ImageIO.read(new File(nonSelectedPictures.get(i).getPicture().getImagePath()));
+							ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
 					}
 				}
