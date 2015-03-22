@@ -102,10 +102,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the buttons.
 	 */
 	private void createButtons() {
-		rotateLeftButton = new JButton("Rotate Left");
-		rotateRightButton = new JButton("Rotate Right");
-		previousButton = new JButton("Previous");
-		nextButton = new JButton("Next");
+		rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
+		rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
+		previousButton = new JButton(new ImageIcon("res\\buttonIcons\\previousButtonPNG.png"));
+		nextButton = new JButton(new ImageIcon("res\\buttonIcons\\nextButtonPNG.png"));
 	}
 	
 	/**
@@ -113,8 +113,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void createButtonsPanel() {
 		buttonsPanel = new JPanel(new FlowLayout());
-		buttonsPanel.add(rotateLeftButton);
 		buttonsPanel.add(rotateRightButton);
+		buttonsPanel.add(rotateLeftButton);
 		buttonsPanel.add(previousButton);
 		buttonsPanel.add(nextButton);
 	}

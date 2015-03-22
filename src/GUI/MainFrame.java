@@ -17,9 +17,6 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
 import java.awt.Rectangle;
 import java.awt.event.*;
 import java.awt.*;
@@ -56,24 +53,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
 public class MainFrame extends JFrame {
-	// menu bar component declaration
-	private MenuBar menuBar = new MenuBar();
-	Menu fileMenu;
-	Menu editMenu;
-	Menu toolsMenu;
-	Menu helpMenu;
-	MenuItem impMenuItem;
-	MenuItem expMenuItem;
-	MenuItem backupMenuItem;
-	MenuItem exitMenuItem;
-	MenuItem rotateMenuItem;
-	MenuItem resizeMenuItem;
-	MenuItem cropMenuItem;
-	MenuItem selMenuItem;
-	MenuItem tagMenuItem;
-	MenuItem deleteMenuItem;
-	MenuItem printMenuItem;
-
+	
 	// root panel declaration
 	private JPanel mainPanel;
 
@@ -97,8 +77,9 @@ public class MainFrame extends JFrame {
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
 	private JButton exportButton;
-	private JButton backupButton;
-	private JButton rotateButton;
+	private JButton optionsButton;
+	private JButton rotateLeftButton;
+	private JButton rotateRightButton;
 	private JButton deleteButton;
 	private JButton printButton;
 	private JTabbedPane tabbedPane;
@@ -150,7 +131,6 @@ public class MainFrame extends JFrame {
 		startUpChecks();
 		loadTaggableComponents();
 		loadTagDeleteButton();
-		createMenuBar();
 		createPanels();
 		addListeners();
 		createVirtualTree();
@@ -364,16 +344,14 @@ public class MainFrame extends JFrame {
 					5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-			exportButton = new JButton("Export");
-            exportButton.setFont(biggerFont);
-            optionsButton = new JButton("Options");
-            optionsButton.setFont(biggerFont);
-			rotateButton = new JButton("Rotate");
-			rotateButton.setFont(biggerFont);
-			deleteButton = new JButton("Delete");
-			deleteButton.setFont(biggerFont);
-			printButton = new JButton("Print");
-			printButton.setFont(biggerFont);
+			
+			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
+            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
+			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
+			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
+			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
+			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
+			
 
 			if (Settings.PICTURE_HOME_DIR != null) {
 				fileSystemTree = new JTree(new SystemTreeModel(
@@ -406,8 +384,8 @@ public class MainFrame extends JFrame {
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
-			tabbedPane.addTab("File Tree", fileTreePanel);
-			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
+			tabbedPane.addTab("FileTree", fileTreePanel);
+			tabbedPane.addTab("Vitual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
 			mainPanel.add(westPanel, BorderLayout.WEST);
 			westPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -417,12 +395,15 @@ public class MainFrame extends JFrame {
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.insets = new Insets(2, 2, 2, 2);
-			c.gridx = 1;
+			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
+			c.gridx = 1;
+			c.gridy = 0;
+			buttonPanel.add(printButton, c);
 			c.gridx = 2;
 			c.gridy = 0;
-			buttonPanel.add(backupButton, c);
+			buttonPanel.add(optionsButton, c);
 			c.gridwidth = 3;
 			c.gridx = 0;
 			c.gridy = 1;
@@ -430,13 +411,13 @@ public class MainFrame extends JFrame {
 			c.gridwidth = 1;
 			c.gridx = 0;
 			c.gridy = 2;
-			buttonPanel.add(rotateButton, c);
+			buttonPanel.add(rotateRightButton, c);
 			c.gridx = 1;
 			c.gridy = 2;
-			buttonPanel.add(deleteButton, c);
+			buttonPanel.add(rotateLeftButton, c);
 			c.gridx = 2;
 			c.gridy = 2;
-			buttonPanel.add(printButton, c);
+			buttonPanel.add(deleteButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
 			titledBorder.setTitleFont(biggerFont);
@@ -547,20 +528,65 @@ public class MainFrame extends JFrame {
 		// fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
-
-		// exit menu item listener
-		exitMenuItem.addActionListener(new ActionListener() {
+		
+		/*
+		 * Open options frame.
+		 */
+		optionsButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				int dialogButton = JOptionPane.showConfirmDialog(null,
-						"Are you sure you want to quit?", "Warning!",
-						JOptionPane.YES_NO_OPTION);
-				if (dialogButton == JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
+			public void actionPerformed(ActionEvent arg0) {
+				OptionsFrame optionsFrame = new OptionsFrame();
+				optionsFrame.setVisible(true);
 			}
 		});
-
+		
+		/*
+		 * Print pictures.
+		 */
+		printButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				printPictures();
+			}
+		});
+		
+		/*
+		 * Export pictures in a selected directory.
+		 */
+		exportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int saveChoise = fileChooser.showSaveDialog(null);
+				int pictureCount = 0;
+				if(saveChoise == JFileChooser.APPROVE_OPTION) {
+					for(int i = 0;i < picturePanel.getThumbsOnDisplay().size();i++) {
+						if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						else {
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+			
+		});
+		
 		// change picture thumbnail size when slider is used
 		zoomSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -882,10 +908,8 @@ public class MainFrame extends JFrame {
 				// TODO: Fix print shortcut, find graphic workaround
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
-
 					printPictures();
 				}
-
 			}
 
 			@Override
@@ -1349,6 +1373,7 @@ public class MainFrame extends JFrame {
 		virtualTree.updateTreeModel();
 	}
 
+	
 	private void printPictures() {
 		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
 		PrinterJob printJob = PrinterJob.getPrinterJob();
@@ -1617,7 +1642,7 @@ public class MainFrame extends JFrame {
 			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
 			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-			
+		
 				File savedFile = new File(savedPictureLibraryData.get(i).getImagePath());
 				if (savedFile.exists()) {
 					Picture recreatedPicture = new Picture(savedFile);
