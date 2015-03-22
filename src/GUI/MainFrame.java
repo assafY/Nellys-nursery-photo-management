@@ -1,6 +1,83 @@
 package GUI;
 
-import javax.swing.tree.*;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+
+import java.awt.Adjustable;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 
 import Core.Library;
 import Core.Settings;
@@ -9,71 +86,9 @@ import Data.Area;
 import Data.Child;
 import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
-import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
-
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Rectangle;
-import java.awt.event.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
-
-import javax.imageio.ImageIO;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
-
-import javax.swing.filechooser.FileSystemView;
-import java.awt.image.BufferedImage;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 
 public class MainFrame extends JFrame {
-	// menu bar component declaration
-	private MenuBar menuBar = new MenuBar();
-	Menu fileMenu;
-	Menu editMenu;
-	Menu toolsMenu;
-	Menu helpMenu;
-	MenuItem impMenuItem;
-	MenuItem expMenuItem;
-	MenuItem backupMenuItem;
-	MenuItem exitMenuItem;
-	MenuItem rotateMenuItem;
-	MenuItem resizeMenuItem;
-	MenuItem cropMenuItem;
-	MenuItem selMenuItem;
-	MenuItem tagMenuItem;
-	MenuItem deleteMenuItem;
-	MenuItem printMenuItem;
-
+	
 	// root panel declaration
 	private JPanel mainPanel;
 
@@ -97,8 +112,9 @@ public class MainFrame extends JFrame {
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
 	private JButton exportButton;
-	private JButton backupButton;
-	private JButton rotateButton;
+	private JButton optionsButton;
+	private JButton rotateLeftButton;
+	private JButton rotateRightButton;
 	private JButton deleteButton;
 	private JButton printButton;
 	private JTabbedPane tabbedPane;
@@ -147,10 +163,9 @@ public class MainFrame extends JFrame {
 		mainPanel = new JPanel(new BorderLayout());
 
 		addSavedData();
-		startUpChecks();
-		loadTaggableComponents();
-		loadTagDeleteButton();
-		createMenuBar();
+        startUpChecks();
+        loadTaggableComponents();
+        loadTagDeleteButton();
 		createPanels();
 		addListeners();
 		createVirtualTree();
@@ -286,61 +301,6 @@ public class MainFrame extends JFrame {
 		}
 	}
 
-	private void createMenuBar() {
-
-		// menu bar component assignment
-		fileMenu = new Menu("File");
-		editMenu = new Menu("Edit");
-		toolsMenu = new Menu("Tools");
-		helpMenu = new Menu("Help");
-		impMenuItem = new MenuItem("Import");
-		expMenuItem = new MenuItem("Export");
-		backupMenuItem = new MenuItem("Backup");
-		exitMenuItem = new MenuItem("Exit");
-		rotateMenuItem = new MenuItem("Rotate");
-		resizeMenuItem = new MenuItem("Resize");
-		cropMenuItem = new MenuItem("Crop");
-		selMenuItem = new MenuItem("Select");
-		tagMenuItem = new MenuItem("Tag");
-		deleteMenuItem = new MenuItem("Delete");
-		printMenuItem = new MenuItem("Print");
-
-		menuBar.add(fileMenu);
-		fileMenu.add(impMenuItem);
-		fileMenu.add(backupMenuItem);
-		fileMenu.add(expMenuItem);
-		fileMenu.addSeparator();
-		fileMenu.add(exitMenuItem);
-
-		MenuItem asdfg = new MenuItem("Options");
-		asdfg.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				new OptionsFrame();
-
-			}
-		});
-
-		toolsMenu.add(asdfg);
-
-		menuBar.add(editMenu);
-		editMenu.add(rotateMenuItem);
-		editMenu.add(resizeMenuItem);
-		editMenu.add(cropMenuItem);
-
-		menuBar.add(toolsMenu);
-		toolsMenu.add(selMenuItem);
-		toolsMenu.add(tagMenuItem);
-		toolsMenu.add(deleteMenuItem);
-		toolsMenu.add(printMenuItem);
-
-		menuBar.add(helpMenu);
-
-		setMenuBar(menuBar);
-
-	}
-
 	private void createPanels() {
 
 		/* private void createNorthPanel() */{
@@ -418,16 +378,45 @@ public class MainFrame extends JFrame {
 					5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-			exportButton = new JButton("Export");
-			exportButton.setFont(biggerFont);
-			backupButton = new JButton("Backup");
-			backupButton.setFont(biggerFont);
-			rotateButton = new JButton("Rotate");
-			rotateButton.setFont(biggerFont);
-			deleteButton = new JButton("Delete");
-			deleteButton.setFont(biggerFont);
-			printButton = new JButton("Print");
-			printButton.setFont(biggerFont);
+
+			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
+            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
+			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
+			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
+			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
+			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
+			
+
+            if (Settings.PICTURE_HOME_DIR != null) {
+                fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
+            }
+            else {
+                fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
+            }
+			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+            fileSystemTree.setExpandsSelectedPaths(true);
+            if (Settings.LAST_VISITED_PATH != null) {
+                fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
+            }
+            // use tree cell renderer to set tree node names
+            // to the folder name, rather than the whole path
+            fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
+                @Override
+                public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+                    setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
+                    return this;
+                }
+            });
+			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
+			
+			exportButton = new JButton(new ImageIcon("res\\buttonIcons\\exportButtonPNG.png"));
+            optionsButton = new JButton(new ImageIcon("res\\buttonIcons\\optionsButtonPNG.png"));
+			rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
+			rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
+			deleteButton = new JButton(new ImageIcon("res\\buttonIcons\\binButtonPNG.png"));
+			printButton = new JButton(new ImageIcon("res\\buttonIcons\\printButtonPNG.png"));
+			
 
 			if (Settings.PICTURE_HOME_DIR != null) {
 				fileSystemTree = new JTree(new SystemTreeModel(
@@ -460,8 +449,8 @@ public class MainFrame extends JFrame {
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
-			tabbedPane.addTab("File Tree", fileTreePanel);
-			tabbedPane.addTab("Virtual Tree", virtualTreePanel);
+			tabbedPane.addTab("FileTree", fileTreePanel);
+			tabbedPane.addTab("Vitual Tree", virtualTreePanel);
 			tabbedPane.setFont(biggerFont);
 			mainPanel.add(westPanel, BorderLayout.WEST);
 			westPanel.add(tabbedPane, BorderLayout.CENTER);
@@ -471,12 +460,15 @@ public class MainFrame extends JFrame {
 			GridBagConstraints c = new GridBagConstraints();
 			c.fill = GridBagConstraints.HORIZONTAL;
 			c.insets = new Insets(2, 2, 2, 2);
-			c.gridx = 1;
+			c.gridx = 0;
 			c.gridy = 0;
 			buttonPanel.add(exportButton, c);
+			c.gridx = 1;
+			c.gridy = 0;
+			buttonPanel.add(printButton, c);
 			c.gridx = 2;
 			c.gridy = 0;
-			buttonPanel.add(backupButton, c);
+			buttonPanel.add(optionsButton, c);
 			c.gridwidth = 3;
 			c.gridx = 0;
 			c.gridy = 1;
@@ -484,13 +476,13 @@ public class MainFrame extends JFrame {
 			c.gridwidth = 1;
 			c.gridx = 0;
 			c.gridy = 2;
-			buttonPanel.add(rotateButton, c);
+			buttonPanel.add(rotateRightButton, c);
 			c.gridx = 1;
 			c.gridy = 2;
-			buttonPanel.add(deleteButton, c);
+			buttonPanel.add(rotateLeftButton, c);
 			c.gridx = 2;
 			c.gridy = 2;
-			buttonPanel.add(printButton, c);
+			buttonPanel.add(deleteButton, c);
 
 			TitledBorder titledBorder = new TitledBorder("Tools: ");
 			titledBorder.setTitleFont(biggerFont);
@@ -601,20 +593,65 @@ public class MainFrame extends JFrame {
 		// fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
-
-		// exit menu item listener
-		exitMenuItem.addActionListener(new ActionListener() {
+		
+		/*
+		 * Open options frame.
+		 */
+		optionsButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				int dialogButton = JOptionPane.showConfirmDialog(null,
-						"Are you sure you want to quit?", "Warning!",
-						JOptionPane.YES_NO_OPTION);
-				if (dialogButton == JOptionPane.YES_OPTION) {
-					System.exit(0);
-				}
+			public void actionPerformed(ActionEvent arg0) {
+				OptionsFrame optionsFrame = new OptionsFrame();
+				optionsFrame.setVisible(true);
 			}
 		});
-
+		
+		/*
+		 * Print pictures.
+		 */
+		printButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				printPictures();
+			}
+		});
+		
+		/*
+		 * Export pictures in a selected directory.
+		 */
+		exportButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int saveChoise = fileChooser.showSaveDialog(null);
+				int pictureCount = 0;
+				if(saveChoise == JFileChooser.APPROVE_OPTION) {
+					for(int i = 0;i < picturePanel.getThumbsOnDisplay().size();i++) {
+						if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						else {
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+			
+		});
+		
 		// change picture thumbnail size when slider is used
 		zoomSlider.addChangeListener(new ChangeListener() {
 			@Override
@@ -936,45 +973,8 @@ public class MainFrame extends JFrame {
 				// TODO: Fix print shortcut, find graphic workaround
 
 				if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_P) {
-
-					PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
-					PrinterJob printJob = PrinterJob.getPrinterJob();
-					printJob.setPrintable(new Printable() {
-						public int print(Graphics graphics,
-								PageFormat pageFormat, int pageIndex)
-								throws PrinterException {
-							if (pageIndex != 0) {
-								return NO_SUCH_PAGE;
-							}
-							ArrayList<Picture> allSelectedPictures = picturePanel
-									.getSelectedPictures();
-							for (int i = 0; i < allSelectedPictures.size(); ++i) {
-								try {
-									BufferedImage sourceImage;
-									sourceImage = ImageIO
-											.read(allSelectedPictures.get(i)
-													.getImageFile());
-									graphics.drawImage(sourceImage, 0, 0,
-											(int) pageFormat.getWidth(),
-											(int) pageFormat.getHeight(), null);
-
-								} catch (IOException e) {
-
-								}
-							}
-
-							return PAGE_EXISTS;
-						}
-					});
-
-					if (printJob.printDialog(aset))
-						try {
-							printJob.print(aset);
-						} catch (PrinterException e1) {
-							e1.printStackTrace();
-						}
+					printPictures();
 				}
-
 			}
 
 			@Override
@@ -1437,7 +1437,43 @@ public class MainFrame extends JFrame {
 		virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 		virtualTree.updateTreeModel();
 	}
+	
+	private void printPictures() {
+		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
+		PrinterJob printJob = PrinterJob.getPrinterJob();
+		ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
+        for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
+        	if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+        		allSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i).getPicture());
+        	}
+        }
+		printJob.setPrintable(new Printable() {
+			public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+				System.out.println(allSelectedPictures.size());
+				if(pageIndex < (allSelectedPictures.size() / 2)) {
+					try {
+						//System.out.println(pageIndex);
+						graphics.drawImage(ImageIO.read(new File(allSelectedPictures.get(pageIndex).getImagePath())),0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+               	 return PAGE_EXISTS;
+				}
+				else {
+					return NO_SUCH_PAGE;
+				}
+			}
+		});
 
+		if (printJob.printDialog(aset))
+			try {
+				printJob.print(aset);
+			} catch (PrinterException e1) {
+				e1.printStackTrace();
+			}
+	}
+	
 	/**
 	 * Automatically saves the picture library ArrayList, the taggable
 	 * components ArrayList, the Nursery Location and the Pictures home
@@ -1666,20 +1702,16 @@ public class MainFrame extends JFrame {
 	 */
 	private void getSavedPictureLibrary() {
 		try {
-			FileInputStream savedPictureLibraryFile = new FileInputStream(
-					"savedPictureLibrary.ser");
-			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(
-					savedPictureLibraryFile);
-			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject
-					.readObject();
+			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
+			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
+			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-				Picture recreatedPicture = new Picture(new File(
-						savedPictureLibraryData.get(i).getImagePath()));
-				recreatedPicture
-						.setTag(savedPictureLibraryData.get(i).getTag());
-				ArrayList<Picture> savedPictures = new ArrayList<Picture>();
-				savedPictures.add(recreatedPicture);
-				Library.getPictureLibrary().add(recreatedPicture);
+				File savedFile = new File(savedPictureLibraryData.get(i).getImagePath());
+				if (savedFile.exists()) {
+					Picture recreatedPicture = new Picture(savedFile);
+					recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
+					Library.getPictureLibrary().add(savedPictureLibraryData.get(i));
+				}
 			}
 			restoredPictureLibraryObject.close();
 		} catch (EOFException exception) {

@@ -129,7 +129,7 @@ public class PicturesFrame extends JPanel {
     }
 
 	public synchronized void addThumbToDisplay(PictureLabel thumb) {
-        if (!thumbsOnDisplay.contains(thumb)) {
+        if (!thumbsOnDisplay.contains(thumb) && thumb != null) {
             thumbsOnDisplay.add(thumb);
             add(thumb);
         }
