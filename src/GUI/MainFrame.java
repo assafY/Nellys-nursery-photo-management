@@ -180,6 +180,8 @@ public class MainFrame extends JFrame {
 		if (Settings.PICTURE_HOME_DIR != null) {
 			Library.importFolder(Settings.PICTURE_HOME_DIR);
 		}
+		
+		setSize(1300, 700);
 	}
 
 	/*
