@@ -65,19 +65,15 @@ public class ThumbnailProcessor {
         }
 
         public void createThumbnail(int size) {
-            BufferedImage newThumbnail = null;
             try {
-                newThumbnail = ImageIO.read(picture.getImageFile());
+
+                if (ImageIO.read(picture.getImageFile()) != null) {
+                    picture.getPictureLabel().setIcon(new ImageIcon(Scalr.resize(ImageIO.read(picture.getImageFile()), Scalr.Method.SPEED, Settings.THUMBNAIL_SIZES[size])));
+                }
+                ImageIO.read(picture.getImageFile()).flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            if (newThumbnail != null) {
-                picture.getPictureLabel().setIcon(new ImageIcon(Scalr.resize(newThumbnail, Scalr.Method.SPEED, Settings.THUMBNAIL_SIZES[size])));
-            }
-
-            newThumbnail.flush();
-            newThumbnail = null;
             System.gc();
         }
 

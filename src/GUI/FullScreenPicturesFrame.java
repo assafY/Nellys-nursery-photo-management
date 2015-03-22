@@ -12,6 +12,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -102,10 +103,18 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the buttons.
 	 */
 	private void createButtons() {
-		rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
-		rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
-		previousButton = new JButton(new ImageIcon("res\\buttonIcons\\previousButtonPNG.png"));
-		nextButton = new JButton(new ImageIcon("res\\buttonIcons\\nextButtonPNG.png"));
+        try {
+            rotateLeftButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/rotateLeftPNG.png"))));
+            rotateRightButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                                        .getResource("/buttonIcons/rotateRightPNG.png"))));
+            previousButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/previousButtonPNG.png"))));
+            nextButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/nextButtonPNG.png"))));
+        } catch (IOException e) {
+
+        }
 	}
 	
 	/**
@@ -135,21 +144,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Returns back to the list of imported pictures when the inner frame is closed.
 	 */
 	private void onClose() {
-		this.addInternalFrameListener(new InternalFrameListener() {
-			public void internalFrameOpened(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameIconified(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameDeiconified(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameDeactivated(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameClosing(InternalFrameEvent arg0) {
-			}
+		this.addInternalFrameListener(new InternalFrameAdapter() {
 
 			public void internalFrameClosed(InternalFrameEvent arg0) {
 				resizedPicture = null;
