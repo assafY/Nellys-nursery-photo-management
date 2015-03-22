@@ -50,8 +50,12 @@ public class Picture implements Serializable{
         }
         else { // use the date the file was created
             pictureTakenDate = new Date(attr.creationTime().toMillis());
-            metadata.setDate(pictureTakenDate);
+            dateIsWrong();
+            metadata.setDate(null);
         }
+    }
+    public boolean dateIsWrong(){
+        return true;
     }
 
     private void createPictureLabel() {

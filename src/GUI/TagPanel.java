@@ -14,11 +14,15 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class TagPanel extends JPanel {
+public class TagPanel extends JPanel implements PropertyChangeListener {
 
     // counter to determine whether even or odd number of labels exist
     private int tagCounter;
@@ -30,6 +34,8 @@ public class TagPanel extends JPanel {
     private JPanel dateTagPanel;
     private MainFrame mainFrame;
     private Font biggerFont = new Font("Serif", Font.PLAIN, 1);
+    private JFormattedTextField dateTextField;
+    private Date newDate;
 
 
 
@@ -228,11 +234,67 @@ public class TagPanel extends JPanel {
                 date = Library.getFormattedDate(date1);
 
             dateTagPanel.add(new JLabel(date));
+            for (int i = 0; i < selectedPictures.size(); ++i) {
+                //  for (int j = 0; j < dateTagPanel.getParent().getComponentCount(); ++j) {
+                //dateTagPanel.getParent().getComponent(j) instanceof JLabel
+                if (selectedPictures.get(i).dateIsWrong() == true && selectedPictures.get(i).getTag().getDate()==null) {
+                    try {
+                        addDateFieldListener();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
-    public void addDateFieldListener() {
+
+
+    /*
+    If the 'date created' is missing, the dateTextField becomes editable
+    and one can add a date tag manually
+
+    Far away from perfect, more work in the pipeline
+     */
+    public void addDateFieldListener() throws ParseException {
+
         // TODO: make date panel editable if date does not exist or needs to be changed
+      /*  for(int j = 0; j<dateTagPanel.getParent().getComponentCount(); ++j) {
+            if (dateTagPanel.getParent().getComponent(j) instanceof JLabel) {
+                JLabel dateLabel = (JLabel) dateTagPanel.getParent().getComponent(j);
+                String dateText = dateLabel.getText();
+                System.out.println("bjjjjjj" + dateText);
+            }*/
+        //   TODO: add MaskFormatter
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        dateTextField = new JFormattedTextField(format);
+        dateTextField.setColumns(8);
+        dateTextField.setEditable(true);
+        dateTagPanel.add(dateTextField);
+        dateTextField.addPropertyChangeListener(this);
+    }
+
+    public void propertyChange(PropertyChangeEvent e){
+
+        ArrayList<Picture> selectedP = mainFrame.getPicturesPanel().getSelectedPictures();
+        // ArrayList<Date> manuallyCreatedDates = new ArrayList<Date>();
+        Object source = e.getSource();
+        if(source == dateTextField) {
+            Date newDate = (Date) dateTextField.getValue();
+            dateTextField.setValue(newDate);
+            System.out.println("New date tag field value: " + dateTextField.getValue().toString());
+
+            for(Picture p: selectedP){
+                Date taggedDate = (Date)dateTextField.getValue();
+                p.getTag().setDate(taggedDate);
+                //    manuallyCreatedDates.add(taggedDate);
+                System.out.println("New picture date tag  " + p.getTag().getDate());;
+            }
+        }
+    }
+
+    private boolean newDateTag(){
+        return true;
     }
 
     /**

@@ -33,23 +33,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -67,6 +51,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import com.sun.jna.platform.FileUtils;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -559,6 +544,8 @@ public class MainFrame extends JFrame {
 		untaggedRadioButton.addActionListener(l.new RadioButtonListener());
 		incompleteRadioButton.addActionListener(l.new RadioButtonListener());
 		allRadioButton.addActionListener(l.new RadioButtonListener());
+        deleteButton.addActionListener(l.new DeleteButtonListener());
+
 
 		/*
 		 * listener for the search field - the drop down menu is supposed to
@@ -1077,6 +1064,63 @@ public class MainFrame extends JFrame {
 				searchField.setText("");
 			}
 		}
+        /*
+        Delete button listener
+        works for both single/multiple selection
+        Sends the delete file/s to the Recycle Bin
+         */
+        private class DeleteButtonListener implements ActionListener {
+
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ArrayList<Picture> picturesToDelete = picturePanel.getPicturesOnDisplay();
+
+
+                int confirmDelete = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete the file(s)?", "Warning!",
+                        JOptionPane.YES_NO_OPTION);
+
+                if (confirmDelete == JOptionPane.YES_OPTION) {
+                    if (picturesToDelete.size() != 0) {
+                        for (int i = (picturesToDelete.size() - 1); i >= 0; i--) {
+                            if (picturesToDelete.get(i).getPictureLabel().isSelected() == true) {
+
+                                // send the file to recycle bin
+                                FileUtils fileUtils = FileUtils.getInstance();
+                                if (fileUtils.hasTrash()) {
+                                    try {
+                                        fileUtils.moveToTrash(new File[]{getPicturesPanel().getPicturesOnDisplay().get(i).getImageFile()});
+                                    } catch (IOException ioe) {
+                                        ioe.printStackTrace();
+                                    }
+                                } else {
+                                    System.out.println("No Recycle Bin available");
+                                }
+
+                                //  getPicturesPanel().getThumbsOnDisplay().get(i).getPicture().getImageFile().delete();
+                                //  Library.delete(Library.getPictureLibrary().get(i).getPictureLabel().getPicture());
+
+                                ArrayList<Picture> updatedPictures =  picturePanel.getPicturesOnDisplay();
+                                updatedPictures.remove(getPicturesPanel().getPicturesOnDisplay().get(i));
+                                picturePanel.removeAllThumbsFromDisplay();
+                                for (Picture p: updatedPictures) {
+                                    picturePanel.addThumbToDisplay(p.getPictureLabel());
+                                }
+                                Library.importPicture(updatedPictures);
+                                picturePanel.createThumbnailArray();
+                                repaint();
+                                revalidate();
+                                // picturePanel.refresh();
+                                // getPicturesPanel().getThumbsOnDisplay().get(i).getPicture().getImageFile().delete();
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 		private class RadioButtonListener implements ActionListener {
 			@Override
