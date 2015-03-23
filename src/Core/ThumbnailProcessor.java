@@ -24,15 +24,6 @@ public class ThumbnailProcessor {
                     loadedThumbnailList.add(new Thumbnail(picture, size));
     }
 
-    public void removeThumbnail(Picture picture) {
-        for (Thumbnail t: loadedThumbnailList) {
-            if (t.getPicture().equals(picture)) {
-                loadedThumbnailList.remove(t);
-                break;
-            }
-        }
-    }
-
     public void setThumbnail(PictureLabel p, int size) {
 
         for (Thumbnail t: loadedThumbnailList) {

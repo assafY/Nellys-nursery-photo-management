@@ -19,6 +19,7 @@ public class ThumbnailImportThread extends Thread {
         try {
             Library.addRunningThread(this);
             if (!isInterrupted()) {
+                Settings.IMPORT_IN_PROGRESS = true;
                 for (PictureLabel p: picturesToDisplay) {
                     if (isInterrupted()) {
                         break;
@@ -27,6 +28,7 @@ public class ThumbnailImportThread extends Thread {
                         p.createThumbnail(mainFrame.getZoomValue());
                     }
                 }
+                Settings.IMPORT_IN_PROGRESS = false;
             }
         }  finally {
             picturesToDisplay.clear();

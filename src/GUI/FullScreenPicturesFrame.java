@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
-import javax.swing.*;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -27,7 +26,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import javax.swing.event.InternalFrameEvent;
-import javax.swing.event.InternalFrameListener;
 
 import org.imgscalr.Scalr;
 

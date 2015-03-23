@@ -863,9 +863,9 @@ public class MainFrame extends JFrame {
 				for (Picture p : picturesToDisplay) {
 					picturePanel.addThumbToDisplay(p.getPictureLabel());
 				}
-
-				picturePanel.createThumbnailArray();
+                picturePanel.createThumbnailArray();
 				Library.importPicture(picturesToDisplay);
+
                 picturesToDisplay.clear();
                 picturesToDisplay = null;
                 System.gc();

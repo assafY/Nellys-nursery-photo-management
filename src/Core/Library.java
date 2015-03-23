@@ -179,23 +179,6 @@ public class Library implements Serializable {
 
 	}
 
-	public static void rotate(ArrayList<Picture> picturesToRotate,
-			boolean direction) {
-		// TODO (true = clockwise, false = anticlockwise)
-	}
-
-	public static void print(ArrayList<Picture> picturesToPrint) {
-		// TODO
-	}
-
-	public static void export(ArrayList<Picture> picturesToExport) {
-		// TODO
-	}
-
-	public static void delete(ArrayList<Picture> picturesToDelete) {
-		// TODO
-	}
-
 	public static void addTaggableComponent(Taggable t) {
 		taggableComponents.add(t);
 		if (t.getType() == Settings.AREA_TAG) {
@@ -203,14 +186,17 @@ public class Library implements Serializable {
 		}
 	}
 
-	public static void removeTaggableComponent(Taggable t) {
-		taggableComponents.remove(t);
-	}
-
 	public static synchronized void addPictureToLibrary(Picture picture) {
-        if (!PICTURE_LIBRARY.contains(picture))
+        boolean exists = false;
+        for (Picture p : PICTURE_LIBRARY) {
+            if (p.getImagePath().equals(picture.getImagePath())) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists)
             PICTURE_LIBRARY.add(picture);
-	}
+    }
 
 	public static void deletePictureLibrary() {
 		PICTURE_LIBRARY = null;
@@ -218,15 +204,6 @@ public class Library implements Serializable {
 
 	public static void deleteTaggableComponentsList() {
 		taggableComponents = null;
-	}
-
-	public static Date getDate(String s) {
-		int date = Integer.parseInt(s.substring(0, 2));
-		int month = Integer.parseInt(s.substring(3, 5));
-		int year = Integer.parseInt(s.substring(6, 10));
-		if (date > 0 && date < 32 && month > -1 && month < 12 && year > -1)
-			return new Date(year - 1900, month - 1, date);
-		return null;
 	}
 
 	public static String getFormattedDate(Date date) {

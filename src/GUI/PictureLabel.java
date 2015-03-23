@@ -59,7 +59,6 @@ public class PictureLabel extends JLabel{
     }
 
     public void showThumbnail(int size, boolean readFromFile) {
-
         if (!readFromFile) {
             BufferedImage thumbnail = getThumbnail();
             if (thumbnail != null) {
@@ -120,17 +119,15 @@ public class PictureLabel extends JLabel{
         }
 	}
 
-    public void hideThumbnail() {
-        setIcon(null);
-    }
-
     public void toggleSelection() {
         if (!isSelected) {
             isSelected = true;
+            revalidate();
             repaint();
         }
         else {
             isSelected = false;
+            revalidate();
             repaint();
         }
 
