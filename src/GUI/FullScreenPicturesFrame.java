@@ -155,6 +155,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 				resizedPicture = null;
 				actualPicture = null;
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
+				mainFrame.getPicturesPanel().requestFocus();
 				System.out.println("closed");
 			}
 
