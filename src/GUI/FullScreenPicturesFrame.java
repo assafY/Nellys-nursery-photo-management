@@ -55,6 +55,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		this.mainFrame = mainFrame;
 		this.filePath = filePath;
         mainFrame.getSearchField().setFocusable(false);
+        MainFrame.rotateLeftButton.setEnabled(false);
+        MainFrame.rotateRightButton.setEnabled(false);
 
 		//getPicture();
         getThePictureIndex();
@@ -171,6 +173,8 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void internalFrameClosed(InternalFrameEvent arg0) {
                 fullScreenPicture.setIcon(null);
 				System.gc();
+                MainFrame.rotateLeftButton.setEnabled(true);
+                MainFrame.rotateRightButton.setEnabled(true);
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				mainFrame.getPicturesPanel().requestFocus();
 			}

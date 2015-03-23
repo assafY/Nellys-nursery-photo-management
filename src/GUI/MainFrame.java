@@ -101,8 +101,8 @@ public class MainFrame extends JFrame {
 	private JPanel virtualTreePanel;
 	private JButton exportButton;
 	private JButton optionsButton;
-	private JButton rotateLeftButton;
-	private JButton rotateRightButton;
+	public static JButton rotateLeftButton;
+	public static JButton rotateRightButton;
 	private JButton deleteButton;
 	private JButton printButton;
 	private JTabbedPane tabbedPane;

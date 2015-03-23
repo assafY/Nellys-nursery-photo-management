@@ -263,6 +263,8 @@ public class Library implements Serializable {
 		csvFileChooser.setDialogTitle("Select children list CSV file");
 		csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
 				"CSV File", "csv"));
+        csvFileChooser.addChoosableFileFilter(new FileNameExtensionFilter(
+                "CSV File", "txt"));
 		csvFileChooser.setAcceptAllFileFilterUsed(false);
 		int wasFileSelected = csvFileChooser.showOpenDialog(frame);
 
