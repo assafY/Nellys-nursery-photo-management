@@ -181,7 +181,7 @@ public class MainFrame extends JFrame {
 			Library.importFolder(Settings.PICTURE_HOME_DIR);
 		}
 
-		setSize(1300, 700);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	/*
