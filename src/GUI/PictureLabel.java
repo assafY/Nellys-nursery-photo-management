@@ -9,9 +9,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+
 import javax.swing.*;
 
 import Core.Library;
+
 import org.imgscalr.Scalr;
 
 import Core.Settings;
@@ -27,6 +29,7 @@ public class PictureLabel extends JLabel{
     private boolean firstDrag = true;
     private FullScreenPicturesFrame frame;
     private PicturesFrame picturePanel;
+    private BufferedImage updatedThumb;
 
     public PictureLabel(Picture picture, PicturesFrame mainFrame) {
         this.picture = picture;
@@ -43,7 +46,7 @@ public class PictureLabel extends JLabel{
         Library.getThumbnailProcessor().addThumbnail(picture, size);
     }
 
-    private BufferedImage getThumbnail() {
+    public BufferedImage getThumbnail() {
         if (getIcon() != null) {
             BufferedImage thumbnail = new BufferedImage(
                     picture.getPictureLabel().getIcon().getIconWidth(),
@@ -115,8 +118,7 @@ public class PictureLabel extends JLabel{
         else {
             Library.getThumbnailProcessor().setThumbnail(this, picturePanel.getMainFrame().getZoomValue());
         }
-
-    }
+	}
 
     public void hideThumbnail() {
         setIcon(null);
@@ -232,6 +234,24 @@ public class PictureLabel extends JLabel{
 		picturePanel.getCenterPanel().repaint();
 		picturePanel.getMainFrame().releaseKeys();
     }
+    
+    public void updateThumb(BufferedImage updatedThumbnail, int zoomValue) {
+    	updatedThumb = updatedThumbnail;
+    	 if (updatedThumb != null) {
+             currentSize = zoomValue;
+             if (updatedThumb.getHeight() > updatedThumb.getWidth()) {
+            	 	setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, updatedThumbnail.getHeight())));
+             } else {
+                 setIcon(new ImageIcon(Scalr.resize(updatedThumb, Scalr.Method.BALANCED, currentSize)));
+                 this.setBorder(BorderFactory.createEmptyBorder(0,0,0,0));
+             }
+         }
+    }
+    
+    public BufferedImage getUpdatedThumb() {
+    	return updatedThumb;
+    }
+
 
     public class ThumbnailMouseListener extends MouseAdapter {
 

@@ -19,9 +19,14 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.BorderFactory;
@@ -58,6 +63,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.imgscalr.Scalr;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 
@@ -132,6 +138,8 @@ public class MainFrame extends JFrame {
     private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
     private boolean noPicturesFound = false;
     private boolean zoomInProgress = false;
+    private BufferedImage rotatedImage;
+    private BufferedImage pictureFile;
 
 	/**
 	 * Constructor for the application
@@ -709,6 +717,104 @@ public class MainFrame extends JFrame {
 				}
 			}
 
+		});
+		
+		
+		rotateLeftButton.addActionListener(new ActionListener(){
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(int i = 0;i < picturePanel.getThumbsOnDisplay().size(); i++) {
+					if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+						if(picturePanel.getThumbsOnDisplay().get(i).getThumbnail() != null) {
+							rotatedImage = picturePanel.getThumbsOnDisplay().get(i).getThumbnail();
+							try {
+								pictureFile = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							pictureFile = Scalr.rotate(pictureFile, Scalr.Rotation.CW_270, null);
+							rotatedImage = Scalr.rotate(rotatedImage, Scalr.Rotation.CW_270, null);
+							picturePanel.getThumbsOnDisplay().get(i).updateThumb(rotatedImage, Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+							try {
+								updateActualPictureFile(pictureFile, picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						} else {
+							rotatedImage = picturePanel.getThumbsOnDisplay().get(i).getUpdatedThumb();
+							try {
+								pictureFile = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							pictureFile = Scalr.rotate(pictureFile, Scalr.Rotation.CW_270, null);
+							rotatedImage = Scalr.rotate(rotatedImage, Scalr.Rotation.CW_270, null);
+							picturePanel.getThumbsOnDisplay().get(i).updateThumb(rotatedImage, Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+							try {
+								updateActualPictureFile(pictureFile, picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+					}
+				}
+				
+			}
+			
+		});
+		
+		rotateRightButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for(int i = 0;i < picturePanel.getThumbsOnDisplay().size(); i++) {
+					if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+						if(picturePanel.getThumbsOnDisplay().get(i).getThumbnail() != null) {
+							rotatedImage = picturePanel.getThumbsOnDisplay().get(i).getThumbnail();
+							try {
+								pictureFile = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							pictureFile = Scalr.rotate(pictureFile, Scalr.Rotation.CW_90, null);
+							rotatedImage = Scalr.rotate(rotatedImage, Scalr.Rotation.CW_90, null);
+							picturePanel.getThumbsOnDisplay().get(i).updateThumb(rotatedImage, Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+							try {
+								updateActualPictureFile(pictureFile, picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						} else {
+							rotatedImage = picturePanel.getThumbsOnDisplay().get(i).getUpdatedThumb();
+							try {
+								pictureFile = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							pictureFile = Scalr.rotate(pictureFile, Scalr.Rotation.CW_90, null);
+							rotatedImage = Scalr.rotate(rotatedImage, Scalr.Rotation.CW_90, null);
+							picturePanel.getThumbsOnDisplay().get(i).updateThumb(rotatedImage, Settings.THUMBNAIL_SIZES[zoomSlider.getValue()]);
+							try {
+								updateActualPictureFile(pictureFile, picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+					}
+				}
+				
+			}
 		});
 
 		final Listeners.ZoomListener zoomListener = l.new ZoomListener();
@@ -1617,6 +1723,21 @@ public class MainFrame extends JFrame {
 			} catch (PrinterException e1) {
 				e1.printStackTrace();
 			}
+	}
+	
+	private void updateActualPictureFile(BufferedImage picture, String filepath) throws IOException{
+		Iterator writersBySuffix = ImageIO.getImageWritersBySuffix("jpeg");
+        if(!writersBySuffix.hasNext()){
+            throw new IllegalStateException("No writers");
+        }
+        ImageWriter writer = (ImageWriter) writersBySuffix.next();
+        ImageWriteParam imageWriteParam = writer.getDefaultWriteParam();
+        imageWriteParam.setCompressionMode(ImageWriteParam.MODE_COPY_FROM_METADATA);
+        ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(filepath));
+        writer.setOutput(imageOutputStream);
+        writer.write(null, new IIOImage(picture, null, null), imageWriteParam);
+        imageOutputStream.close();
+        writer.dispose();
 	}
 
 	/**

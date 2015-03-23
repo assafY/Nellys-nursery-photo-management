@@ -78,9 +78,9 @@ public class VirtualTree extends JTree {
 	private void SortArrayLists(){
 		sortArrayValues(years);
 		sortArrayValues(months);
-		sortArrayValues(days);
+		sortDaysBySubStrings(days);
 		sortBySubStrings(filteredMonthAndYearDates);
-		sortBySubStrings(filteredDayMonthYearDates);
+		sortWholeDate(filteredDayMonthYearDates);
 	}
 	
 	private void addYearDirectories() {
@@ -145,6 +145,20 @@ public class VirtualTree extends JTree {
 		Collections.sort(list, new Comparator<String>() {
 			public int compare(String firstValue, String nextValue) {
 				return firstValue.substring(0, 2).compareTo(nextValue.substring(0, 2));
+			}
+		});
+	}
+	private void sortWholeDate(ArrayList<String> list) {
+		Collections.sort(list, new Comparator<String>() {
+			public int compare(String firstValue, String nextValue) {
+				return firstValue.substring(4, 14).compareTo(nextValue.substring(4, 14));
+			}
+		});
+	}
+	private void sortDaysBySubStrings(ArrayList<String> list) {
+		Collections.sort(list, new Comparator<String>() {
+			public int compare(String firstValue, String nextValue) {
+				return firstValue.substring(4, 6).compareTo(nextValue.substring(4, 6));
 			}
 		});
 	}
