@@ -36,6 +36,14 @@ public class ThumbnailImportThread extends Thread {
             mainFrame = null;
             Library.removeRunningThread(this);
             System.gc();
+            if (MainFrame.zoomSlider.getValue() == MainFrame.zoomSlider.getMinimum()) {
+                MainFrame.zoomPlusButton.doClick();
+                MainFrame.zoomMinusButton.doClick();
+            }
+            else {
+                   MainFrame.zoomMinusButton.doClick();
+                   MainFrame.zoomPlusButton.doClick();
+              }
         }
     }
 }

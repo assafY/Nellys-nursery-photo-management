@@ -100,9 +100,9 @@ public class MainFrame extends JFrame {
 	private PicturesFrame picturePanel;
 	private JScrollPane picturePanelScrollPane;
 	private JPanel scrollPanel;
-	private JSlider zoomSlider;
-	private JButton zoomPlusButton;
-	private JButton zoomMinusButton;
+	public static JSlider zoomSlider;
+	public static JButton zoomPlusButton;
+	public static JButton zoomMinusButton;
 	private int lastZoomSliderValue;
 
 	// selection stuff
@@ -871,6 +871,7 @@ public class MainFrame extends JFrame {
                 System.gc();
 
 				refreshSearch();
+
 			}
 		});
 
