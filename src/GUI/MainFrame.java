@@ -721,7 +721,7 @@ public class MainFrame extends JFrame {
 
 		});
 
-		Listeners.ZoomListener zoomListener = l.new ZoomListener();
+		final Listeners.ZoomListener zoomListener = l.new ZoomListener();
 
 		zoomMinusButton.addActionListener(new ActionListener() {
 
