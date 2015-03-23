@@ -1053,8 +1053,6 @@ public class MainFrame extends JFrame {
 						return;
 					}
 
-					searchField.requestFocus();
-
 					if (allRadioButton.hasFocus()
 							|| incompleteRadioButton.hasFocus()
 							|| taggedRadioButton.hasFocus()
