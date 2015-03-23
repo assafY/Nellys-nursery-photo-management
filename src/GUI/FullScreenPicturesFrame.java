@@ -311,12 +311,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		currentPictureLabel.setAsOnlySelection();
 		// --- end of move
 		filePath = currentPictureLabel.getPicture().getImagePath();
-		/*try {
-			actualPicture = ImageIO.read(new File(filePath));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		resizeFullScreenPicture();
 	}
 	
