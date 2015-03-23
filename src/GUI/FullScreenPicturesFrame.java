@@ -273,19 +273,13 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Gets the previous and next thumbnails from the picture library.
 	 */
 	private void getPreviousAndNextPicture() {
-        Picture currentPicture = mainFrame.getPicturesPanel().getPicturesOnDisplay().get(a);
-		/*try {
-			resizedPicture = ImageIO.read(new File(currentPicture.getImagePath()));
-		} catch (IOException e1) {
-            //TODO: Handle exception
-			e1.printStackTrace();
-		}*/
+        fullScreenPicture.setIcon(null);
 		// moves index in the background to the new picture
-		PictureLabel currentPictureLabel = currentPicture.getPictureLabel();
+		PictureLabel currentPictureLabel = mainFrame.getPicturesPanel().getPicturesOnDisplay().get(a).getPictureLabel();
 		currentPictureLabel.setAsOnlySelection();
 		// --- end of move
-		/*filePath = currentPicture.getImagePath();
-		try {
+		filePath = currentPictureLabel.getPicture().getImagePath();
+		/*try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
