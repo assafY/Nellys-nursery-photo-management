@@ -131,9 +131,9 @@ public class Library implements Serializable {
 						new ThumbnailImportThread(thumbnailsForImport)
 									.start();
 
-
 					}
 				} finally {
+                    System.gc();
 					Library.removeRunningThread(this);
                     MainFrame.getMainFrames().get(0)
                             .getPicturesPanel().createThumbnailArray();
