@@ -1,6 +1,5 @@
 package Core;
 
-import Data.Picture;
 import GUI.MainFrame;
 import GUI.PictureLabel;
 import java.util.ArrayList;

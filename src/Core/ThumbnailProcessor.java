@@ -33,7 +33,7 @@ public class ThumbnailProcessor {
         }
     }
 
-    public synchronized void setThumbnail(PictureLabel p, int size) {
+    public void setThumbnail(PictureLabel p, int size) {
 
         for (Thumbnail t: loadedThumbnailList) {
             if (t.getPicture().equals(p.getPicture())) {

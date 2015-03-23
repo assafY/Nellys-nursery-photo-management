@@ -734,6 +734,7 @@ public class MainFrame extends JFrame {
 
 		zoomSlider.addMouseListener(zoomListener);
 
+
 		// adjust number of columns when window size changes
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -841,6 +842,7 @@ public class MainFrame extends JFrame {
 						pictureReloadThread.start();
 					} finally {
 						pictureReloadThread = null;
+                        System.gc();
 					}
 				}
 
