@@ -217,6 +217,16 @@ public class FullScreenPicturesFrame extends JInternalFrame {
                     e.printStackTrace();
                 }
                 resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
+
+                if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
+                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
+                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_90, null);
+                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                } else {
+                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
+                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_90, null);
+                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                }
 				resizeFullScreenPicture();
 			}
 		});
