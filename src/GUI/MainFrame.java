@@ -920,8 +920,20 @@ public class MainFrame extends JFrame {
                     }
                 };
                 sliderChangeThread.start();
+                int waitCounter = 0;
+                while (zoomInProgress) {
 
-                while (zoomInProgress) {}
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+
+                    } finally {
+                        if (waitCounter == 5) {
+                            break;
+                        }
+                        ++waitCounter;
+                    }
+                }
                 if (zoomSlider.getValue() > lastZoomSliderValue + 3) {
                     try {
                         Thread pictureReloadThread = new Thread() {
@@ -949,7 +961,9 @@ public class MainFrame extends JFrame {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				super.mouseReleased(e);
-				reZoom();
+                if (getZoomValue() != lastZoomSliderValue) {
+                    reZoom();
+                }
 			}
 		}
 
