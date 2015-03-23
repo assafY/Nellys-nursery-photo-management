@@ -777,6 +777,9 @@ public class MainFrame extends JFrame {
 
 				picturePanel.createThumbnailArray();
 				Library.importPicture(picturesToDisplay);
+                picturesToDisplay.clear();
+                picturesToDisplay = null;
+                System.gc();
 
 				refreshSearch();
 			}

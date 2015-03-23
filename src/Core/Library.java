@@ -104,48 +104,49 @@ public class Library implements Serializable {
         LAST_VISITED_VIRTUAL_DIR = newLastVirtualDir;
     }
 
-	/**
-	 *
-	 *
-	 * @param importedPictures
-	 *            ArrayList of all pictures being imported in this batch
-	 */
-	public static void importPicture(final ArrayList<Picture> importedPictures) {
+    /**
+     *
+     *
+     * @param importedPictures
+     *            ArrayList of all pictures being imported in this batch
+     */
+    public static void importPicture(final ArrayList<Picture> importedPictures) {
 
-		Settings.IMPORT_IN_PROGRESS = true;
+        Settings.IMPORT_IN_PROGRESS = true;
 
-		Thread thumbnailImport = new Thread() {
+        final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0)
+                .getPicturesPanel();
+        picturesPanel.revalidate();
+
+        Thread thumbnailImport = new Thread() {
 
 
-			public void run() {
-				Library.addRunningThread(this);
+            public void run() {
+                Library.addRunningThread(this);
                 ArrayList<PictureLabel> thumbnailsForImport = new ArrayList<PictureLabel>();
-				try {
-					if (importedPictures.size() > 0) {
-						for (Picture p : importedPictures) {
+                try {
+                    if (importedPictures.size() > 0) {
+                        for (Picture p : importedPictures) {
                             if (isInterrupted()) {
                                 break;
                             }
                             thumbnailsForImport.add(p.getPictureLabel());
                         }
-						new ThumbnailImportThread(thumbnailsForImport)
-									.start();
+                        new ThumbnailImportThread(thumbnailsForImport)
+                                .start();
 
-					}
-				} finally {
+                    }
+                } finally {
                     System.gc();
-					Library.removeRunningThread(this);
-                    MainFrame.getMainFrames().get(0)
-                            .getPicturesPanel().createThumbnailArray();
-					Settings.IMPORT_IN_PROGRESS = false;
-                    /*thumbnailsForImport.clear();
-                    thumbnailsForImport = null;*/
-                    System.gc();
-				}
-			}
-		};
-		thumbnailImport.start();
-	}
+                    Library.removeRunningThread(this);
+
+                    picturesPanel.createThumbnailArray();
+                    Settings.IMPORT_IN_PROGRESS = false;
+                }
+            }
+        };
+        thumbnailImport.start();
+    }
 
 	/**
 	 * Recursive method looking at all files inside a folder. Any folders found

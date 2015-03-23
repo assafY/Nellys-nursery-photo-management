@@ -2,6 +2,8 @@ package Core;
 
 import GUI.MainFrame;
 import GUI.PictureLabel;
+
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class ThumbnailImportThread extends Thread {
