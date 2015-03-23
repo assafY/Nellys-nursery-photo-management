@@ -41,8 +41,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
 	private String filePath;
-	private BufferedImage resizedPicture;
-	private BufferedImage updatedPicture;
 	private JButton rotateLeftButton;
 	private JButton rotateRightButton;
 	private JButton nextButton;
@@ -191,20 +189,22 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent arg0) {
                 try {
                     rotateActualPictureFile(true);
+                    Scalr.rotate(ImageIO.read(new File(filePath)), Scalr.Rotation.CW_270, null);
+                    BufferedImage updatedPicture = null;
+                    if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
+                        updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
+                        mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null), Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                    } else {
+                        updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
+                        mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null), Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                    }
+                    resizeFullScreenPicture();
+                    updatedPicture.flush();
+                    updatedPicture = null;
+                    System.gc();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
-                if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
-                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
-                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null);
-                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
-                } else {
-                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
-                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null);
-                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
-                }
-				resizeFullScreenPicture();
 			}
 		});
 		rotateRightButton.addActionListener(new ActionListener() {
@@ -213,21 +213,22 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 			public void actionPerformed(ActionEvent arg0) {
                 try {
                     rotateActualPictureFile(false);
+                    Scalr.rotate(ImageIO.read(new File(filePath)), Scalr.Rotation.CW_90, null);
+                    BufferedImage updatedPicture = null;
+                    if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
+                        updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
+                        mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(Scalr.rotate(updatedPicture, Scalr.Rotation.CW_90, null), Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                    } else {
+                        updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
+                        mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(Scalr.rotate(updatedPicture, Scalr.Rotation.CW_270, null), Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
+                    }
+                    resizeFullScreenPicture();
+                    updatedPicture.flush();
+                    updatedPicture = null;
+                    System.gc();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
-
-                if(mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail() != null) {
-                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getThumbnail();
-                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_90, null);
-                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
-                } else {
-                	updatedPicture = mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).getUpdatedThumb();
-                    updatedPicture = Scalr.rotate(updatedPicture, Scalr.Rotation.CW_90, null);
-                    mainFrame.getPicturesPanel().getThumbsOnDisplay().get(a).updateThumb(updatedPicture, Settings.THUMBNAIL_SIZES[mainFrame.getZoomValue()]);
-                }
-				resizeFullScreenPicture();
 			}
 		});
 		
