@@ -5,6 +5,7 @@ import static java.awt.Color.WHITE;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -206,12 +207,7 @@ public class PicturesFrame extends JPanel {
 		}
 	}
 
-    public void addThumbnailToView(PictureLabel currentThumb,
-                                    int zoomSize) {
-            currentThumb.showThumbnail(Settings.THUMBNAIL_SIZES[zoomSize], false);
-    }
-
-	public void keyAction(KeyEvent e, boolean shiftIsPressed, boolean controlIsPressed) {
+	public void keyAction(KeyEvent e, boolean shiftIsPressed, boolean controlIsPressed) throws ParseException {
 		this.shiftIsPressed = shiftIsPressed;
         this.controlIsPressed = controlIsPressed;
 		if (Library.getPictureLibrary().size() > 0 && !Settings.IMPORT_IN_PROGRESS) {
@@ -534,13 +530,21 @@ public class PicturesFrame extends JPanel {
                             removeSelectedThumb(p);
                             setMostRecentSelection(null);
                             refresh();
-                            createTagLabels();
+                            try {
+                                createTagLabels();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         }
                         else {
                             addSelectedThumb(p);
                             setMostRecentSelection(p);
                             refresh();
-                            createTagLabels();
+                            try {
+                                createTagLabels();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         }
                         p.toggleSelection();
                         p.setFirstDrag(false);
@@ -551,7 +555,11 @@ public class PicturesFrame extends JPanel {
                                 addSelectedThumb(p);
                                 setMostRecentSelection(p);
                                 refresh();
-                                createTagLabels();
+                                try {
+                                    createTagLabels();
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                                 p.toggleSelection();
                             }
                             p.setFirstDrag(false);
@@ -565,7 +573,11 @@ public class PicturesFrame extends JPanel {
                             removeSelectedThumb(p);
                             p.toggleSelection();
                             refresh();
-                            createTagLabels();
+                            try {
+                                createTagLabels();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -584,9 +596,13 @@ public class PicturesFrame extends JPanel {
         return mainFrame.isControlPressed();
     }
 
-	public void createTagLabels() {
-		mainFrame.createTagLabels();
-	}
+	public void createTagLabels() throws ParseException {
+        try {
+            mainFrame.createTagLabels();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public JPanel getCenterPanel() {
 		return mainFrame.getCenterPanel();

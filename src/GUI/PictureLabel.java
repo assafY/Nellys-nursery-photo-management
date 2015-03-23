@@ -9,6 +9,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.text.ParseException;
 import javax.swing.*;
 
 import Core.Library;
@@ -50,7 +51,6 @@ public class PictureLabel extends JLabel{
                     picture.getPictureLabel().getIcon().getIconHeight(),
                     BufferedImage.TYPE_INT_RGB);
             picture.getPictureLabel().getIcon().paintIcon(null, thumbnail.createGraphics(), 0, 0);
-            System.gc();
             return thumbnail;
         }
         return null;
@@ -59,8 +59,7 @@ public class PictureLabel extends JLabel{
     public void showThumbnail(int size, boolean readFromFile) {
 
         if (!readFromFile) {
-            BufferedImage thumbnail = null;
-            thumbnail = getThumbnail();
+            BufferedImage thumbnail = getThumbnail();
             if (thumbnail != null) {
                 currentSize = size;
                 if (thumbnail.getHeight() > thumbnail.getWidth()) {
@@ -93,15 +92,15 @@ public class PictureLabel extends JLabel{
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 58)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
                             break;
-                        case 288:
+                        case 260:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 72)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
                             break;
-                        case 377:
+                        case 290:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 94)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
                             break;
-                        case 545:
+                        case 320:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 136)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
                             break;
@@ -109,13 +108,13 @@ public class PictureLabel extends JLabel{
                 } else {
                     setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize)));
                 }
+                thumbnail.flush();
+                thumbnail = null;
+                System.gc();
             }
         }
         else {
-            Icon iconHolder = getIcon();
             Library.getThumbnailProcessor().setThumbnail(this, picturePanel.getMainFrame().getZoomValue());
-            iconHolder = null;
-            System.gc();
         }
 
     }
@@ -168,7 +167,7 @@ public class PictureLabel extends JLabel{
      * Only for use when selecting a different picture from the current selection.
      * Selects this picture as the only one selected
      */
-    public void setAsOnlySelection() {
+    public void setAsOnlySelection() throws ParseException {
     	
             picturePanel.removeAllSelectedThumbs();
             picturePanel.addSelectedThumb(PictureLabel.this);
@@ -198,7 +197,7 @@ public class PictureLabel extends JLabel{
         return firstDrag;
     }
     
-    public void setSelected() {
+    public void setSelected() throws ParseException {
     	if (picturePanel.isShiftPressed()) {
             picturePanel.shiftMouseClick(PictureLabel.this);
         }
@@ -225,7 +224,7 @@ public class PictureLabel extends JLabel{
         }
     }
     
-    public void openFullScreen() {
+    public void openFullScreen() throws ParseException {
     	PictureLabel.this.setAsOnlySelection();
     	frame = new FullScreenPicturesFrame(picture.getImagePath(), picturePanel.getMainFrame());
 		picturePanel.getCenterPanel().removeAll();
@@ -251,10 +250,18 @@ public class PictureLabel extends JLabel{
             }
             int clickCount = e.getClickCount();
             if (clickCount == 1) {
-            	setSelected();
+                try {
+                    setSelected();
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
             }
             else if (clickCount == 2) {
-            	openFullScreen();
+                try {
+                    openFullScreen();
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 

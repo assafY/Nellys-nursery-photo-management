@@ -2,16 +2,7 @@ package GUI;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -27,6 +18,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -64,7 +56,7 @@ import Data.Picture;
 import ch.rakudave.suggest.JSuggestField;
 
 public class MainFrame extends JFrame {
-	
+
 	// root panel declaration
 	private JPanel mainPanel;
 
@@ -107,7 +99,9 @@ public class MainFrame extends JFrame {
 	private JScrollPane picturePanelScrollPane;
 	private JPanel scrollPanel;
 	private JSlider zoomSlider;
-    private int lastZoomSliderValue;
+	private JButton zoomPlusButton;
+	private JButton zoomMinusButton;
+	private int lastZoomSliderValue;
 
 	// selection stuff
 	private boolean shiftIsPressed = false;
@@ -124,7 +118,6 @@ public class MainFrame extends JFrame {
     private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
     private boolean noPicturesFound = false;
     private boolean zoomInProgress = false;
-    private Thread pictureReloadThread = null;
 
 	/**
 	 * Constructor for the application
@@ -142,9 +135,9 @@ public class MainFrame extends JFrame {
 		mainPanel = new JPanel(new BorderLayout());
 
 		addSavedData();
-        startUpChecks();
-        loadTaggableComponents();
-        loadTagDeleteButton();
+		startUpChecks();
+		loadTaggableComponents();
+		loadTagDeleteButton();
 		createPanels();
 		addListeners();
 		createVirtualTree();
@@ -163,6 +156,8 @@ public class MainFrame extends JFrame {
 		if (Settings.PICTURE_HOME_DIR != null) {
 			Library.importFolder(Settings.PICTURE_HOME_DIR);
 		}
+
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 	}
 
 	/*
@@ -357,48 +352,32 @@ public class MainFrame extends JFrame {
 					5));
 			tabbedPane = new JTabbedPane();
 			buttonPanel = new JPanel();
-            try {
-			exportButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/exportButtonPNG.png"))));
-            optionsButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/optionsButtonPNG.png"))));
-			rotateLeftButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/rotateLeftPNG.png"))));
-			rotateRightButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/rotateRightPNG.png"))));
-			deleteButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/binButtonPNG.png"))));
-			printButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
-                    .getResource("/buttonIcons/printButtonPNG.png"))));
-            }
-            catch (IOException e) {
+			try {
+				exportButton = new JButton(
+						new ImageIcon(
+								ImageIO.read(MainFrame.class
+										.getResource("/buttonIcons/exportButtonPNG.png"))));
+				optionsButton = new JButton(
+						new ImageIcon(
+								ImageIO.read(MainFrame.class
+										.getResource("/buttonIcons/optionsButtonPNG.png"))));
+				rotateLeftButton = new JButton(
+						new ImageIcon(ImageIO.read(MainFrame.class
+								.getResource("/buttonIcons/rotateLeftPNG.png"))));
+				rotateRightButton = new JButton(
+						new ImageIcon(
+								ImageIO.read(MainFrame.class
+										.getResource("/buttonIcons/rotateRightPNG.png"))));
+				deleteButton = new JButton(new ImageIcon(
+						ImageIO.read(MainFrame.class
+								.getResource("/buttonIcons/binButtonPNG.png"))));
+				printButton = new JButton(
+						new ImageIcon(
+								ImageIO.read(MainFrame.class
+										.getResource("/buttonIcons/printButtonPNG.png"))));
+			} catch (IOException e) {
 
-            }
-			
-
-            if (Settings.PICTURE_HOME_DIR != null) {
-                fileSystemTree = new JTree(new SystemTreeModel(Settings.PICTURE_HOME_DIR));
-            }
-            else {
-                fileSystemTree = new JTree(new SystemTreeModel(FileSystemView.getFileSystemView().getHomeDirectory()));
-            }
-			fileSystemTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-            fileSystemTree.setExpandsSelectedPaths(true);
-            if (Settings.LAST_VISITED_PATH != null) {
-                fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
-            }
-            // use tree cell renderer to set tree node names
-            // to the folder name, rather than the whole path
-            fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
-                @Override
-                public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-                    super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-                    setText(value.toString().substring(value.toString().lastIndexOf(File.separator) + 1, value.toString().length()));
-                    return this;
-                }
-            });
-			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
-			
+			}
 
 			if (Settings.PICTURE_HOME_DIR != null) {
 				fileSystemTree = new JTree(new SystemTreeModel(
@@ -428,6 +407,37 @@ public class MainFrame extends JFrame {
 					return this;
 				}
 			});
+			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
+
+			if (Settings.PICTURE_HOME_DIR != null) {
+				fileSystemTree = new JTree(new SystemTreeModel(
+						Settings.PICTURE_HOME_DIR));
+			} else {
+				fileSystemTree = new JTree(new SystemTreeModel(FileSystemView
+						.getFileSystemView().getHomeDirectory()));
+			}
+			fileSystemTree.getSelectionModel().setSelectionMode(
+					TreeSelectionModel.SINGLE_TREE_SELECTION);
+			fileSystemTree.setExpandsSelectedPaths(true);
+			if (Settings.LAST_VISITED_PATH != null) {
+				fileSystemTree.setSelectionPath(Settings.LAST_VISITED_PATH);
+			}
+			// use tree cell renderer to set tree node names
+			// to the folder name, rather than the whole path
+			fileSystemTree.setCellRenderer(new DefaultTreeCellRenderer() {
+				@Override
+				public Component getTreeCellRendererComponent(JTree tree,
+						Object value, boolean selected, boolean expanded,
+						boolean leaf, int row, boolean hasFocus) {
+					super.getTreeCellRendererComponent(tree, value, selected,
+							expanded, leaf, row, hasFocus);
+					setText(value.toString().substring(
+							value.toString().lastIndexOf(File.separator) + 1,
+							value.toString().length()));
+					return this;
+				}
+			});
+			fileSystemTree.clearSelection();
 			fileSystemTreeScrollPane = new JScrollPane(fileSystemTree);
 
 			fileTreePanel.add(fileSystemTreeScrollPane, BorderLayout.CENTER);
@@ -482,9 +492,15 @@ public class MainFrame extends JFrame {
 					.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
 
 			zoomSlider = new JSlider(Adjustable.HORIZONTAL, 3, 9, 7);
-            lastZoomSliderValue = 7;
-			scrollPanel = new JPanel();
-			scrollPanel.add(zoomSlider);
+			zoomMinusButton = new JButton("-");
+			zoomPlusButton = new JButton("+");
+			lastZoomSliderValue = 7;
+			JPanel scrollPanelWrapper = new JPanel();
+			scrollPanel = new JPanel(new BorderLayout());
+			scrollPanelWrapper.add(scrollPanel);
+			scrollPanel.add(zoomSlider, BorderLayout.CENTER);
+			scrollPanel.add(zoomMinusButton, BorderLayout.WEST);
+			scrollPanel.add(zoomPlusButton, BorderLayout.EAST);
 
 			TitledBorder titledBorder = new TitledBorder(" ");
 			EmptyBorder emptyBorder = new EmptyBorder(7, 7, 1, 7);
@@ -494,7 +510,7 @@ public class MainFrame extends JFrame {
 			innerCenterPanel = new JPanel(new BorderLayout());
 			innerCenterPanel.setBorder(compoundBorder);
 			innerCenterPanel.add(picturePanelScrollPane, BorderLayout.CENTER);
-			innerCenterPanel.add(scrollPanel, BorderLayout.SOUTH);
+			innerCenterPanel.add(scrollPanelWrapper, BorderLayout.SOUTH);
 
 			centerPanel = new JPanel(new BorderLayout());
 			centerPanel.add(innerCenterPanel, BorderLayout.CENTER);
@@ -546,7 +562,6 @@ public class MainFrame extends JFrame {
 		allRadioButton.addActionListener(l.new RadioButtonListener());
         deleteButton.addActionListener(l.new DeleteButtonListener());
 
-
 		/*
 		 * listener for the search field - the drop down menu is supposed to
 		 * show up after one click sometimes it's coming up after 2 clicks tho,
@@ -578,18 +593,18 @@ public class MainFrame extends JFrame {
 		// fileTreePanel.setFocusTraversalKeysEnabled(false);
 		fileSystemTree.addKeyListener((l.new keyStrokes()));
 		fileSystemTree.setFocusTraversalKeysEnabled(false);
-		
+
 		/*
 		 * Open options frame.
 		 */
 		optionsButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				OptionsFrame optionsFrame = new OptionsFrame();
+				OptionsFrame optionsFrame = new OptionsFrame(MainFrame.this);
 				optionsFrame.setVisible(true);
 			}
 		});
-		
+
 		/*
 		 * Print pictures.
 		 */
@@ -598,7 +613,31 @@ public class MainFrame extends JFrame {
 				printPictures();
 			}
 		});
-		
+
+		optionsButton.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				searchField.requestFocus();
+			}
+		});
+
+		exportButton.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusLost(FocusEvent e) {
+			}
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				searchField.requestFocus();
+			}
+		});
+
 		/*
 		 * Export pictures in a selected directory.
 		 */
@@ -610,44 +649,159 @@ public class MainFrame extends JFrame {
 				int saveChoise = fileChooser.showSaveDialog(null);
 				int pictureCount = 0;
 				ArrayList<PictureLabel> nonSelectedPictures = new ArrayList<PictureLabel>();
-				if(saveChoise == JFileChooser.APPROVE_OPTION) {
-					for(int i = 0;i < picturePanel.getThumbsOnDisplay().size();i++) {
-						if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
+				if (saveChoise == JFileChooser.APPROVE_OPTION) {
+					for (int i = 0; i < picturePanel.getThumbsOnDisplay()
+							.size(); i++) {
+						if (picturePanel.getThumbsOnDisplay().get(i)
+								.isSelected()) {
 							try {
 								pictureCount++;
-								BufferedImage selectedImage = ImageIO.read(new File(picturePanel.getThumbsOnDisplay().get(i).getPicture().getImagePath()));
-								ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
+								BufferedImage selectedImage = ImageIO
+										.read(new File(picturePanel
+												.getThumbsOnDisplay().get(i)
+												.getPicture().getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(
+										fileChooser.getSelectedFile()
+												.getAbsolutePath()
+												+ "\\savedFile"
+												+ pictureCount
+												+ ".jpeg"));
 							} catch (IOException e1) {
-								// TODO Auto-generated catch block
 								e1.printStackTrace();
 							}
-						}
-						else {
-							nonSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i));
+						} else {
+							nonSelectedPictures.add(picturePanel
+									.getThumbsOnDisplay().get(i));
 						}
 					}
-					if(nonSelectedPictures.size() == picturePanel.getThumbsOnDisplay().size()) {
-						for(int i = 0;i < nonSelectedPictures.size();i++)
-						try {
-							pictureCount++;
-							BufferedImage selectedImage = ImageIO.read(new File(nonSelectedPictures.get(i).getPicture().getImagePath()));
-							ImageIO.write(selectedImage, "jpeg", new File(fileChooser.getSelectedFile().getAbsolutePath() + "\\savedFile" + pictureCount + ".jpeg"));
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+					if (nonSelectedPictures.size() == picturePanel
+							.getThumbsOnDisplay().size()) {
+						for (int i = 0; i < nonSelectedPictures.size(); i++)
+							try {
+								pictureCount++;
+								BufferedImage selectedImage = ImageIO
+										.read(new File(nonSelectedPictures
+												.get(i).getPicture()
+												.getImagePath()));
+								ImageIO.write(selectedImage, "jpeg", new File(
+										fileChooser.getSelectedFile()
+												.getAbsolutePath()
+												+ "\\savedFile"
+												+ pictureCount
+												+ ".jpeg"));
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
 					}
 				}
 			}
-			
+
 		});
 
-       zoomSlider.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                super.mouseReleased(e);
-                if (pictureReloadThread != null) {
-                    pictureReloadThread.interrupt();
+		final Listeners.ZoomListener zoomListener = l.new ZoomListener();
+
+		zoomMinusButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zoomSlider.setValue(zoomSlider.getValue() - 1);
+				zoomListener.reZoom();
+			}
+		});
+
+		zoomPlusButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				zoomSlider.setValue(zoomSlider.getValue() + 1);
+				zoomListener.reZoom();
+			}
+		});
+
+		zoomSlider.addMouseListener(zoomListener);
+
+
+		// adjust number of columns when window size changes
+		this.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentResized(ComponentEvent e) {
+				picturePanel.adjustColumnCount(zoomSlider.getValue());
+			}
+		});
+
+		fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
+
+				for (Thread t : Library.getRunningThreads()) {
+					if (t != null) {
+						t.interrupt();
+					}
+				}
+
+				Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
+				Settings.LAST_VISITED_DIR = (File) fileSystemTree
+						.getLastSelectedPathComponent();
+
+				if (Settings.LAST_VISITED_DIR == null) {
+					return;
+				}
+
+				ArrayList<Picture> picturesToDisplay = MainFrame.this
+						.getAllSubPictures(Settings.LAST_VISITED_DIR);
+
+				for (PictureLabel p : picturePanel.getThumbsOnDisplay()) {
+					p.setIcon(null);
+				}
+				Library.getThumbnailProcessor().removeAllThumbnails();
+
+				picturePanel.removeAll();
+				picturePanel.repaint();
+				picturePanel.removeAllThumbsFromDisplay();
+
+				for (Picture p : picturesToDisplay) {
+					picturePanel.addThumbToDisplay(p.getPictureLabel());
+				}
+
+				picturePanel.createThumbnailArray();
+				Library.importPicture(picturesToDisplay);
+                picturesToDisplay.clear();
+                picturesToDisplay = null;
+                System.gc();
+
+				refreshSearch();
+			}
+		});
+
+		tabbedPane.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (tabbedPane.getSelectedIndex() == 1) {
+					createVirtualTree();
+				} else if (tabbedPane.getSelectedIndex() == 0) {
+					fileSystemTree.clearSelection();
+				}
+			}
+		});
+	}
+
+	public void refreshThumbnailSize() {
+		for (PictureLabel currentThumbnail : picturePanel.getThumbsOnDisplay()) {
+			currentThumbnail.showThumbnail(
+					Settings.THUMBNAIL_SIZES[zoomSlider.getValue()], false);
+		}
+	}
+
+	private class Listeners {
+
+		class ZoomListener extends MouseAdapter {
+
+			public void reZoom() {
+
+                if (zoomInProgress) {
+                    for (Thread t: Library.getRunningThreads()) {
+                        if (t != null) {
+                            t.interrupt();
+                        }
+                    }
                 }
                 Thread sliderChangeThread = new Thread() {
                     public void run() {
@@ -663,97 +817,36 @@ public class MainFrame extends JFrame {
                 sliderChangeThread.start();
 
                 while (zoomInProgress) {}
-                if (zoomSlider.getValue() > lastZoomSliderValue) {
+                if (zoomSlider.getValue() > lastZoomSliderValue + 3) {
                     try {
-                        pictureReloadThread = new Thread() {
+                        Thread pictureReloadThread = new Thread() {
                             public void run() {
+                                Library.addRunningThread(this);
                                 for (PictureLabel currentThumbnail : picturePanel
                                         .getThumbsOnDisplay()) {
                                     if (isInterrupted()) {
                                         break;
                                     }
                                     currentThumbnail.showThumbnail(zoomSlider.getValue(), true);
+                                    System.gc();
                                 }
                             }
                         };
                         pictureReloadThread.start();
                     } finally {
-                        pictureReloadThread = null;
                     }
                 }
 
-
-                picturePanel.adjustColumnCount(zoomSlider
-                        .getValue());
-                lastZoomSliderValue = zoomSlider.getValue();
-            }
-        });
-
-		// adjust number of columns when window size changes
-		this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                picturePanel.adjustColumnCount(zoomSlider.getValue());
-            }
-        });
-
-        fileSystemTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-
-				for (Thread t : Library.getRunningThreads()) {
-					if (t != null) {
-						t.interrupt();
-					}
-				}
-
-				Settings.LAST_VISITED_PATH = e.getNewLeadSelectionPath();
-				Settings.LAST_VISITED_DIR = (File) fileSystemTree
-						.getLastSelectedPathComponent();
-
-                if (Settings.LAST_VISITED_DIR == null) {
-                    return;
-                }
-
-                ArrayList<Picture> picturesToDisplay = MainFrame.this.getAllSubPictures(Settings.LAST_VISITED_DIR);
-
-                for (PictureLabel p: picturePanel.getThumbsOnDisplay()) {
-                    p.setIcon(null);
-                }
-                Library.getThumbnailProcessor().removeAllThumbnails();
-
-                picturePanel.removeAll();
-                picturePanel.repaint();
-                picturePanel.removeAllThumbsFromDisplay();
-
-                for (Picture p: picturesToDisplay) {
-                    picturePanel.addThumbToDisplay(p.getPictureLabel());
-                }
-
-                picturePanel.createThumbnailArray();
-                Library.importPicture(picturesToDisplay);
-
+				picturePanel.adjustColumnCount(zoomSlider.getValue());
+				lastZoomSliderValue = zoomSlider.getValue();
 			}
-		});
 
-		tabbedPane.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-				if (tabbedPane.getSelectedIndex() == 1) {
-					createVirtualTree();
-				}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				super.mouseReleased(e);
+				reZoom();
 			}
-		});
-	}
-
-    public void refreshThumbnailSize() {
-        for (PictureLabel currentThumbnail : picturePanel
-                .getThumbsOnDisplay()) {
-            currentThumbnail
-                    .showThumbnail(Settings.THUMBNAIL_SIZES[zoomSlider
-                            .getValue()], false);
-        }
-    }
-
-	private class Listeners {
+		}
 
 		class NodeListener implements TreeSelectionListener {
 
@@ -785,7 +878,7 @@ public class MainFrame extends JFrame {
 					}
 					filterPictureLibrary(dateToFind);
 				}
-
+				refreshSearch();
 			}
 
 			private String getMonthAsNumber(String month) {
@@ -915,21 +1008,33 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_TAB) {
-
+					// TODO keystrokes marker
 					if (tagField.hasFocus() || tagPanel.hasFocus()) {
-						searchField.requestFocus();
+						picturePanel.requestFocus();
+						return;
 					}
 
 					if (picturePanel.hasFocus()) {
 						tagField.requestFocus();
+						return;
 					}
 
 					if (searchField.hasFocus()) {
-						picturePanel.requestFocus();
+						tabbedPane.requestFocus();
+						return;
 					}
 
-					if (fileSystemTree.hasFocus()) {
-						picturePanel.requestFocus();
+					if (tabbedPane.hasFocus()) {
+						searchField.requestFocus();
+						return;
+					}
+
+					if (tabbedPane.hasFocus() || fileSystemTree.hasFocus()
+							|| virtualTree.hasFocus()
+							|| virtualTreePanel.hasFocus()
+							|| virtualTreeScrollPane.hasFocus()) {
+						searchField.requestFocus();
+						return;
 					}
 
 					if (allRadioButton.hasFocus()
@@ -997,8 +1102,12 @@ public class MainFrame extends JFrame {
 							}
 						}
 					}
-					createTagLabels();
-				}
+                    try {
+                        createTagLabels();
+                    } catch (ParseException e1) {
+                        e1.printStackTrace();
+                    }
+                }
 				tagField.setText("");
 			}
 		}
@@ -1064,19 +1173,14 @@ public class MainFrame extends JFrame {
 				searchField.setText("");
 			}
 		}
-        /*
-        Delete button listener
-        works for both single/multiple selection
-        Sends the delete file/s to the Recycle Bin
-         */
         private class DeleteButtonListener implements ActionListener {
 
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ArrayList<Picture> picturesToDelete = picturePanel.getPicturesOnDisplay();
-
+             //   ArrayList<Picture> picturesToDelete = picturePanel.getPicturesOnDisplay();
+                ArrayList<Picture> picturesToDelete =  picturePanel.getPicturesOnDisplay();
 
                 int confirmDelete = JOptionPane.showConfirmDialog(null,
                         "Are you sure you want to delete the file(s)?", "Warning!",
@@ -1102,17 +1206,17 @@ public class MainFrame extends JFrame {
                                 //  getPicturesPanel().getThumbsOnDisplay().get(i).getPicture().getImageFile().delete();
                                 //  Library.delete(Library.getPictureLibrary().get(i).getPictureLabel().getPicture());
 
-                                ArrayList<Picture> updatedPictures =  picturePanel.getPicturesOnDisplay();
-                                updatedPictures.remove(getPicturesPanel().getPicturesOnDisplay().get(i));
+                          //      ArrayList<Picture> updatedPictures =  picturePanel.getPicturesOnDisplay();
+                                picturesToDelete.remove(getPicturesPanel().getPicturesOnDisplay().get(i));
                                 picturePanel.removeAllThumbsFromDisplay();
-                                for (Picture p: updatedPictures) {
+                                for (Picture p: picturesToDelete) {
                                     picturePanel.addThumbToDisplay(p.getPictureLabel());
                                 }
-                                Library.importPicture(updatedPictures);
+                                Library.importPicture(picturesToDelete);
                                 picturePanel.createThumbnailArray();
                                 repaint();
                                 revalidate();
-                                // picturePanel.refresh();
+                                picturePanel.refresh();
                                 // getPicturesPanel().getThumbsOnDisplay().get(i).getPicture().getImageFile().delete();
 
                             }
@@ -1188,7 +1292,67 @@ public class MainFrame extends JFrame {
 			@Override
 			public void keyReleased(KeyEvent e) {
 
-				picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
+                try {
+                    picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
+                } catch (ParseException e1) {
+                    e1.printStackTrace();
+                }
+
+                PictureLabel mrs = picturePanel.getMostRecentSelection();
+				int lagFix = 0;
+				if (e.getKeyCode() == KeyEvent.VK_DOWN
+						|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
+					lagFix = 10;
+				} else if (e.getKeyCode() == KeyEvent.VK_UP
+						|| e.getKeyCode() == KeyEvent.VK_LEFT) {
+					lagFix = -10;
+				}
+
+				int pictureHeight = mrs.getHeight();
+				int panelHeight = (int) picturePanel.getVisibleRect()
+						.getHeight();
+				int pictureY = mrs.getY();
+
+				int numberOfPics;
+				// if 30%of pic showing count as 1
+				if (((panelHeight / pictureHeight) * 100) % 100 > 30) {
+					numberOfPics = Math.round(panelHeight / pictureHeight);
+				} else {
+					numberOfPics = (int) Math
+							.floor(panelHeight / pictureHeight);
+				}
+
+				int pointY;
+
+				if (numberOfPics < 1) {
+					pointY = pictureY + lagFix;
+				} else if (numberOfPics == 1) {
+					pointY = pictureY - ((int) 0.3 * pictureHeight) + lagFix;
+					if (pointY < 0) {
+						pointY = 0;
+					}
+				} else {
+					pointY = pictureY - pictureHeight + lagFix;
+					if (pointY < 0) {
+						pointY = 0;
+					}
+				}
+
+				picturePanelScrollPane.revalidate();
+				Point point = new Point(mrs.getX(), pointY);
+				picturePanelScrollPane.getViewport().setViewPosition(point);
+				picturePanelScrollPane.repaint();
+
+				// TODO remove if happy
+				// if (!isInView(picturePanel.getMostRecentSelection(),
+				// picturePanel.getVisibleRect())) {
+				// picturePanelScrollPane.revalidate();
+				// picturePanelScrollPane.getViewport().setViewPosition(
+				// new Point(picturePanel.getMostRecentSelection()
+				// .getX(), picturePanel
+				// .getMostRecentSelection().getY()));
+				// picturePanelScrollPane.repaint();
+				// }
 			}
 		}
 	}
@@ -1403,6 +1567,7 @@ public class MainFrame extends JFrame {
 			}
 			Library.importPicture(allPictureSet);
 		}
+		searchLabelPanel.revalidate();
 	}
 
 	public void addSearchTag(Taggable t) {
@@ -1437,7 +1602,7 @@ public class MainFrame extends JFrame {
 		controlIsPressed = false;
 	}
 
-	public void createTagLabels() {
+	public void createTagLabels() throws ParseException {
 		storedTagsPanel.resetTagLabels();
 	}
 
@@ -1459,30 +1624,35 @@ public class MainFrame extends JFrame {
 		virtualTreePanel.add(virtualTreeScrollPane, BorderLayout.CENTER);
 		virtualTree.updateTreeModel();
 	}
-	
+
 	private void printPictures() {
 		PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
 		PrinterJob printJob = PrinterJob.getPrinterJob();
-		final ArrayList<Picture> allSelectedPictures = picturePanel.getSelectedPictures();
-        for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
-        	if(picturePanel.getThumbsOnDisplay().get(i).isSelected()){
-        		allSelectedPictures.add(picturePanel.getThumbsOnDisplay().get(i).getPicture());
-        	}
-        }
+		final ArrayList<Picture> allSelectedPictures = picturePanel
+				.getSelectedPictures();
+		for (int i = 0; i < picturePanel.getThumbsOnDisplay().size(); ++i) {
+			if (picturePanel.getThumbsOnDisplay().get(i).isSelected()) {
+				allSelectedPictures.add(picturePanel.getThumbsOnDisplay()
+						.get(i).getPicture());
+			}
+		}
 		printJob.setPrintable(new Printable() {
-			public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
+			public int print(Graphics graphics, PageFormat pageFormat,
+					int pageIndex) throws PrinterException {
 				System.out.println(allSelectedPictures.size());
-				if(pageIndex < (allSelectedPictures.size() / 2)) {
+				if (pageIndex < (allSelectedPictures.size() / 2)) {
 					try {
-						//System.out.println(pageIndex);
-						graphics.drawImage(ImageIO.read(new File(allSelectedPictures.get(pageIndex).getImagePath())),0,0, (int)pageFormat.getWidth(),(int)pageFormat.getHeight(), null);
+						// System.out.println(pageIndex);
+						graphics.drawImage(
+								ImageIO.read(new File(allSelectedPictures.get(
+										pageIndex).getImagePath())), 0, 0,
+								(int) pageFormat.getWidth(),
+								(int) pageFormat.getHeight(), null);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-               	 return PAGE_EXISTS;
-				}
-				else {
+					return PAGE_EXISTS;
+				} else {
 					return NO_SUCH_PAGE;
 				}
 			}
@@ -1495,7 +1665,7 @@ public class MainFrame extends JFrame {
 				e1.printStackTrace();
 			}
 	}
-	
+
 	/**
 	 * Automatically saves the picture library ArrayList, the taggable
 	 * components ArrayList, the Nursery Location and the Pictures home
@@ -1724,15 +1894,21 @@ public class MainFrame extends JFrame {
 	 */
 	private void getSavedPictureLibrary() {
 		try {
-			FileInputStream savedPictureLibraryFile = new FileInputStream("savedPictureLibrary.ser");
-			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(savedPictureLibraryFile);
-			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject.readObject();
+			FileInputStream savedPictureLibraryFile = new FileInputStream(
+					"savedPictureLibrary.ser");
+			FSTObjectInput restoredPictureLibraryObject = new FSTObjectInput(
+					savedPictureLibraryFile);
+			ArrayList<Picture> savedPictureLibraryData = (ArrayList<Picture>) restoredPictureLibraryObject
+					.readObject();
 			for (int i = 0; i < savedPictureLibraryData.size(); i++) {
-				File savedFile = new File(savedPictureLibraryData.get(i).getImagePath());
+				File savedFile = new File(savedPictureLibraryData.get(i)
+						.getImagePath());
 				if (savedFile.exists()) {
 					Picture recreatedPicture = new Picture(savedFile);
-					recreatedPicture.setTag(savedPictureLibraryData.get(i).getTag());
-					Library.getPictureLibrary().add(savedPictureLibraryData.get(i));
+					recreatedPicture.setTag(savedPictureLibraryData.get(i)
+							.getTag());
+					Library.getPictureLibrary().add(
+							savedPictureLibraryData.get(i));
 				}
 			}
 			restoredPictureLibraryObject.close();

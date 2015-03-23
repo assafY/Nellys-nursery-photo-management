@@ -50,8 +50,9 @@ public class Picture implements Serializable{
         }
         else { // use the date the file was created
             pictureTakenDate = new Date(attr.creationTime().toMillis());
+            System.out.println("Fuck you Windows, " + pictureTakenDate + " is a wrong date ");
             dateIsWrong();
-            metadata.setDate(null);
+           // metadata.setDate(null);
         }
     }
     public boolean dateIsWrong(){

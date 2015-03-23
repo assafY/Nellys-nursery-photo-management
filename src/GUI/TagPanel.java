@@ -108,7 +108,7 @@ public class TagPanel extends JPanel implements PropertyChangeListener {
      * selected thumbnail. It redraws all labels for a picture every time a
      * component is tagged or removed from the picture metadata.
      */
-    public void resetTagLabels() {
+    public void resetTagLabels() throws ParseException {
 
         removeTagLabels();
 
@@ -228,76 +228,106 @@ public class TagPanel extends JPanel implements PropertyChangeListener {
                     break;
                 }
             }
-            
-            // if all have same dates put the date in the field
-            if (date == null)
-                date = Library.getFormattedDate(date1);
+                // if all have same dates put the date in the field
+                if (date == null ) {
+                    date = Library.getFormattedDate(date1);
+                    dateTagPanel.add(new JLabel(date));
 
-            dateTagPanel.add(new JLabel(date));
-            for (int i = 0; i < selectedPictures.size(); ++i) {
-                //  for (int j = 0; j < dateTagPanel.getParent().getComponentCount(); ++j) {
-                //dateTagPanel.getParent().getComponent(j) instanceof JLabel
-                if (selectedPictures.get(i).dateIsWrong() == true && selectedPictures.get(i).getTag().getDate()==null) {
-                    try {
-                        addDateFieldListener();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                 //   ArrayList<Picture> picasToChange = mainFrame.getPicturesPanel().getSelectedPictures();
+                    for (int i = 0; i < selectedPictures.size(); ++i) {
+                        //  for (int j = 0; j < dateTagPanel.getParent().getComponentCount(); ++j) {
+                        //dateTagPanel.getParent().getComponent(j) instanceof JLabel
+                        if (selectedPictures.get(i).dateIsWrong() == true && selectedPictures.get(i).getTag().getDate() == null) {
+                            addDateField();
+                        }
+                    }
+                        }
                     }
                 }
-            }
-        }
-    }
 
 
+    /*  public Date getDate() throws ParseException
+      {
+          return format.parse((String) dateTextField.getValue());
+      }
+  */
+    public void addDateField() throws ParseException {
 
-    /*
-    If the 'date created' is missing, the dateTextField becomes editable
-    and one can add a date tag manually
-
-    Far away from perfect, more work in the pipeline
-     */
-    public void addDateFieldListener() throws ParseException {
-
-        // TODO: make date panel editable if date does not exist or needs to be changed
-      /*  for(int j = 0; j<dateTagPanel.getParent().getComponentCount(); ++j) {
-            if (dateTagPanel.getParent().getComponent(j) instanceof JLabel) {
-                JLabel dateLabel = (JLabel) dateTagPanel.getParent().getComponent(j);
-                String dateText = dateLabel.getText();
-                System.out.println("bjjjjjj" + dateText);
-            }*/
-        //   TODO: add MaskFormatter
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         dateTextField = new JFormattedTextField(format);
         dateTextField.setColumns(8);
         dateTextField.setEditable(true);
-        dateTagPanel.add(dateTextField);
-        dateTextField.addPropertyChangeListener(this);
-    }
+        dateTextField.setFocusable(true);
+        dateTextField.setEnabled(true);
 
-    public void propertyChange(PropertyChangeEvent e){
+     /*   MaskFormatter mf = new MaskFormatter(MASKFORMAT);
+        mf.setValidCharacters("0123456789");
+        mf.setPlaceholderCharacter('_');
+        DefaultFormatterFactory dff = new DefaultFormatterFactory(mf);
+        dateTextField.setFormatterFactory(dff);
+*/
+      /*  deleteButton = new JLabel();
+        deleteButton.setIcon(new ImageIcon(Library.DELETE_BUTTON));
+        dateTextField.setLayout(new BorderLayout());
+        dateTextField.setBorder(BorderFactory.createLineBorder(Color.black));
+        dateTextField.add(deleteButton, BorderLayout.EAST);*/
 
-        ArrayList<Picture> selectedP = mainFrame.getPicturesPanel().getSelectedPictures();
-        // ArrayList<Date> manuallyCreatedDates = new ArrayList<Date>();
-        Object source = e.getSource();
-        if(source == dateTextField) {
-            Date newDate = (Date) dateTextField.getValue();
-            dateTextField.setValue(newDate);
-            System.out.println("New date tag field value: " + dateTextField.getValue().toString());
-
-            for(Picture p: selectedP){
-                Date taggedDate = (Date)dateTextField.getValue();
-                p.getTag().setDate(taggedDate);
-                //    manuallyCreatedDates.add(taggedDate);
-                System.out.println("New picture date tag  " + p.getTag().getDate());;
+  /*      deleteButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                dateTagPanel.remove(dateTextField);
+                dateTagPanel.revalidate();
             }
+        });*/
+
+        dateTagPanel.add(dateTextField);
+    //    dateTextField.addPropertyChangeListener(this);
+        dateTextField.addPropertyChangeListener("value", this);
+       /* PropertyChangeListener l = new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String text = evt.getNewValue() != null ? evt.getNewValue().toString() : "";
+                label.setText(evt.getNewValue());
+            }
+        };*/
+    }
+
+    /*
+     PropertyChangeListener l = new PropertyChangeListener() {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            String text = evt.getNewValue() != null ? evt.getNewValue().toString() : "";
+            label.setText(evt.getNewValue());
         }
-    }
+    };
+    formattedTextField.addPropertyChangeListener("value", l);
+     */
 
-    private boolean newDateTag(){
-        return true;
-    }
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            ArrayList<Picture> selectedP = mainFrame.getPicturesPanel().getSelectedPictures();
+            // ArrayList<Date> manuallyCreatedDates = new ArrayList<Date>();
+            Object source = evt.getSource();
+            if (source == dateTextField) {
+                newDate = (Date) dateTextField.getValue();
+                dateTextField.setValue(newDate);
+                System.out.println("New date tag field value: " + dateTextField.getValue().toString());
 
-    /**
+                for (Picture p : selectedP) {
+                    Date taggedDate = (Date) dateTextField.getValue();
+                    p.getTag().setDate(taggedDate);
+                    //manuallyCreatedDates.add(taggedDate);
+                    System.out.println("New picture date tag  " + p.getTag().getDate());
+                }
+            }
+          //  dateTextField.setValue(newDate);
+        }
+
+
+        /**
      * tag labels created when tags are displayed in the tag panel
      */
     public static class TagTextLabel extends JPanel {
@@ -362,7 +392,11 @@ public class TagPanel extends JPanel implements PropertyChangeListener {
                             if (p.getTag().getTaggedComponents().contains(taggableItem)) {
                                 p.getTag().removeTag(taggableItem);
                                 taggableItem.removeTaggedPicture(p);
-                                mainFrame.createTagLabels();
+                                try {
+                                    mainFrame.createTagLabels();
+                                } catch (ParseException e1) {
+                                    e1.printStackTrace();
+                                }
                             }
                         }
                     }
