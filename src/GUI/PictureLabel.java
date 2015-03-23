@@ -59,8 +59,7 @@ public class PictureLabel extends JLabel{
     public void showThumbnail(int size, boolean readFromFile) {
 
         if (!readFromFile) {
-            BufferedImage thumbnail = null;
-            thumbnail = getThumbnail();
+            BufferedImage thumbnail = getThumbnail();
             if (thumbnail != null) {
                 currentSize = size;
                 if (thumbnail.getHeight() > thumbnail.getWidth()) {
@@ -109,13 +108,13 @@ public class PictureLabel extends JLabel{
                 } else {
                     setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize)));
                 }
+                thumbnail.flush();
+                thumbnail = null;
+                System.gc();
             }
         }
         else {
-            Icon iconHolder = getIcon();
             Library.getThumbnailProcessor().setThumbnail(this, picturePanel.getMainFrame().getZoomValue());
-            iconHolder = null;
-            System.gc();
         }
 
     }

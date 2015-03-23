@@ -45,7 +45,9 @@ public class ThumbnailProcessor {
 
     public void removeAllThumbnails() {
         for (Thumbnail t: loadedThumbnailList) {
-            t.getPicture().getPictureLabel().setIcon(null);
+            if (t != null) {
+                t.getPicture().getPictureLabel().setIcon(null);
+            }
         }
         loadedThumbnailList.clear();
         System.gc();

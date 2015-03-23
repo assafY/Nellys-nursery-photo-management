@@ -114,10 +114,6 @@ public class Library implements Serializable {
 
 		Settings.IMPORT_IN_PROGRESS = true;
 
-		final PicturesFrame picturesPanel = MainFrame.getMainFrames().get(0)
-				.getPicturesPanel();
-		picturesPanel.revalidate();
-
 		Thread thumbnailImport = new Thread() {
 
 
@@ -139,8 +135,12 @@ public class Library implements Serializable {
 					}
 				} finally {
 					Library.removeRunningThread(this);
-					picturesPanel.createThumbnailArray();
+                    MainFrame.getMainFrames().get(0)
+                            .getPicturesPanel().createThumbnailArray();
 					Settings.IMPORT_IN_PROGRESS = false;
+                    /*thumbnailsForImport.clear();
+                    thumbnailsForImport = null;*/
+                    System.gc();
 				}
 			}
 		};
