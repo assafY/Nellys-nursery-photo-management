@@ -639,7 +639,7 @@ public class MainFrame extends JFrame {
 				searchField.requestFocus();
 			}
 		});
-		
+
 		exportButton.addFocusListener(new FocusListener() {
 
 			@Override
@@ -1244,11 +1244,62 @@ public class MainFrame extends JFrame {
 			public void keyReleased(KeyEvent e) {
 
 				picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
-                if (!isInView(picturePanel.getMostRecentSelection(), picturePanel.getVisibleRect())) {
-                    picturePanelScrollPane.revalidate();
-                    picturePanelScrollPane.getViewport().setViewPosition(new Point(picturePanel.getMostRecentSelection().getX(), picturePanel.getMostRecentSelection().getY()));
-                    picturePanelScrollPane.repaint();
-                }
+
+				PictureLabel mrs = picturePanel.getMostRecentSelection();
+				int lagFix = 0;
+				if (e.getKeyCode() == KeyEvent.VK_DOWN
+						|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
+					lagFix = 10;
+				} else if (e.getKeyCode() == KeyEvent.VK_UP
+						|| e.getKeyCode() == KeyEvent.VK_LEFT) {
+					lagFix = -10;
+				}
+
+				int pictureHeight = mrs.getHeight();
+				int panelHeight = (int) picturePanel.getVisibleRect()
+						.getHeight();
+				int pictureY = mrs.getY();
+
+				int numberOfPics;
+				// if 30%of pic showing count as 1
+				if (((panelHeight / pictureHeight) * 100) % 100 > 30) {
+					numberOfPics = Math.round(panelHeight / pictureHeight);
+				} else {
+					numberOfPics = (int) Math
+							.floor(panelHeight / pictureHeight);
+				}
+
+				int pointY;
+
+				if (numberOfPics < 1) {
+					pointY = pictureY + lagFix;
+				} else if (numberOfPics == 1) {
+					pointY = pictureY - ((int) 0.3 * pictureHeight) + lagFix;
+					if (pointY < 0) {
+						pointY = 0;
+					}
+				} else {
+					pointY = pictureY - pictureHeight + lagFix;
+					if (pointY < 0) {
+						pointY = 0;
+					}
+				}
+
+				picturePanelScrollPane.revalidate();
+				Point point = new Point(mrs.getX(), pointY);
+				picturePanelScrollPane.getViewport().setViewPosition(point);
+				picturePanelScrollPane.repaint();
+
+				// TODO remove if happy
+				// if (!isInView(picturePanel.getMostRecentSelection(),
+				// picturePanel.getVisibleRect())) {
+				// picturePanelScrollPane.revalidate();
+				// picturePanelScrollPane.getViewport().setViewPosition(
+				// new Point(picturePanel.getMostRecentSelection()
+				// .getX(), picturePanel
+				// .getMostRecentSelection().getY()));
+				// picturePanelScrollPane.repaint();
+				// }
 			}
 		}
 	}
