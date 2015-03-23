@@ -60,7 +60,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         MainFrame.optionsButton.setEnabled(false);
         MainFrame.exportButton.setEnabled(false);
         MainFrame.printButton.setEnabled(false);
-        MainFrame.deleteButton.setEnabled(false);
 
 		//getPicture();
         getThePictureIndex();
@@ -182,7 +181,6 @@ public class FullScreenPicturesFrame extends JInternalFrame {
                 MainFrame.optionsButton.setEnabled(true);
                 MainFrame.exportButton.setEnabled(true);
                 MainFrame.printButton.setEnabled(true);
-                MainFrame.deleteButton.setEnabled(true);
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				mainFrame.getPicturesPanel().requestFocus();
 			}
