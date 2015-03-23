@@ -2,16 +2,7 @@ package GUI;
 
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
 
-import java.awt.Adjustable;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -1253,6 +1244,11 @@ public class MainFrame extends JFrame {
 			public void keyReleased(KeyEvent e) {
 
 				picturePanel.keyAction(e, shiftIsPressed, controlIsPressed);
+                if (!isInView(picturePanel.getMostRecentSelection(), picturePanel.getVisibleRect())) {
+                    picturePanelScrollPane.revalidate();
+                    picturePanelScrollPane.getViewport().setViewPosition(new Point(picturePanel.getMostRecentSelection().getX(), picturePanel.getMostRecentSelection().getY()));
+                    picturePanelScrollPane.repaint();
+                }
 			}
 		}
 	}
