@@ -99,12 +99,12 @@ public class MainFrame extends JFrame {
 	private JPanel buttonPanel;
 	private JPanel fileTreePanel;
 	private JPanel virtualTreePanel;
-	private JButton exportButton;
-	private JButton optionsButton;
+    public static JButton exportButton;
+    public static JButton optionsButton;
 	public static JButton rotateLeftButton;
 	public static JButton rotateRightButton;
-	private JButton deleteButton;
-	private JButton printButton;
+    public static JButton deleteButton;
+    public static JButton printButton;
 	private JTabbedPane tabbedPane;
 	private JTree fileSystemTree;
 	private VirtualTree virtualTree;

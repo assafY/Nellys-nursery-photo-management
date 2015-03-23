@@ -57,6 +57,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         mainFrame.getSearchField().setFocusable(false);
         MainFrame.rotateLeftButton.setEnabled(false);
         MainFrame.rotateRightButton.setEnabled(false);
+        MainFrame.optionsButton.setEnabled(false);
+        MainFrame.exportButton.setEnabled(false);
+        MainFrame.printButton.setEnabled(false);
+        MainFrame.deleteButton.setEnabled(false);
 
 		//getPicture();
         getThePictureIndex();
@@ -175,6 +179,10 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 				System.gc();
                 MainFrame.rotateLeftButton.setEnabled(true);
                 MainFrame.rotateRightButton.setEnabled(true);
+                MainFrame.optionsButton.setEnabled(true);
+                MainFrame.exportButton.setEnabled(true);
+                MainFrame.printButton.setEnabled(true);
+                MainFrame.deleteButton.setEnabled(true);
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				mainFrame.getPicturesPanel().requestFocus();
 			}
