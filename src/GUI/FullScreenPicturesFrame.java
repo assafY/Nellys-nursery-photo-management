@@ -59,7 +59,15 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         MainFrame.rotateRightButton.setEnabled(false);
         MainFrame.optionsButton.setEnabled(false);
         MainFrame.exportButton.setEnabled(false);
+        MainFrame.deleteButton.setEnabled(false);
         MainFrame.printButton.setEnabled(false);
+        if (MainFrame.tabbedPane.getSelectedIndex() == 0) {
+            MainFrame.fileSystemTree.setEnabled(false);
+        }
+        else {
+            MainFrame.virtualTree.setEnabled(false);
+        }
+        MainFrame.tabbedPane.setEnabled(false);
 
 		//getPicture();
         getThePictureIndex();
@@ -181,6 +189,14 @@ public class FullScreenPicturesFrame extends JInternalFrame {
                 MainFrame.optionsButton.setEnabled(true);
                 MainFrame.exportButton.setEnabled(true);
                 MainFrame.printButton.setEnabled(true);
+                MainFrame.deleteButton.setEnabled(true);
+                MainFrame.tabbedPane.setEnabled(true);
+                if (MainFrame.tabbedPane.getSelectedIndex() == 0) {
+                    MainFrame.fileSystemTree.setEnabled(true);
+                }
+                else {
+                    MainFrame.virtualTree.setEnabled(true);
+                }
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				mainFrame.getPicturesPanel().requestFocus();
 			}
