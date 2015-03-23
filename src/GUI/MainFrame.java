@@ -129,10 +129,9 @@ public class MainFrame extends JFrame {
 
 	private static ArrayList<MainFrame> frames = new ArrayList<MainFrame>();
 
-	private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
-	private boolean noPicturesFound = false;
-	private boolean zoomInProgress = false;
-	private Thread pictureReloadThread = null;
+    private Font biggerFont = new Font("Georgia", Font.PLAIN, 16);
+    private boolean noPicturesFound = false;
+    private boolean zoomInProgress = false;
 
 	/**
 	 * Constructor for the application
@@ -734,6 +733,7 @@ public class MainFrame extends JFrame {
 
 		zoomSlider.addMouseListener(zoomListener);
 
+
 		// adjust number of columns when window size changes
 		this.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -777,6 +777,9 @@ public class MainFrame extends JFrame {
 
 				picturePanel.createThumbnailArray();
 				Library.importPicture(picturesToDisplay);
+                picturesToDisplay.clear();
+                picturesToDisplay = null;
+                System.gc();
 
 				refreshSearch();
 			}
@@ -806,43 +809,46 @@ public class MainFrame extends JFrame {
 
 			public void reZoom() {
 
-				if (pictureReloadThread != null) {
-					pictureReloadThread.interrupt();
-				}
-				Thread sliderChangeThread = new Thread() {
-					public void run() {
-						try {
-							zoomInProgress = true;
-							refreshThumbnailSize();
+                if (zoomInProgress) {
+                    for (Thread t: Library.getRunningThreads()) {
+                        if (t != null) {
+                            t.interrupt();
+                        }
+                    }
+                }
+                Thread sliderChangeThread = new Thread() {
+                    public void run() {
+                        try {
+                            zoomInProgress = true;
+                            refreshThumbnailSize();
 
-						} finally {
-							zoomInProgress = false;
-						}
-					}
-				};
-				sliderChangeThread.start();
+                        } finally {
+                            zoomInProgress = false;
+                        }
+                    }
+                };
+                sliderChangeThread.start();
 
-				while (zoomInProgress) {
-				}
-				if (zoomSlider.getValue() > lastZoomSliderValue) {
-					try {
-						pictureReloadThread = new Thread() {
-							public void run() {
-								for (PictureLabel currentThumbnail : picturePanel
-										.getThumbsOnDisplay()) {
-									if (isInterrupted()) {
-										break;
-									}
-									currentThumbnail.showThumbnail(
-											zoomSlider.getValue(), true);
-								}
-							}
-						};
-						pictureReloadThread.start();
-					} finally {
-						pictureReloadThread = null;
-					}
-				}
+                while (zoomInProgress) {}
+                if (zoomSlider.getValue() > lastZoomSliderValue + 3) {
+                    try {
+                        Thread pictureReloadThread = new Thread() {
+                            public void run() {
+                                Library.addRunningThread(this);
+                                for (PictureLabel currentThumbnail : picturePanel
+                                        .getThumbsOnDisplay()) {
+                                    if (isInterrupted()) {
+                                        break;
+                                    }
+                                    currentThumbnail.showThumbnail(zoomSlider.getValue(), true);
+                                    System.gc();
+                                }
+                            }
+                        };
+                        pictureReloadThread.start();
+                    } finally {
+                    }
+                }
 
 				picturePanel.adjustColumnCount(zoomSlider.getValue());
 				lastZoomSliderValue = zoomSlider.getValue();

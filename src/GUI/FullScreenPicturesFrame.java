@@ -12,6 +12,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.*;
+import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 import javax.swing.event.InternalFrameListener;
 
@@ -31,8 +32,9 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 	private JLabel fullScreenPicture;
 	private String filePath;
-	private BufferedImage resizedPicture;
-	private BufferedImage actualPicture;
+	//private BufferedImage resizedPicture;
+	//private BufferedImage actualPicture;
+    private boolean isHorizontal;
 	private JButton rotateLeftButton;
 	private JButton rotateRightButton;
 	private JButton nextButton;
@@ -48,7 +50,7 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 		this.filePath = filePath;
         mainFrame.getSearchField().setFocusable(false);
 
-		getPicture();
+		//getPicture();
         getThePictureIndex();
 		createLabel();
 		createButtons();
@@ -64,21 +66,21 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	/**
 	 * Creates the thumbnail from the filepath that is passed.
 	 */
-	private void getPicture() {
+	/*private void getPicture() {
 		try {
 			actualPicture = ImageIO.read(new File(filePath));
 			resizedPicture = actualPicture;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (resizedPicture != null) {
+		if (ImageIO.read(new File(filePath)) != null) {
 			if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
 				resizedPicture = Scalr.resize(resizedPicture, 560);
 			} else {
                 resizedPicture = Scalr.resize(resizedPicture, 800);
 			}
 		}
-	}
+	}*/
 
     private void getThePictureIndex() {
         for(int i = 0; i < mainFrame.getPicturesPanel().getThumbsOnDisplay().size(); i++) {
@@ -93,7 +95,22 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 */
 	private void createLabel() {
 		fullScreenPicture = new JLabel();
-		fullScreenPicture.setIcon(new ImageIcon(resizedPicture));
+        try {
+            BufferedImage currentImage = ImageIO.read(new File(filePath));
+            if (currentImage != null) {
+                if (currentImage.getHeight() > currentImage.getWidth()) {
+                    fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(currentImage, 560)));
+                }
+                else {
+                    fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(currentImage, 800)));
+                }
+                currentImage.flush();
+                currentImage = null;
+                System.gc();
+            }
+        } catch (IOException e) {
+
+        }
 		fullScreenPicture.setHorizontalAlignment(JLabel.CENTER);
 		fullScreenPicture.setVerticalAlignment(JLabel.CENTER);
 	}
@@ -102,10 +119,18 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Creates all the buttons.
 	 */
 	private void createButtons() {
-		rotateLeftButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateLeftPNG.png"));
-		rotateRightButton = new JButton(new ImageIcon("res\\buttonIcons\\rotateRightPNG.png"));
-		previousButton = new JButton(new ImageIcon("res\\buttonIcons\\previousButtonPNG.png"));
-		nextButton = new JButton(new ImageIcon("res\\buttonIcons\\nextButtonPNG.png"));
+        try {
+            rotateLeftButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/rotateLeftPNG.png"))));
+            rotateRightButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                                        .getResource("/buttonIcons/rotateRightPNG.png"))));
+            previousButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/previousButtonPNG.png"))));
+            nextButton = new JButton(new ImageIcon(ImageIO.read(MainFrame.class
+                    .getResource("/buttonIcons/nextButtonPNG.png"))));
+        } catch (IOException e) {
+
+        }
 	}
 	
 	/**
@@ -135,28 +160,13 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Returns back to the list of imported pictures when the inner frame is closed.
 	 */
 	private void onClose() {
-		this.addInternalFrameListener(new InternalFrameListener() {
-			public void internalFrameOpened(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameIconified(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameDeiconified(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameDeactivated(InternalFrameEvent arg0) {
-			}
-
-			public void internalFrameClosing(InternalFrameEvent arg0) {
-			}
+		this.addInternalFrameListener(new InternalFrameAdapter() {
 
 			public void internalFrameClosed(InternalFrameEvent arg0) {
-				resizedPicture = null;
-				actualPicture = null;
+                fullScreenPicture.setIcon(null);
+				System.gc();
 				mainFrame.getCenterPanel().add(mainFrame.getInnerCenterPanel(), BorderLayout.CENTER);
 				mainFrame.getPicturesPanel().requestFocus();
-				System.out.println("closed");
 			}
 
 			public void internalFrameActivated(InternalFrameEvent arg0) {
@@ -171,13 +181,11 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	private void createListeners() {
 		rotateLeftButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_270, null);
                 try {
-                    rotateActualPictureFile();
+                    rotateActualPictureFile(true);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_270, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -185,13 +193,11 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				actualPicture = Scalr.rotate(actualPicture, Scalr.Rotation.CW_90, null);
                 try {
-                    rotateActualPictureFile();
+                    rotateActualPictureFile(false);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                resizedPicture = Scalr.rotate(resizedPicture, Scalr.Rotation.CW_90, null);
 				resizeFullScreenPicture();
 			}
 		});
@@ -270,24 +276,18 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Gets the previous and next thumbnails from the picture library.
 	 */
 	private void getPreviousAndNextPicture() {
-        Picture currentPicture = mainFrame.getPicturesPanel().getPicturesOnDisplay().get(a);
-		try {
-			resizedPicture = ImageIO.read(new File(currentPicture.getImagePath()));
-		} catch (IOException e1) {
-            //TODO: Handle exception
-			e1.printStackTrace();
-		}
+        fullScreenPicture.setIcon(null);
 		// moves index in the background to the new picture
-		PictureLabel currentPictureLabel = currentPicture.getPictureLabel();
+		PictureLabel currentPictureLabel = mainFrame.getPicturesPanel().getPicturesOnDisplay().get(a).getPictureLabel();
 		currentPictureLabel.setAsOnlySelection();
 		// --- end of move
-		filePath = currentPicture.getImagePath();
-		try {
+		filePath = currentPictureLabel.getPicture().getImagePath();
+		/*try {
 			actualPicture = ImageIO.read(new File(filePath));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		resizeFullScreenPicture();
 	}
 	
@@ -295,19 +295,30 @@ public class FullScreenPicturesFrame extends JInternalFrame {
 	 * Resizes the thumbnails.
 	 */
 	private void resizeFullScreenPicture() {
-		if (resizedPicture.getHeight() > resizedPicture.getWidth()) {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 560)));
-		} else {
-			fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(resizedPicture, 800)));
-		}
-		mainPanel.revalidate();
-		mainPanel.repaint();
+        try {
+
+            BufferedImage currentImage = ImageIO.read(new File(filePath));
+            if (currentImage.getHeight() > currentImage.getWidth()) {
+                fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(currentImage, 560)));
+            } else {
+                fullScreenPicture.setIcon(new ImageIcon(Scalr.resize(currentImage, 800)));
+            }
+            currentImage.flush();
+            currentImage = null;
+        } catch (IOException e) {
+
+        } finally {
+            System.gc();
+            mainPanel.revalidate();
+            mainPanel.repaint();
+        }
 	}
 	
 	/*
 	 * Rotates the actual picture file.
 	 */
-	private void rotateActualPictureFile() throws IOException {
+	private void rotateActualPictureFile(boolean rotateLeft) throws IOException {
+        BufferedImage currentImage = ImageIO.read(new File(filePath));
         Iterator writersBySuffix = ImageIO.getImageWritersBySuffix("jpeg");
         if(!writersBySuffix.hasNext()){
             throw new IllegalStateException("No writers");
@@ -317,9 +328,17 @@ public class FullScreenPicturesFrame extends JInternalFrame {
         imageWriteParam.setCompressionMode(ImageWriteParam.MODE_COPY_FROM_METADATA);
         ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(filePath));
         writer.setOutput(imageOutputStream);
-        writer.write(null, new IIOImage(actualPicture, null, null), imageWriteParam);
+        if (rotateLeft) {
+            writer.write(null, new IIOImage(Scalr.rotate(currentImage, Scalr.Rotation.CW_270, null), null, null), imageWriteParam);
+        }
+        else {
+            writer.write(null, new IIOImage(Scalr.rotate(currentImage, Scalr.Rotation.CW_90, null), null, null), imageWriteParam);
+        }
         imageOutputStream.close();
         writer.dispose();
+        currentImage.flush();
+        currentImage = null;
+        System.gc();
 	}
 	
 	/*

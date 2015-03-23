@@ -50,7 +50,6 @@ public class PictureLabel extends JLabel{
                     picture.getPictureLabel().getIcon().getIconHeight(),
                     BufferedImage.TYPE_INT_RGB);
             picture.getPictureLabel().getIcon().paintIcon(null, thumbnail.createGraphics(), 0, 0);
-            System.gc();
             return thumbnail;
         }
         return null;
@@ -92,15 +91,15 @@ public class PictureLabel extends JLabel{
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 58)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 49, 0, 0));
                             break;
-                        case 288:
+                        case 260:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 72)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 60, 0, 0));
                             break;
-                        case 377:
+                        case 290:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 94)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 78, 0, 0));
                             break;
-                        case 545:
+                        case 320:
                             setIcon(new ImageIcon(Scalr.resize(thumbnail, Scalr.Method.BALANCED, currentSize - 136)));
                             this.setBorder(BorderFactory.createEmptyBorder(0, 114, 0, 0));
                             break;
